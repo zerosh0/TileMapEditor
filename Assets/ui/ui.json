@@ -1,0 +1,100 @@
+[
+    {
+        "type": "Button",
+        "rect": [20, 0, 60, 30],
+        "text": "Save",
+        "action": "save",
+        "bg_color": [36, 43, 59],
+        "size": 25
+    },
+    {
+        "type": "Button",
+        "rect": [80, 0, 60, 30],
+        "text": "Open",
+        "action": "open",
+        "bg_color": [36, 43, 59],
+        "size": 25
+    },
+    {
+        "type": "Button",
+        "rect": [140, 0, 60, 30],
+        "text": "Load",
+        "action": "load",
+        "bg_color": [36, 43, 59],
+        "size": 25
+    },
+    {
+        "type": "Button",
+        "rect": [200, 0, 60, 30],
+        "text": "Play",
+        "action": "play",
+        "bg_color": [36, 43, 59],
+        "size": 25
+    },
+    {
+        "type": "ImageButton",
+        "rect": [800, 260, 30, 30],
+        "image": "./Assets/ui/icones/rubber.png",
+        "action": "rubber"
+    },
+    {
+        "type": "ImageButton",
+        "rect": [840, 260, 30, 30],
+        "image": "./Assets/ui/icones/selection.png",
+        "action": "selection"
+    },
+    {
+        "type": "ImageButton",
+        "rect": [880, 260, 30, 30],
+        "image": "./Assets/ui/icones/fill.png",
+        "action": "fill"
+    },
+    {
+        "type": "ImageButton",
+        "rect": [920, 260, 30, 30],
+        "image": "./Assets/ui/icones/random.png",
+        "action": "random"
+    },
+    {
+        "type": "ImageButton",
+        "rect": [795, 305, 30, 30],
+        "image": "./Assets/ui/icones/flip_vertical.png",
+        "action": "flip_horizontal"
+    },
+    {
+        "type": "ImageButton",
+        "rect": [840, 305, 30, 30],
+        "image": "./Assets/ui/icones/flip_horizontal.png",
+        "action": "flip_vertical"
+    },
+    {
+        "type": "ImageButton",
+        "rect": [880, 305, 30, 30],
+        "image": "./Assets/ui/icones/draw.png",
+        "action": "draw"
+    },
+    {
+        "type": "ImageButton",
+        "rect": [920, 305, 30, 30],
+        "image": "./Assets/ui/icones/rotate.png",
+        "action": "rotate"
+    },
+    {
+        "type": "ImageButton",
+        "rect": [940, 92, 24, 24],
+        "image": "./Assets/ui/icones/eyesopen.png",
+        "action": "show"
+    },
+    {
+        "type": "ImageButton",
+        "rect": [940, 120, 24, 24],
+        "image": "./Assets/ui/icones/edit.png",
+        "action": "editType"
+    },
+    {
+        "type": "ImageButton",
+        "rect": [940, 150, 24, 24],
+        "image": "./Assets/ui/icones/edit.png",
+        "action": "editName"
+    }
+]
