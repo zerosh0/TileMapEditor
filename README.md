@@ -1,5 +1,5 @@
 # 🎨 TileMapEditor
-TileMapEditor est un éditeur de niveaux développé en Python avec Pygame, permettant de créer facilement des maps à base de tiles, avec gestion des layers, collisions et outils de dessin avancés. C'est avant tout un proof of concept, visant à démontrer une version fonctionnelle mais non optimisée du projet. Le code et le stockage sont rudimentaires et peuvent être grandement améliorés.  
+**TileMapEditor** est un éditeur de niveaux développé en Python avec Pygame, permettant de créer facilement des maps à base de tiles, avec gestion des layers, collisions et outils de dessin avancés. C'est avant tout un proof of concept, visant à démontrer une version fonctionnelle mais non optimisée du projet. Le code et le stockage doivent être améliorés pour une utilisation en production.
 
 ## 📌 Fonctionnalités  
 
@@ -142,8 +142,8 @@ Une **TileMap** est une **image contenant des tuiles** utilisées pour construir
 
 - **Ajouter une TileMap** :  
   1. Cliquez sur **"Open"** et sélectionnez une image  
-  2. Définissez la **taille d’une tuile** pour le découpage  
-  3. Donnez un **nom** à la TileMap  
+  2. Définissez la **taille d’une tuile** pour le découpage (la plupart sont en 16x16 pixels)  
+  3. Donnez un **nom** à la TileMap (chaque tilemap à un nom indépendant si vous utilisez un nom déjà utilisé dans le projet la tilemap sera remplacée par la nouvelle)  
   4. (Facultatif) Si l’image n’a pas de fond transparent, cliquez sur **"Set ColorKey"** et sélectionnez une couleur de transparence en cliquant sur la couleur correspondante sur l'image 
   5. Cliquez sur **"Done"** pour ajouter la TileMap  
 
@@ -232,6 +232,8 @@ L'éditeur permet d’ajouter **des zones de collision**, représentées par des
 - **Supprimer une collision** :  
   - Sélectionnez-la et appuyez sur **"Suppr"**  
  
+- **Cacher les collisions** :
+  - Cliquez sur l'oeil à côté de "références"  
 
 ---
 
