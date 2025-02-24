@@ -1,6 +1,10 @@
 # 🎨 TileMapEditor
 **TileMapEditor** est un éditeur de niveaux développé en Python avec Pygame, permettant de créer facilement des maps à base de tiles, avec gestion des layers, collisions et outils de dessin avancés. C'est avant tout un proof of concept, visant à démontrer une version fonctionnelle mais non optimisée du projet. Le code et le stockage doivent être améliorés pour une utilisation en production.
 
+## ✨ Nouveautés
+- 🔄 Undo/Redo : Annulez ou rétablissez facilement vos modifications avec ctrl + z et ctrl + y  
+- 📏 Redimensionnement de la fenêtre : L'éditeur s'adapte désormais dynamiquement à la taille de la fenêtre
+
 ## 📌 Fonctionnalités  
 
 ### 🖌️ **Édition et outils de dessin**  
@@ -31,7 +35,7 @@
 ### 💾 **Sauvegarde et Chargement**  
 - 📁 **Exportation et importation** des niveaux en **JSON**  
 - 📜 **Stockage des informations** : tuiles, layers, collisions  
-
+- ↩️ **Fonctionnalité Undo/Redo** pour annuler ou rétablir des modifications
 
 
 
@@ -47,6 +51,7 @@
 │   ├── ui.py  
 │   ├── utils.py  
 │   ├── viewport.py  
+│   ├── History.py  
 ├── Assets/  
 │   ├── tiles/  
 │   ├── ui/  
@@ -74,6 +79,8 @@ Ce dossier contient tous les fichiers liés à l'éditeur, incluant la gestion d
 | **`ui.py`**           | Gère l’**interface utilisateur** (boutons, fenêtres, sliders) |
 | **`utils.py`**        | Contient des **structures de données et enums** pour les outils, les tuiles, les collisions, les layers et tilemaps |
 | **`viewport.py`**     | **Gère et stocke** l'affichage du niveau, la caméra, le zoom et la navigation |
+| **`History.py`**      | Gère l'**historique des actions** avec **Undo/Redo** pour les modifications de tuiles et collisions |
+
 
 ### 🎨 **Dossier `Assets/`**  
 
@@ -372,8 +379,6 @@ Détection de collision : Utilisez les méthodes ```colliderect()``` ou ```colli
 
 ## 🔮 Fonctionnalités à venir
 -	🟢 Ajout de Points de Repère (Locations Points)
--	🔄 Undo (Ctrl + Z) et Redo (Ctrl + Y)
--	📏 Redimensionnement de la fenêtre
 ________________________________________
 ## 💡 Notes et retours
 L’éditeur est encore en alpha. Si vous trouvez des bugs ou avez des suggestions, faites-moi signe ! 🚀

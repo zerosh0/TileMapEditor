@@ -1,4 +1,5 @@
 import copy
+from editor.History import HistoryManager
 from editor.utils import Layer,Tile,Tools,Axis,CollisionRect
 import random
 from typing import List
@@ -7,7 +8,8 @@ import pygame
 
 
 class DataManager():
-    def __init__(self):
+    def __init__(self,history : HistoryManager):
+        self.history=history
         self.layers=[Layer() for _ in range(9)]
         self.collisionRects: list[CollisionRect]=[]
         self.currentLayer=0
@@ -104,42 +106,51 @@ class DataManager():
         y_min = min(self.relativeStart[1], self.relativeEnd[1])
         x_max = max(self.relativeStart[0], self.relativeEnd[0])
         y_max = max(self.relativeStart[1], self.relativeEnd[1])
-
+        Tiles=[]
         for y in range(y_min, y_max + 1):
             for x in range(x_min, x_max + 1):
-                self.getCurrentLayer().removeTile((x,y))
+                Tiles.append((x,y))
+        self.history.RegisterRemoveTiles(self.currentLayer,Tiles,self)
+        for x,y in Tiles:
+            self.getCurrentLayer().removeTile((x,y))
 
     def FillCurrentTilesSelection(self, viewport):
         self.relativeStart = viewport.toGrid(self.selectionViewPort[0])
         self.relativeEnd = viewport.toGrid(self.selectionViewPort[1])
-        # Déterminer les bornes de la sélection
         x_min = min(self.relativeStart[0], self.relativeEnd[0])
         y_min = min(self.relativeStart[1], self.relativeEnd[1])
         x_max = max(self.relativeStart[0], self.relativeEnd[0])
         y_max = max(self.relativeStart[1], self.relativeEnd[1])
-
+        new_tiles = []
+        old_tiles=[]
         for y in range(y_min, y_max + 1):
             for x in range(x_min, x_max + 1):
                 NewTile = copy.deepcopy(self.currentTiles[0])
                 NewTile.x = x
                 NewTile.y = y
-                self.getCurrentLayer().addOrReplaceTile(NewTile)
+                new_tiles.append(NewTile)
+                old_tiles.append(self.getCurrentLayer().addOrReplaceTile(NewTile))
+        if new_tiles:
+            self.history.RegisterAddTiles(self.currentLayer, new_tiles,old_tiles)
 
     def RandomCurrentTilesSelection(self, viewport):
         self.relativeStart = viewport.toGrid(self.selectionViewPort[0])
         self.relativeEnd = viewport.toGrid(self.selectionViewPort[1])
-        # Déterminer les bornes de la sélection
         x_min = min(self.relativeStart[0], self.relativeEnd[0])
         y_min = min(self.relativeStart[1], self.relativeEnd[1])
         x_max = max(self.relativeStart[0], self.relativeEnd[0])
         y_max = max(self.relativeStart[1], self.relativeEnd[1])
-
+        new_tiles = []
+        old_tiles=[]
         for y in range(y_min, y_max + 1):
             for x in range(x_min, x_max + 1):
                 NewTile = copy.deepcopy(random.choice(self.currentTiles))
                 NewTile.x = x
                 NewTile.y = y
-                self.getCurrentLayer().addOrReplaceTile(NewTile)
+                new_tiles.append(NewTile)
+                old_tiles.append(self.getCurrentLayer().addOrReplaceTile(NewTile))
+        if new_tiles:
+            self.history.RegisterAddTiles(self.currentLayer, new_tiles,old_tiles)
 
 
     def UpdateCurrentTiles(self, viewport):
@@ -194,13 +205,16 @@ class DataManager():
 
 
     def AddCurrentTiles(self):
+        oldTiles=[]
         for tile in self.currentTiles:
-            self.getCurrentLayer().addOrReplaceTile(tile)
+            oldTiles.append(self.getCurrentLayer().addOrReplaceTile(tile))
+        self.history.RegisterAddTiles(self.currentLayer, self.currentTiles,oldTiles)
 
     def getCurrentLayer(self) -> Layer:
         return self.layers[self.currentLayer]
     
     def AddTile(self,tile: Tile):
+        self.history.RegisterAddTiles(self.currentLayer, [tile])
         self.getCurrentLayer().addOrReplaceTile(tile)
 
     def RemoveTile(self,x,y):
@@ -236,7 +250,7 @@ class DataManager():
             rect=pygame.Rect(rect_x, rect_y, rect_width, rect_height),
             color=(255, 0, 0)
         )
-
+        self.history.RegisterAddCollisions(new_collision_rect)
         self.collisionRects.append(new_collision_rect)
         self.selectedCollisionRect=self.collisionRects[-1]
 

@@ -13,7 +13,6 @@ class DrawManager:
         self.viewportRect = self.viewport.get_rect()
         self.viewportRect.top = 30
         self.TilePalette=pygame.surface.Surface((210, 230))
-        self.TilePaletteRect=pygame.Rect(self.screen.get_width() - 230, self.screen.get_height() - 270,210,230)
         self.buttons: List[Button] = []
         self.bg_color = (200, 200, 200)
         self.actions=actions
@@ -24,7 +23,7 @@ class DrawManager:
 
     def loadAssets(self):
         self.bar = pygame.image.load('./Assets/ui/travaux.png')
-        self.bar = pygame.transform.scale(self.bar, (1920, 17))
+        self.bar = pygame.transform.scale(self.bar, (self.screen.get_width(), 17))
         self.font = pygame.font.Font(None, 26)
         self.layerText=self.font.render("Layer: 0", True, (255, 255, 255))
         self.MapText=self.font.render("Map:", True, (255, 255, 255))
@@ -37,6 +36,7 @@ class DrawManager:
                              progress_color=(198, 128, 93),bar_color=(159, 167, 198))
         self.colorPick=ColorButton(rect=(self.screen.get_width() - 70, 195, 40, 20),initial_color=(255, 0, 0),action=self.actions.get("editColor"))
         self.load_buttons("./Assets/ui/ui.json")
+        self.UpdateRect()
 
 
     def updateLayerText(self,layer):
@@ -48,12 +48,13 @@ class DrawManager:
 
     def load_buttons(self,json_file):
         with open(json_file, "r", encoding="utf-8") as file:
-            data = json.load(file)
-        for bouton in data:
+            self.data = json.load(file)
+        for bouton in self.data:
             action = self.actions.get(bouton["action"], lambda: print(f"Action {bouton['action']} non définie"))
             if bouton["type"] == "Button":
                 self.buttons.append(Button(bouton["rect"], bouton["text"], action,bg_color= bouton.get("bg_color", (255, 255, 255)),size=bouton.get("size", 20)))
             elif bouton["type"] == "ImageButton":
+                bouton["rect"][0]=self.screen.get_width()-bouton["rect"][0]-1000
                 self.buttons.append(ImageButton(bouton["rect"], bouton["image"], action,hover_image_path=bouton.get("hover_image")))
 
     def draw(self,viewport: ViewPort,dataManager: DataManager,tilePalette: TilePalette):
@@ -156,7 +157,7 @@ class DrawManager:
 
 
     def GetScaledTile(self,surface):
-        grid_cell_size = int(self.viewportData.tileSize * self.viewportData.zoom)
+        grid_cell_size = self.viewportData.tileSize * self.viewportData.zoom
         surface = pygame.transform.scale(surface, (grid_cell_size, grid_cell_size))
         return surface
 
@@ -187,6 +188,22 @@ class DrawManager:
         self.drawPalettegrid()
         self.screen.blit(self.TilePalette,self.TilePaletteRect)
         
+    def UpdateRect(self):
+        self.TilePaletteRect=pygame.Rect(self.screen.get_width() - 230, self.screen.get_height() - 270,210,230)
+        self.palette_area_rect = pygame.Rect(self.screen.get_width() - 230, self.screen.get_height() - 270, 210, 230)
+        self.bar = pygame.image.load('./Assets/ui/travaux.png')
+        self.bar = pygame.transform.scale(self.bar, (self.screen.get_width(), 17))
+        self.barRect=self.bar.get_rect()
+        self.barRect.centerx = self.screen.get_width() // 2
+        self.barRect.bottom = self.screen.get_height()
+        self.slider.rect=pygame.Rect(self.screen.get_width() - 220, 70, 185, 13)
+        self.viewport=pygame.surface.Surface((self.screen.get_width() - 250,self.screen.get_height()-45))
+        self.viewportRect = self.viewport.get_rect()
+        self.viewportRect.top = 30
+        self.colorPick.rect=pygame.Rect(self.screen.get_width() - 70, 195, 40, 20)
+        for i,bouton in enumerate(self.data):
+                if bouton["type"] == "ImageButton":
+                    self.buttons[i].rect.x=self.screen.get_width()-bouton["rect"][0]-1000
 
     def drawPalettegrid(self):
         image_rect = self.activeTileMap.zoomedImage.get_rect()
@@ -212,19 +229,15 @@ class DrawManager:
         pygame.draw.rect(self.screen, (36, 43, 59), (screen_width - 250, 0, 250, screen_height))
         pygame.draw.rect(self.screen, (50, 58, 81), (screen_width - 230, 30, 210, 200), border_radius=3)
         pygame.draw.rect(self.screen, (107, 114, 150), (screen_width - 230, 250, 210, 100), border_radius=3)
-        palette_area_rect = pygame.Rect(screen_width - 230, screen_height - 270, 210, 230)
-        pygame.draw.rect(self.screen, (50, 58, 81), palette_area_rect, border_radius=3)
+        pygame.draw.rect(self.screen, (50, 58, 81), self.palette_area_rect, border_radius=3)
         pygame.draw.rect(self.screen, (36, 43, 59), (0, 0, screen_width - 250, 30))
         self.screen.blit(self.layerText,(screen_width - 220,40))
         self.screen.blit(self.MapText,(screen_width - 230,screen_height - 295))
-        self.screen.blit(self.collisionsText,(self.screen.get_width() - 220, 95))
-        self.screen.blit(self.TypeText,(self.screen.get_width() - 220, 125))
-        self.screen.blit(self.NameText,(self.screen.get_width() - 220, 160))
-        self.screen.blit(self.ColorText,(self.screen.get_width() - 220, 195))
-        image_rect = self.bar.get_rect()
-        image_rect.centerx = screen_width // 2
-        image_rect.bottom = screen_height
-        self.screen.blit(self.bar, image_rect)
+        self.screen.blit(self.collisionsText,(screen_width - 220, 95))
+        self.screen.blit(self.TypeText,(screen_width - 220, 125))
+        self.screen.blit(self.NameText,(screen_width - 220, 160))
+        self.screen.blit(self.ColorText,(screen_width - 220, 195))
+        self.screen.blit(self.bar, self.barRect)
 
         for button in self.buttons:
             self.UpdateEyeButtons(button)

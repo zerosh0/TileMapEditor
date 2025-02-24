@@ -15,6 +15,10 @@ class ViewPort():
         self.screen_pos = (self.rect.x, self.rect.y)
         self.displayRect=True
 
+    def UpdateRect(self):
+        self.surface=pygame.surface.Surface((self.screen.get_width() - 250,self.screen.get_height()-45))
+        self.rect = self.surface.get_rect()
+
     def InRegion(self):
         return self.rect.collidepoint(pygame.mouse.get_pos()[0],pygame.mouse.get_pos()[1]-30)   
 
@@ -41,12 +45,12 @@ class ViewPort():
         grid_cell_size = self.tileSize * self.zoom
         tile_content_x = self.panningOffset[0] + x * grid_cell_size
         tile_content_y = self.panningOffset[1] + y * grid_cell_size
-        rect_x = self.rect.x + tile_content_x+1
-        rect_y = self.rect.y + tile_content_y+1
+        rect_x = self.rect.x + round(tile_content_x)
+        rect_y = self.rect.y + round(tile_content_y)
         return pygame.Rect(rect_x, rect_y, grid_cell_size, grid_cell_size)
 
     def Zoom(self,zoom):
-        self.zoom=max(self.zoom+zoom*self.zoomSensitivity,0.1)
+        self.zoom=round(max(self.zoom+zoom*self.zoomSensitivity,0.1),1)
 
 
     def toMapCoords(self, screen_pos: tuple):

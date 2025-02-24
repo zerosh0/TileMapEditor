@@ -13,7 +13,13 @@ class Tools(Enum):
     Random = 4
     Selection=5
     
+class ActionType(Enum):
+    AddTile = 1
+    RemoveTile = 2
+    AddCollision = 3
+    RemoveCollision = 4
 
+    
 
 class Axis(Enum):
     Horizontal=0
@@ -49,17 +55,23 @@ class Layer:
     opacity: float = 1.0
     tiles: List[Tile] = field(default_factory=list)
 
-    def addOrReplaceTile(self,NewTile: Tile):
-        for tile in self.tiles:
-            if NewTile.x==tile.x and NewTile.y==tile.y:
-                self.tiles.remove(tile)
-        self.tiles.append(NewTile)
+    def addOrReplaceTile(self, tile):
+        replaced_tile = None
+        for i, t in enumerate(self.tiles):
+            if t.x == tile.x and t.y == tile.y:
+                replaced_tile = self.tiles[i]
+                self.tiles[i] = tile
+                break
+        else:
+            self.tiles.append(tile)
+        return replaced_tile
 
     def removeTile(self,pos):
         x,y=pos
         for tile in self.tiles:
             if x==tile.x and y==tile.y:
                 self.tiles.remove(tile)
+                break
 
 @dataclass
 class TileMap:

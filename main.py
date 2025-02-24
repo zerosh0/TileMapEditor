@@ -1,5 +1,6 @@
 from tkinter import simpledialog
 from editor.DataManager import *
+from editor.History import HistoryManager
 from editor.draw import DrawManager
 from editor.TilePalette import TilePalette
 from editor.saveLoader import SaveLoadManager
@@ -10,16 +11,19 @@ from editor.viewport import ViewPort
 
 class LevelDesign:
     def __init__(self, screen: pygame.surface.Surface):
+        self.version=0.2
         self.screen = screen
         self.zoom_sensitivity = 0.1
         self.move_sensitivity = 1
         self.running = True
 
         # Gestion des données et de l'affichage
-        self.dataManager = DataManager()
+        self.HistoryManager = HistoryManager()
+        self.dataManager = DataManager(self.HistoryManager)
         self.tilePalette = TilePalette(self.screen, self.move_sensitivity, self.zoom_sensitivity)
         self.viewport = ViewPort(self.screen, self.move_sensitivity, self.zoom_sensitivity)
-        self.TmapOpener = FileOpener(self.screen, self.tilePalette)
+        self.TmapOpener = FileOpener(self.screen, self.tilePalette,self.ResizeWindow)
+        
         
         # Actions utilisateur
         self.actions = {
@@ -89,9 +93,13 @@ class LevelDesign:
                     self.HandleMouseUp(event)
                 case pygame.KEYDOWN:
                     self.HandleKeyDown(event)
-        
+                case pygame.VIDEORESIZE:
+                    self.ResizeWindow()
 
-
+    def ResizeWindow(self):
+        self.DrawManager.UpdateRect()
+        self.tilePalette.UpdateRect()
+        self.viewport.UpdateRect()
 
     def EditName(self):
         self.dataManager.currentTiles=[]
@@ -211,6 +219,7 @@ class LevelDesign:
             if self.dataManager.currentTool == Tools.Draw and not self.MapDragActive:
                 self.dataManager.AddCurrentTiles()
             if self.dataManager.currentTool == Tools.Rubber:
+                self.HistoryManager.RegisterRemoveTiles(self.dataManager.currentLayer,[self.viewport.toGrid(pygame.mouse.get_pos())],self.dataManager)
                 self.dataManager.getCurrentLayer().removeTile(self.viewport.toGrid(pygame.mouse.get_pos()))
 
     def Handleclick(self):
@@ -236,8 +245,13 @@ class LevelDesign:
             self.tilePalette.changeCurrentTileMap(-1)
         elif event.key == pygame.K_DELETE:
             if self.dataManager.selectedCollisionRect:
+                self.HistoryManager.RegisterRemoveCollisions(self.dataManager.selectedCollisionRect)
                 self.dataManager.collisionRects.remove(self.dataManager.selectedCollisionRect)
                 self.dataManager.selectedCollisionRect=None
+        elif event.key == pygame.K_z and event.mod & pygame.KMOD_LCTRL:
+            self.HistoryManager.Undo(self.dataManager)
+        elif event.key == pygame.K_y and event.mod & pygame.KMOD_LCTRL:
+            self.HistoryManager.Redo(self.dataManager)
 
     def UpdateCurrentTiles(self):
         self.dataManager.UpdateCurrentTiles(self.viewport)
@@ -250,6 +264,7 @@ class LevelDesign:
 
 if __name__ == "__main__":
     pygame.init()
-    screen = pygame.display.set_mode((1000, 700))
-    pygame.display.set_caption('Editeur de Niveau Alpha 0.1')
-    LevelDesign(screen).run()
+    screen = pygame.display.set_mode((1000, 700),pygame.RESIZABLE)
+    Editor=LevelDesign(screen)
+    pygame.display.set_caption(f'Editeur de Niveau Alpha {Editor.version}')
+    Editor.run()

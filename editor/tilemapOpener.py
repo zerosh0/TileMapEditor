@@ -6,9 +6,10 @@ from editor.TilePalette import TilePalette
 from editor.ui import Button
 
 class FileOpener:
-    def __init__(self, screen: pygame.surface.Surface,tilePalette: TilePalette):
+    def __init__(self, screen: pygame.surface.Surface,tilePalette: TilePalette,updateMainRect):
         self.screen = screen
         self.tilePalette=tilePalette
+        self.updateMainRect=updateMainRect
         self.font = pygame.font.Font(None, 26)
         self.tilesmaps = []
         self.active_tilemap = None
@@ -30,12 +31,17 @@ class FileOpener:
                 return tilemap
 
     def AddButtons(self):
-        self.buttons.append(Button((self.screen.get_width() - 220, self.screen.get_height() - 60, 100, 40),
-                                   "Done", self.validate_tileMap, bg_color=(36, 43, 59), size=25))
         self.buttons.append(Button((self.screen.get_width() - 110, self.screen.get_height() - 60, 100, 40),
-                                     "Cancel", self.cancel_editing, bg_color=(200, 0, 0), size=25))
+                                   "Done", self.validate_tileMap, bg_color=(36, 43, 59),hover_color=(16, 152, 104), size=25))
+        self.buttons.append(Button((self.screen.get_width() - 120, self.screen.get_height() - 60, 100, 40),
+                                     "Cancel", self.cancel_editing, bg_color=(36, 43, 59),hover_color=(200, 0, 0), size=25))
         self.buttons.append(Button((self.screen.get_width() - 330, self.screen.get_height() - 60, 100, 40),
                                        "Set ColorKey", self.ColorPicker, bg_color=(36, 43, 59), size=25))
+
+    def UpdateRect(self):
+        self.buttons[0].rect=pygame.Rect(self.screen.get_width() - 110, self.screen.get_height() - 60, 100, 40)
+        self.buttons[1].rect=pygame.Rect(self.screen.get_width() - 210, self.screen.get_height() - 60, 100, 40)
+        self.buttons[2].rect=pygame.Rect(self.screen.get_width() - 330, self.screen.get_height() - 60, 100, 40)
 
     def ColorPicker(self):
         self.pickingColor=True
@@ -79,6 +85,7 @@ class FileOpener:
         self.infoText = self.font.render(infoText, True, (255, 255, 255))
 
     def processTileMap(self,tileSize,name):
+        self.UpdateRect()
         self.NewTileMapReset(name,tileSize)
         while self.editing:
             self.handleEvents()
@@ -126,7 +133,7 @@ class FileOpener:
             if event.type == pygame.QUIT:
                 print("Operation Annulée")
                 self.editing = False
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            elif event.type == pygame.MOUSEBUTTONDOWN:
                 if self.pickingColor:
                     try:
                         self.colorkey=self.screen.get_at(event.pos)
@@ -134,6 +141,8 @@ class FileOpener:
                         self.pickingColor=False
                     except:
                         print("impossible de récupérer la couleur")
+            elif event.type == pygame.VIDEORESIZE:
+                self.UpdateRect()
             for button in self.buttons:
                 button.handle_event(event)
 
@@ -148,5 +157,5 @@ class FileOpener:
         self.tilePalette.currentTileMap=len(self.tilePalette.Maps)-1
         print(f"Tile map '{self.name}' ajoutée avec {total_tiles} tiles.") #340
         self.editing=False
-
+        self.updateMainRect()
        
