@@ -29,7 +29,7 @@ class LevelDesign:
         # Actions utilisateur
         self.actions = {
             "save": self.save_level,
-            "open": self.open,
+            "open": self.open_level,
             "load": self.load_level,
             "play": lambda: print("play"),
             "rubber": lambda: self.setTool(Tools.Rubber),
@@ -63,23 +63,26 @@ class LevelDesign:
         self.LeftViewPortDragActive = False
 
 
-    def open(self):
-        file_path=self.saveLoadManager.Open(self)
+    # def open(self):
+    #     file_path=self.saveLoadManager.Open(self)
 
-        if not file_path:
-            print("Aucune image sélectionnée.")
-            return
-        self.TmapOpener.filepath=file_path
-        self.TmapOpener.image = pygame.image.load(file_path).convert_alpha()
-        tileSize=simpledialog.askinteger("Taille des tiles", "Entrez la taille des tiles (ex: 32):", initialvalue=32)
-        if not tileSize:
-            print("Opération Annulée")
-            return
-        TileMapName=simpledialog.askstring("Nom de la tile map", "Entrez le nom de la tile map:")
-        if not TileMapName:
-            print("Opération Annulée")
-            return
-        self.TmapOpener.processTileMap(tileSize,TileMapName)
+    #     if not file_path:
+    #         print("Aucune image sélectionnée.")
+    #         return
+    #     self.TmapOpener.filepath=file_path
+    #     self.TmapOpener.image = pygame.image.load(file_path).convert_alpha()
+    #     tileSize=simpledialog.askinteger("Taille des tiles", "Entrez la taille des tiles (ex: 32):", initialvalue=32)
+    #     if not tileSize:
+    #         print("Opération Annulée")
+    #         return
+    #     TileMapName=simpledialog.askstring("Nom de la tile map", "Entrez le nom de la tile map:")
+    #     if not TileMapName:
+    #         print("Opération Annulée")
+    #         return
+    #     self.TmapOpener.processTileMap(tileSize,TileMapName)
+
+    def open_level(self):
+        self.saveLoadManager.open(self)
 
     def save_level(self):
         self.saveLoadManager.save(self)

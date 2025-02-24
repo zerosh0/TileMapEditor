@@ -111,14 +111,13 @@ class SaveLoadManager:
         except Exception as e:
             print("Erreur lors de la sauvegarde :", e)
 
+
     @staticmethod
-    def Open(level_design):
+    def open(level_design):
         file_path = SaveLoadManager.choose_TileMap()
         if not file_path:
             print("Chargement annulé.")
             return
-        return file_path
-
     @staticmethod
     def load(level_design):
         file_path = SaveLoadManager.choose_load_file()
