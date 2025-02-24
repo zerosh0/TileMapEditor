@@ -32,8 +32,7 @@ class SaveLoadManager:
         root = tk.Tk()
         root.withdraw()  # Masquer la fenêtre principale
         filename = filedialog.askopenfilename(
-            title="Ouvrir une tilemap",
-            filetypes=[("Images", "*.png;*.jpg;*.jpeg;*.bmp;*.gif")]
+            title="Ouvrir le niveau",
         )
         return filename
 
@@ -118,6 +117,8 @@ class SaveLoadManager:
         if not file_path:
             print("Chargement annulé.")
             return
+        return file_path
+    
     @staticmethod
     def load(level_design):
         file_path = SaveLoadManager.choose_load_file()
