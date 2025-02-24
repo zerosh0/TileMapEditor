@@ -20,10 +20,10 @@ class LevelDesign:
 
         # Gestion des données et de l'affichage
         self.HistoryManager = HistoryManager()
-        self.dataManager = DataManager(self.HistoryManager)
+        self.dataManager = DataManager(self.HistoryManager) 
         self.tilePalette = TilePalette(self.screen, self.move_sensitivity, self.zoom_sensitivity)
         self.viewport = ViewPort(self.screen, self.move_sensitivity, self.zoom_sensitivity)
-        self.TmapOpener = FileOpener(self.screen, self.tilePalette,self.ResizeWindow,filedialog,simpledialog)
+        self.TmapOpener = FileOpener(self.screen, self.tilePalette,self.ResizeWindow)
         
         
         # Actions utilisateur
@@ -45,7 +45,7 @@ class LevelDesign:
             "editType": self.EditType,
             "editColor":self.EditColor
         }
-        self.DrawManager = DrawManager(self.screen, self.actions,colorchooser)
+        self.DrawManager = DrawManager(self.screen, self.actions)
         self.saveLoadManager=SaveLoadManager()
         self.PostInit()
 

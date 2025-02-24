@@ -7,9 +7,8 @@ from editor.TilePalette import TilePalette
 from editor.viewport import ViewPort
 
 class DrawManager:
-    def __init__(self, screen: pygame.surface.Surface,actions,colorChooser):
+    def __init__(self, screen: pygame.surface.Surface,actions):
         self.screen=screen
-        self.colorChooser=colorChooser
         self.viewport=pygame.surface.Surface((self.screen.get_width() - 250,self.screen.get_height()-45))
         self.viewportRect = self.viewport.get_rect()
         self.viewportRect.top = 30
@@ -35,7 +34,7 @@ class DrawManager:
         self.slider = Slider(rect=(self.screen.get_width() - 220, 70, 185, 13), 
                              min_value=0, max_value=1, initial_value=1,
                              progress_color=(198, 128, 93),bar_color=(159, 167, 198))
-        self.colorPick=ColorButton(rect=(self.screen.get_width() - 70, 195, 40, 20),initial_color=(255, 0, 0),action=self.actions.get("editColor"),colorchooser=self.colorChooser)
+        self.colorPick=ColorButton(rect=(self.screen.get_width() - 70, 195, 40, 20),initial_color=(255, 0, 0),action=self.actions.get("editColor"))
         self.load_buttons("./Assets/ui/ui.json")
         self.UpdateRect()
 
