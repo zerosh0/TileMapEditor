@@ -2,9 +2,9 @@
 **TileMapEditor** est un éditeur de niveaux développé en Python avec Pygame, permettant de créer facilement des maps à base de tiles, avec gestion des layers, collisions et outils de dessin avancés. C'est avant tout un proof of concept, visant à démontrer une version fonctionnelle mais non optimisée du projet. Le code et le stockage doivent être améliorés pour une utilisation en production.
 
 ## ✨ Nouveautés
-- 🔄 Undo/Redo : Annulez ou rétablissez facilement vos modifications avec ctrl + z et ctrl + y  
+- 🔄 Undo/Redo : Annulez ou rétablissez facilement vos modifications avec ```ctrl + z``` et ```ctrl + y ``` 
 - 📏 Redimensionnement de la fenêtre : L'éditeur s'adapte désormais dynamiquement à la taille de la fenêtre
-
+- 🎛️ Affichage de la grille : Activez ou désactivez la grille avec la touche ```H```
 ## 📌 Fonctionnalités  
 
 ### 🖌️ **Édition et outils de dessin**  
@@ -124,6 +124,8 @@ Le **viewport** est la **zone principale** où l'on dessine et visualise le nive
 - **Faire une sélection dans le viewport**
   - 🖱️ **Shift + Clic gauche** pour sélectionner une zone
   - 🖱️ **Naviguer ou zoomer** pour annuler la sélection
+- **Cacher ou afficher la grille**
+  - ⌨️ **h** pour cacher ou afficher la grille 
 ---
 
 ### 🎨 **La Tile Palette**  

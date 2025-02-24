@@ -19,6 +19,7 @@ class DrawManager:
         self.TilePreview=False
         self.PaletteSelectionPreview=False
         self.viewportSelectionPreview=False
+        self.drawVGrid=True
         self.loadAssets()
 
     def loadAssets(self):
@@ -163,7 +164,7 @@ class DrawManager:
 
 
     def drawViewportGrid(self):
-        if not self.activeTileMap:
+        if not (self.activeTileMap and self.drawVGrid):
             return
 
         grid_cell_size = self.viewportData.tileSize * self.viewportData.zoom

@@ -14,7 +14,7 @@ class LevelDesign:
     def __init__(self, screen: pygame.surface.Surface):
         self.version=0.2
         self.screen = screen
-        self.zoom_sensitivity = 0.1
+        self.zoom_sensitivity = 0.25
         self.move_sensitivity = 1
         self.running = True
 
@@ -273,6 +273,8 @@ class LevelDesign:
             self.HistoryManager.Undo(self.dataManager)
         elif event.key == pygame.K_y and event.mod & pygame.KMOD_LCTRL:
             self.HistoryManager.Redo(self.dataManager)
+        elif event.key == pygame.K_h:
+            self.DrawManager.drawVGrid= not self.DrawManager.drawVGrid
 
     def UpdateCurrentTiles(self):
         self.dataManager.UpdateCurrentTiles(self.viewport)
