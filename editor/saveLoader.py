@@ -25,6 +25,17 @@ class SaveLoadManager:
             filetypes=[("Fichiers JSON", "*.json")]
         )
         return filename
+    
+    
+    @staticmethod
+    def choose_TileMap():
+        root = tk.Tk()
+        root.withdraw()  # Masquer la fenêtre principale
+        filename = filedialog.askopenfilename(
+            title="Ouvrir une tilemap",
+            filetypes=[("Images", "*.png;*.jpg;*.jpeg;*.bmp;*.gif")]
+        )
+        return filename
 
     @staticmethod
     def save(level_design):
@@ -99,6 +110,14 @@ class SaveLoadManager:
             print("✅ Sauvegarde réussie !")
         except Exception as e:
             print("Erreur lors de la sauvegarde :", e)
+
+    @staticmethod
+    def Open(level_design):
+        file_path = SaveLoadManager.choose_TileMap()
+        if not file_path:
+            print("Chargement annulé.")
+            return
+        return file_path
 
     @staticmethod
     def load(level_design):

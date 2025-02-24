@@ -64,13 +64,8 @@ class LevelDesign:
 
 
     def open(self):
-        root = tk.Tk()
-        root.withdraw() 
-        file_path =filedialog.askopenfilename(
-            title="Choisir une image",
-            filetypes=[("Images", "*.png;*.jpg;*.jpeg;*.bmp;*.gif")]
-        )
-        
+        file_path=self.saveLoadManager.Open(self)
+
         if not file_path:
             print("Aucune image sélectionnée.")
             return
