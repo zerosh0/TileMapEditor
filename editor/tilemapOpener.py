@@ -1,7 +1,5 @@
 from typing import List
 import pygame
-import tkinter as tk
-from tkinter import filedialog,simpledialog
 from editor.TilePalette import TilePalette
 from editor.ui import Button
 
@@ -50,30 +48,6 @@ class FileOpener:
         self.editing = False
         print("Édition annulée.")
 
-    def open(self):
-        root = tk.Tk()
-        root.withdraw() 
-        file_path =filedialog.askopenfilename(
-            title="Choisir une image",
-            filetypes=[("Images", "*.png;*.jpg;*.jpeg;*.bmp;*.gif")]
-        )
-        
-        if not file_path:
-            print("Aucune image sélectionnée.")
-            return
-        self.filepath=file_path
-        self.image = pygame.image.load(file_path).convert_alpha()
-        tileSize=simpledialog.askinteger("Taille des tiles", "Entrez la taille des tiles (ex: 32):", initialvalue=32)
-        if not tileSize:
-            print("Opération Annulée")
-            return
-        TileMapName=simpledialog.askstring("Nom de la tile map", "Entrez le nom de la tile map:")
-        if not TileMapName:
-            print("Opération Annulée")
-            return
-        
-        
-        self.processTileMap(tileSize,TileMapName)
         
     def NewTileMapReset(self,name,tileSize):
         self.editing=True
