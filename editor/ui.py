@@ -1,4 +1,3 @@
-from tkinter import colorchooser
 import pygame
 from pygame import gfxdraw
 
@@ -160,12 +159,13 @@ class Slider:
 
 
 class ColorButton:
-    def __init__(self, rect, initial_color, action=None):
+    def __init__(self, rect, initial_color,colorchooser, action=None):
         """
         :param rect: Tuple (x, y, largeur, hauteur) définissant la zone du bouton.
         :param initial_color: Couleur initiale du bouton (tuple RGB).
         :param action: Fonction à appeler lors d'un clic
         """
+        self.colorChooser=colorchooser
         self.rect = pygame.Rect(rect)
         self.color = initial_color
         self.action = action  # Action facultative au clic
@@ -182,7 +182,7 @@ class ColorButton:
 
     def pick_color(self):
         """ Ouvre une palette de couleurs et met à jour la couleur du bouton. """
-        color = colorchooser.askcolor(title="Choisir une couleur")
+        color = self.colorChooser.askcolor(title="Choisir une couleur")
         if color and color[0]:
             self.color = tuple(int(c) for c in color[0])
 

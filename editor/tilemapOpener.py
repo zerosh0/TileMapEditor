@@ -1,13 +1,13 @@
 from typing import List
 import pygame
-import tkinter as tk
-from tkinter import filedialog, simpledialog
 from editor.TilePalette import TilePalette
 from editor.ui import Button
 
 class FileOpener:
-    def __init__(self, screen: pygame.surface.Surface,tilePalette: TilePalette,updateMainRect):
+    def __init__(self, screen: pygame.surface.Surface,tilePalette: TilePalette,updateMainRect,filedialog,simpledialog):
         self.screen = screen
+        self.filedialog=filedialog
+        self.simpledialog=simpledialog
         self.tilePalette=tilePalette
         self.updateMainRect=updateMainRect
         self.font = pygame.font.Font(None, 26)
@@ -51,9 +51,7 @@ class FileOpener:
         print("Édition annulée.")
 
     def open(self):
-        root = tk.Tk()
-        root.withdraw()  # Masquer la fenêtre principale de tkinter
-        file_path = filedialog.askopenfilename(
+        file_path = self.filedialog.askopenfilename(
             title="Choisir une image",
             filetypes=[("Images", "*.png;*.jpg;*.jpeg;*.bmp;*.gif")]
         )
@@ -63,11 +61,11 @@ class FileOpener:
             return
         self.filepath=file_path
         self.image = pygame.image.load(file_path).convert_alpha()
-        tileSize=simpledialog.askinteger("Taille des tiles", "Entrez la taille des tiles (ex: 32):", initialvalue=32)
+        tileSize=self.simpledialog.askinteger("Taille des tiles", "Entrez la taille des tiles (ex: 32):", initialvalue=32)
         if not tileSize:
             print("Opération Annulée")
             return
-        TileMapName=simpledialog.askstring("Nom de la tile map", "Entrez le nom de la tile map:")
+        TileMapName=self.simpledialog.askstring("Nom de la tile map", "Entrez le nom de la tile map:")
         if not TileMapName:
             print("Opération Annulée")
             return

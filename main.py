@@ -1,4 +1,5 @@
-from tkinter import simpledialog
+import tkinter as tk
+from tkinter import simpledialog,filedialog,colorchooser
 from editor.DataManager import *
 from editor.History import HistoryManager
 from editor.draw import DrawManager
@@ -22,7 +23,7 @@ class LevelDesign:
         self.dataManager = DataManager(self.HistoryManager)
         self.tilePalette = TilePalette(self.screen, self.move_sensitivity, self.zoom_sensitivity)
         self.viewport = ViewPort(self.screen, self.move_sensitivity, self.zoom_sensitivity)
-        self.TmapOpener = FileOpener(self.screen, self.tilePalette,self.ResizeWindow)
+        self.TmapOpener = FileOpener(self.screen, self.tilePalette,self.ResizeWindow,filedialog,simpledialog)
         
         
         # Actions utilisateur
@@ -44,7 +45,7 @@ class LevelDesign:
             "editType": self.EditType,
             "editColor":self.EditColor
         }
-        self.DrawManager = DrawManager(self.screen, self.actions)
+        self.DrawManager = DrawManager(self.screen, self.actions,colorchooser)
         self.saveLoadManager=SaveLoadManager()
         self.PostInit()
 
@@ -263,6 +264,8 @@ class LevelDesign:
             pygame.display.flip()
 
 if __name__ == "__main__":
+    root = tk.Tk()
+    root.withdraw()
     pygame.init()
     screen = pygame.display.set_mode((1000, 700),pygame.RESIZABLE)
     Editor=LevelDesign(screen)
