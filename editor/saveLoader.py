@@ -37,7 +37,7 @@ class SaveLoadManager:
         return filename
 
     @staticmethod
-    def save(level_design):
+    def save(level_design,file_path=None):
         # Sauvegarde des layers et de leurs tiles
         layers_data = []
         for layer in level_design.dataManager.layers:
@@ -97,11 +97,11 @@ class SaveLoadManager:
                 "tileMaps": tilemaps_data
             }
         }
-
-        file_path = SaveLoadManager.choose_save_file()
         if not file_path:
-            print("Sauvegarde annulée.")
-            return
+            file_path = SaveLoadManager.choose_save_file()
+            if not file_path:
+                print("Sauvegarde annulée.")
+                return
 
         try:
             with open(file_path, "w") as file:

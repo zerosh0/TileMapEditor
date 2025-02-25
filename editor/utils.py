@@ -5,6 +5,12 @@ from typing import List
 
 import pygame
 
+class Colors():
+    RED = "\033[91m"
+    GREEN = "\033[92m" 
+    YELLOW = "\033[93m"
+    BLUE = "\033[94m"
+    RESET = "\033[0m"
 
 class Tools(Enum):
     Draw = 1
@@ -56,22 +62,24 @@ class Layer:
     tiles: List[Tile] = field(default_factory=list)
 
     def addOrReplaceTile(self, tile):
-        replaced_tile = None
-        for i, t in enumerate(self.tiles):
-            if t.x == tile.x and t.y == tile.y:
-                replaced_tile = self.tiles[i]
-                self.tiles[i] = tile
-                break
+        idx = next((i for i, t in enumerate(self.tiles) if t.x == tile.x and t.y == tile.y), None)
+        
+        if idx:
+            if self.tiles[idx] == tile:
+                return ""
+            replaced_tile = self.tiles[idx]
+            self.tiles[idx] = tile
+            return replaced_tile
         else:
             self.tiles.append(tile)
-        return replaced_tile
+            return None
 
-    def removeTile(self,pos):
-        x,y=pos
-        for tile in self.tiles:
-            if x==tile.x and y==tile.y:
-                self.tiles.remove(tile)
-                break
+
+    def removeTile(self, pos):
+        idx = next((i for i, t in enumerate(self.tiles) if t.x == pos[0] and t.y == pos[1]), None)
+        if idx:
+            self.tiles.pop(idx)
+
 
 @dataclass
 class TileMap:

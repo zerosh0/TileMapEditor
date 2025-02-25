@@ -1,4 +1,5 @@
 import copy
+import time
 from editor.History import HistoryManager
 from editor.utils import Layer,Tile,Tools,Axis,CollisionRect
 import random
@@ -18,6 +19,7 @@ class DataManager():
         self.selectionPalette=()
         self.selectionViewPort=()
         self.selectedCollisionRect: CollisionRect | None=None
+        self.lastAddedTilePositions = None
 
     def ChangeSelectedCollisionRect(self,viewport):
         self.selectedCollisionRect=None
@@ -205,10 +207,23 @@ class DataManager():
 
 
     def AddCurrentTiles(self):
-        oldTiles=[]
+        if not self.currentTiles:
+            return
+
+        current_tile_positions = frozenset((tile.x, tile.y) for tile in self.currentTiles)
+        if self.lastAddedTilePositions == current_tile_positions:
+            return
+
+        self.lastAddedTilePositions = current_tile_positions
+
+        oldTiles = []
+        newTiles = []
         for tile in self.currentTiles:
-            oldTiles.append(self.getCurrentLayer().addOrReplaceTile(tile))
-        self.history.RegisterAddTiles(self.currentLayer, self.currentTiles,oldTiles)
+            oldTile = self.getCurrentLayer().addOrReplaceTile(tile)
+            if oldTile != "":
+                oldTiles.append(oldTile)
+                newTiles.append(tile)
+        self.history.RegisterAddTiles(self.currentLayer, newTiles, oldTiles)
 
     def getCurrentLayer(self) -> Layer:
         return self.layers[self.currentLayer]

@@ -9700,7 +9700,7 @@
             },
             {
                 "name": "colorkey",
-                "filepath": "C:/Users/urbai/Downloads/PIA/TileMapEditor/Assets/tiles/cavesofgallet_tiles.png",
+                "filepath": "./Assets/tiles/cavesofgallet_tiles.png",
                 "tileSize": 4,
                 "colorKey": [
                     33,

@@ -5,6 +5,9 @@
 - 🔄 Undo/Redo : Annulez ou rétablissez facilement vos modifications avec ```ctrl + z``` et ```ctrl + y ``` 
 - 📏 Redimensionnement de la fenêtre : L'éditeur s'adapte désormais dynamiquement à la taille de la fenêtre
 - 🎛️ Affichage de la grille : Activez ou désactivez la grille avec la touche ```H```
+- 🔒 Secure Save : En cas d'erreur, l'éditeur crée automatiquement une sauvegarde sécurisée pour protéger votre travail. Une sauvegarde temporaire est générée avec un nom unique (ex: SecureSave_20231015_143258_4729.json) et un message détaillé s'affiche dans la console.  
+
+![Secure save Message](Assets/images/secureSave.png)
 ## 📌 Fonctionnalités  
 
 ### 🖌️ **Édition et outils de dessin**  

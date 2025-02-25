@@ -1,3 +1,4 @@
+from datetime import datetime
 import tkinter as tk
 from tkinter import simpledialog,filedialog,colorchooser
 from editor.DataManager import *
@@ -7,6 +8,7 @@ from editor.TilePalette import TilePalette
 from editor.saveLoader import SaveLoadManager
 from editor.tilemapOpener import FileOpener
 import pygame
+from editor.utils import Colors
 from editor.viewport import ViewPort
 
 
@@ -230,6 +232,7 @@ class LevelDesign:
             self.RightViewPortDragActive=False
             self.RightMapDragActive = False
             self.LeftViewPortDragActive = False
+        self.lastAddedTilePositions = None
 
     def Handledragclick(self):
         if self.RightMapDragActive:
@@ -292,4 +295,24 @@ if __name__ == "__main__":
     screen = pygame.display.set_mode((1000, 700),pygame.RESIZABLE)
     Editor=LevelDesign(screen)
     pygame.display.set_caption(f'Editeur de Niveau Alpha {Editor.version}')
-    Editor.run()
+    try:
+        Editor.run()
+    except Exception as e:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        random_id = random.randint(1000, 9999)
+        save_name = f"SecureSave_{timestamp}_{random_id}.json"
+        
+        # Sauvegarde d'urgence
+        Editor.saveLoadManager.save(Editor, save_name)
+        
+        print(f"\n{Colors.RED}╔═══════════════════════════════════════════════════╗")
+        print(f"║ {Colors.YELLOW}CRASH DE L'EDITEUR ! {Colors.RED}")
+        print(f"╠═══════════════════════════════════════════════════╣")
+        print(f"║ {Colors.YELLOW}Erreur : {Colors.RESET}{str(e)}{Colors.RED}")
+        print(f"║ {Colors.YELLOW}Type : {Colors.RESET}{type(e).__name__}{Colors.RED}")
+        print(f"╠═══════════════════════════════════════════════════╣")
+        print(f"║ {Colors.GREEN}Une sauvegarde de secours a été créée :{Colors.RED}")
+        print(f"║ {Colors.BLUE}{save_name}{Colors.RED}")
+        print(f"╚═══════════════════════════════════════════════════╝{Colors.RESET}\n")
+        
+        raise
