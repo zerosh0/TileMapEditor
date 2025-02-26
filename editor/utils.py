@@ -60,11 +60,11 @@ class Tile:
 class Layer:
     opacity: float = 1.0
     tiles: List[Tile] = field(default_factory=list)
-
+        
     def addOrReplaceTile(self, tile):
         idx = next((i for i, t in enumerate(self.tiles) if t.x == tile.x and t.y == tile.y), None)
         
-        if idx:
+        if idx is not None:
             if self.tiles[idx] == tile:
                 return ""
             replaced_tile = self.tiles[idx]
@@ -73,6 +73,7 @@ class Layer:
         else:
             self.tiles.append(tile)
             return None
+
 
 
     def removeTile(self, pos):

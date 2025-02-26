@@ -19,7 +19,8 @@ class DataManager():
         self.selectionPalette=()
         self.selectionViewPort=()
         self.selectedCollisionRect: CollisionRect | None=None
-        self.lastAddedTilePositions = None
+        self.lastAddedTileState = None
+        self.lastAddTime = 0
 
     def ChangeSelectedCollisionRect(self,viewport):
         self.selectedCollisionRect=None
@@ -210,11 +211,17 @@ class DataManager():
         if not self.currentTiles:
             return
 
-        current_tile_positions = frozenset((tile.x, tile.y) for tile in self.currentTiles)
-        if self.lastAddedTilePositions == current_tile_positions:
+        current_tile_state = frozenset(
+            (tile.x, tile.y, tile.TileMap, tile.Originalx, tile.Originaly, tile.rotation, tile.flipHorizontal, tile.flipVertical)
+            for tile in self.currentTiles
+        )
+        current_time = time.time()
+        time_threshold = 0.1 
+        if self.lastAddedTileState == current_tile_state and (current_time - self.lastAddTime < time_threshold):
             return
 
-        self.lastAddedTilePositions = current_tile_positions
+        self.lastAddTime = current_time
+        self.lastAddedTileState = current_tile_state
 
         oldTiles = []
         newTiles = []
@@ -224,6 +231,7 @@ class DataManager():
                 oldTiles.append(oldTile)
                 newTiles.append(tile)
         self.history.RegisterAddTiles(self.currentLayer, newTiles, oldTiles)
+
 
     def getCurrentLayer(self) -> Layer:
         return self.layers[self.currentLayer]
