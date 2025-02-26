@@ -131,8 +131,10 @@ class DataManager():
                 NewTile = copy.deepcopy(self.currentTiles[0])
                 NewTile.x = x
                 NewTile.y = y
-                new_tiles.append(NewTile)
-                old_tiles.append(self.getCurrentLayer().addOrReplaceTile(NewTile))
+                oldTile=self.getCurrentLayer().addOrReplaceTile(NewTile)
+                if oldTile != "":
+                    new_tiles.append(NewTile)
+                    old_tiles.append(oldTile)
         if new_tiles:
             self.history.RegisterAddTiles(self.currentLayer, new_tiles,old_tiles)
 
@@ -150,8 +152,10 @@ class DataManager():
                 NewTile = copy.deepcopy(random.choice(self.currentTiles))
                 NewTile.x = x
                 NewTile.y = y
-                new_tiles.append(NewTile)
-                old_tiles.append(self.getCurrentLayer().addOrReplaceTile(NewTile))
+                oldTile=self.getCurrentLayer().addOrReplaceTile(NewTile)
+                if oldTile != "":
+                    new_tiles.append(NewTile)
+                    old_tiles.append(oldTile)
         if new_tiles:
             self.history.RegisterAddTiles(self.currentLayer, new_tiles,old_tiles)
 

@@ -2,7 +2,8 @@ import json
 import pygame
 import tkinter as tk
 from tkinter import filedialog
-from editor.utils import TileMap, Tools, Tile, Layer, CollisionRect
+from editor.utils import Colors, TileMap, Tools, Tile, Layer, CollisionRect
+from dataclasses import is_dataclass
 
 class SaveLoadManager:
     @staticmethod
@@ -39,13 +40,22 @@ class SaveLoadManager:
     @staticmethod
     def save(level_design,file_path=None):
         # Sauvegarde des layers et de leurs tiles
+        corrupted_data=False
         layers_data = []
         for layer in level_design.dataManager.layers:
+            if not (is_dataclass(layer) and isinstance(layer, Layer)): 
+                print(f"{Colors.RED}Données corrompues (TileMap){Colors.RESET}")
+                corrupted_data=True
+                continue
             layer_dict = {
                 "opacity": layer.opacity,
                 "tiles": []
             }
             for tile in layer.tiles:
+                if not (is_dataclass(tile) and isinstance(tile, Tile)): 
+                    print(f"{Colors.RED}Données corrompues (Tile){Colors.RESET}")
+                    corrupted_data=True
+                    continue
                 tile_dict = {
                     "TileMap": tile.TileMap,
                     "x": tile.x,
@@ -62,6 +72,10 @@ class SaveLoadManager:
         # Sauvegarde des rectangles de collision
         collision_rects_data = []
         for collision in level_design.dataManager.collisionRects:
+            if not (is_dataclass(collision) and isinstance(collision, CollisionRect)): 
+                print(f"{Colors.RED}Données corrompues (Collision Rect){Colors.RESET}")
+                corrupted_data=True
+                continue
             collision_dict = {
                 "type": collision.type,
                 "name": collision.name,
@@ -73,6 +87,10 @@ class SaveLoadManager:
         # Sauvegarde des TileMap de la palette
         tilemaps_data = []
         for tilemap in level_design.tilePalette.Maps:
+            if not (is_dataclass(tilemap) and isinstance(tilemap, TileMap)): 
+                print(f"{Colors.RED}Données corrompues (TileMap){Colors.RESET}")
+                corrupted_data=True
+                continue
             tilemap_data = {
                 "name": tilemap.name,
                 "filepath": tilemap.filepath,
@@ -109,6 +127,9 @@ class SaveLoadManager:
             print("✅ Sauvegarde réussie !")
         except Exception as e:
             print("Erreur lors de la sauvegarde :", e)
+        if corrupted_data:
+            print(f"{Colors.YELLOW}⚠️ Certaines données étaient corrompues et n'ont pas été sauvegardées.{Colors.RESET}")
+
 
 
     @staticmethod
