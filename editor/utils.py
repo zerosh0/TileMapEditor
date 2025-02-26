@@ -78,7 +78,7 @@ class Layer:
 
     def removeTile(self, pos):
         idx = next((i for i, t in enumerate(self.tiles) if t.x == pos[0] and t.y == pos[1]), None)
-        if idx:
+        if idx is not None:
             self.tiles.pop(idx)
 
 
