@@ -41,6 +41,7 @@ class LevelDesign:
             "flip_vertical": lambda: self.dataManager.flipCurrentTiles(Axis.Vertical),
             "flip_horizontal": lambda: self.dataManager.flipCurrentTiles(Axis.Horizontal),
             "draw": lambda: self.setTool(Tools.Draw),
+            "location_point": lambda: self.setTool(Tools.LocationPoint),
             "rotate": self.dataManager.RotateCurrentTiles,
             "show": self.ChangeShowState,
             "editName": self.EditName,
@@ -62,7 +63,7 @@ class LevelDesign:
         self.DragThreshold = 8
         self.MapDragActive = False
         self.RightMapDragActive = False
-        self.LeftViewPortDragActive = False
+        self.RightViewPortDragActive = False
 
 
     def open_level(self):
@@ -125,22 +126,28 @@ class LevelDesign:
         self.viewport.UpdateRect()
 
     def EditName(self):
+        if self.dataManager.currentTool==Tools.LocationPoint:
+            self.dataManager.currentTool=Tools.Draw
         self.dataManager.currentTiles=[]
         name = simpledialog.askstring("Nom du rectangle", "Entrez le nouveau nom du rectangle:")
         if name:
-            self.dataManager.selectedCollisionRect.name = name
+            self.dataManager.selectedElement.name = name
         else:
             print("Format d'entrée invalide")
 
     def EditColor(self,new_color):
+        if self.dataManager.currentTool==Tools.LocationPoint:
+            self.dataManager.currentTool=Tools.Draw
         self.dataManager.currentTiles=[]
-        self.dataManager.selectedCollisionRect.color = new_color
+        self.dataManager.selectedElement.color = new_color
 
     def EditType(self):
         self.dataManager.currentTiles=[]
+        if self.dataManager.currentTool==Tools.LocationPoint:
+            self.dataManager.currentTool=Tools.Draw
         type_value = simpledialog.askstring("Type du rectangle", "Entrez le nouveau type du rectangle:")
         if type_value:
-            self.dataManager.selectedCollisionRect.type = type_value
+            self.dataManager.selectedElement.type = type_value
         else:
             print("Format d'entrée invalide")
 
@@ -169,11 +176,13 @@ class LevelDesign:
             self.LeftClickStartPos = event.pos
             self.LeftTempPos = event.pos
             self.MapDragActive = self.tilePalette.InRegion()
-            self.RightViewPortDragActive = self.viewport.InRegion() and self.tilePalette.GetCurrentTileMap()
+            self.LeftViewPortDragActive = self.viewport.InRegion() and self.tilePalette.GetCurrentTileMap()
+            if self.dataManager.currentTool == Tools.LocationPoint and self.LeftViewPortDragActive:
+                self.dataManager.AddLocationPoint(self.viewport,self.DrawManager.locationPointImage,self.DrawManager.DottedlocationPointImage)
         elif event.button == 3:  # Clic droit
             self.RightClickStartPos = event.pos
             self.RightTempPos = event.pos
-            self.LeftViewPortDragActive = self.viewport.InRegion() and self.tilePalette.GetCurrentTileMap()
+            self.RightViewPortDragActive = self.viewport.InRegion() and self.tilePalette.GetCurrentTileMap()
             self.RightMapDragActive = self.tilePalette.InRegion() and self.tilePalette.GetCurrentTileMap()
             self.MapDragActive = self.tilePalette.InRegion()
 
@@ -185,7 +194,7 @@ class LevelDesign:
                 self.LeftDragging = True
                 if self.MapDragActive and self.LeftDragging:
                         self.tilePalette.move(event.pos[0] - self.LeftTempPos[0], event.pos[1] - self.LeftTempPos[1])
-                if self.RightViewPortDragActive and self.LeftDragging and pygame.key.get_pressed()[pygame.K_LSHIFT]:
+                if self.LeftViewPortDragActive and self.LeftDragging and pygame.key.get_pressed()[pygame.K_LSHIFT]:
                     self.dataManager.selectionViewPort=(self.LeftClickStartPos,pygame.mouse.get_pos())
                     self.DrawManager.viewportSelectionPreview=True
                 elif self.viewport.InRegion():
@@ -196,7 +205,7 @@ class LevelDesign:
             if abs(event.pos[0] - self.RightClickStartPos[0]) > self.DragThreshold or \
                abs(event.pos[1] - self.RightClickStartPos[1]) > self.DragThreshold:
                 self.RightDragging = True
-                if self.LeftViewPortDragActive:
+                if self.RightViewPortDragActive:
                     self.viewport.move(event.pos[0] - self.RightTempPos[0], event.pos[1] - self.RightTempPos[1])
                 elif self.MapDragActive and self.RightMapDragActive:
                     self.DrawManager.PaletteSelectionPreview=True
@@ -205,7 +214,7 @@ class LevelDesign:
             if self.viewport.InRegion():
                     self.DrawManager.viewportSelectionPreview=False
                     self.dataManager.selectionViewPort=[]
-        if self.tilePalette.GetCurrentTileMap() and not (self.MapDragActive or self.LeftViewPortDragActive) and self.viewport.InRegion():
+        if self.tilePalette.GetCurrentTileMap() and not (self.MapDragActive or self.RightViewPortDragActive) and self.viewport.InRegion():
             self.DrawManager.TilePreview=True
             self.UpdateCurrentTiles()
         else:
@@ -229,9 +238,9 @@ class LevelDesign:
             self.DrawManager.PaletteSelectionPreview=False
             self.MapDragActive=False
             self.RightDragging = False
-            self.RightViewPortDragActive=False
+            self.LeftViewPortDragActive=False
             self.RightMapDragActive = False
-            self.LeftViewPortDragActive = False
+            self.RightViewPortDragActive = False
         self.lastAddedTilePositions = None
 
     def Handledragclick(self):
@@ -268,10 +277,13 @@ class LevelDesign:
         elif event.key == pygame.K_LEFT:
             self.tilePalette.changeCurrentTileMap(-1)
         elif event.key == pygame.K_DELETE:
-            if self.dataManager.selectedCollisionRect:
-                self.HistoryManager.RegisterRemoveCollisions(self.dataManager.selectedCollisionRect)
-                self.dataManager.collisionRects.remove(self.dataManager.selectedCollisionRect)
-                self.dataManager.selectedCollisionRect=None
+            if self.dataManager.selectedElement:
+                if isinstance(self.dataManager.selectedElement,CollisionRect):
+                    self.dataManager.collisionRects.remove(self.dataManager.selectedElement)
+                else:
+                    self.dataManager.locationPoints.remove(self.dataManager.selectedElement)
+                self.HistoryManager.RegisterRemoveElement(self.dataManager.selectedElement)
+                self.dataManager.selectedElement=None
         elif event.key == pygame.K_z and event.mod & pygame.KMOD_LCTRL:
             self.HistoryManager.Undo(self.dataManager)
         elif event.key == pygame.K_y and event.mod & pygame.KMOD_LCTRL:

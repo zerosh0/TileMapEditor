@@ -81,6 +81,12 @@
     },
     {
         "type": "ImageButton",
+        "rect": [795, 350, 32, 32],
+        "image": "./Assets/ui/icones/locationPoint.png",
+        "action": "location_point"
+    },
+    {
+        "type": "ImageButton",
         "rect": [940, 92, 24, 24],
         "image": "./Assets/ui/icones/eyesopen.png",
         "action": "show"

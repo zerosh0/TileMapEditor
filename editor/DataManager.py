@@ -1,7 +1,7 @@
 import copy
 import time
 from editor.History import HistoryManager
-from editor.utils import Layer,Tile,Tools,Axis,CollisionRect
+from editor.utils import Layer, LocationPoint,Tile,Tools,Axis,CollisionRect
 import random
 from typing import List
 import pygame
@@ -13,20 +13,24 @@ class DataManager():
         self.history=history
         self.layers=[Layer() for _ in range(9)]
         self.collisionRects: list[CollisionRect]=[]
+        self.locationPoints: list[LocationPoint]=[]
         self.currentLayer=0
         self.currentTiles: List[Tile]=[]
         self.currentTool: Tools = Tools.Draw
         self.selectionPalette=()
         self.selectionViewPort=()
-        self.selectedCollisionRect: CollisionRect | None=None
+        self.selectedElement: CollisionRect | LocationPoint | None=None
         self.lastAddedTileState = None
         self.lastAddTime = 0
 
     def ChangeSelectedCollisionRect(self,viewport):
-        self.selectedCollisionRect=None
+        self.selectedElement=None
         for rect in self.collisionRects:
             if rect.collidePoint(pygame.mouse.get_pos(),viewport.panningOffset,viewport.zoom):
-                self.selectedCollisionRect=rect
+                self.selectedElement=rect
+        for point in self.locationPoints:
+            if point.collidePoint(pygame.mouse.get_pos(),viewport.panningOffset,viewport.zoom):
+                self.selectedElement=point
 
 
     def getCenterSelectionViewport(self):
@@ -261,6 +265,21 @@ class DataManager():
         else:
             self.currentTool=tool
 
+    def AddLocationPoint(self, viewport,image: pygame.Surface,dottedImage : pygame.Surface):
+        x1, y1 = viewport.toMapCoords(pygame.mouse.get_pos())
+        new_location = LocationPoint(
+            type="Player",
+            name=f"point_{len(self.locationPoints)}",
+            rect=pygame.Rect(x1, y1, image.get_width(), image.get_height()),
+            image=image,
+            SelectedImage=dottedImage,
+            color=(255, 0, 0)
+        )
+        self.history.RegisterAddElement(new_location)
+        self.locationPoints.append(new_location)
+        self.selectedElement=self.locationPoints[-1]
+
+
     def AddColisionRect(self, viewport):
         x1, y1 = viewport.toMapCoords(self.selectionViewPort[0])
         x2, y2 = viewport.toMapCoords(self.selectionViewPort[1])
@@ -277,9 +296,9 @@ class DataManager():
             rect=pygame.Rect(rect_x, rect_y, rect_width, rect_height),
             color=(255, 0, 0)
         )
-        self.history.RegisterAddCollisions(new_collision_rect)
+        self.history.RegisterAddElement(new_collision_rect)
         self.collisionRects.append(new_collision_rect)
-        self.selectedCollisionRect=self.collisionRects[-1]
+        self.selectedElement=self.collisionRects[-1]
 
 
     def changeCurrentLayer(self,change: int):

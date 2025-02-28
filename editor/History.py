@@ -1,4 +1,4 @@
-from editor.utils import ActionType
+from editor.utils import ActionType, CollisionRect
 import copy
 
 class HistoryManager:
@@ -57,15 +57,23 @@ class HistoryManager:
         data_manager.layers[layer_index].tiles.extend(filtered_replaced_tiles)
 
     def _undo_add_collision(self, data, data_manager):
-        data_manager.collisionRects = [
-            c for c in data_manager.collisionRects 
-            if c != data
-        ]
-        data_manager.selectedCollisionRect = None
+        if isinstance(data,CollisionRect):
+            data_manager.collisionRects = [
+                c for c in data_manager.collisionRects 
+                if c != data
+            ]
+        else:
+            data_manager.locationPoints = [
+                c for c in data_manager.locationPoints 
+                if c.rect != data.rect
+            ]
+        data_manager.selectedElement = None
 
     def _undo_remove_collision(self, data, data_manager):
-        data_manager.collisionRects.append(data)
-
+        if isinstance(data,CollisionRect):
+            data_manager.collisionRects.append(data)
+        else:
+            data_manager.locationPoints.append(data)
     # ----- Redo methods -----
     def _redo_add_tile(self, data, data_manager):
         layer_index, new_tiles, replaced_tiles = data
@@ -85,13 +93,23 @@ class HistoryManager:
         ]
 
     def _redo_add_collision(self, data, data_manager):
-        data_manager.collisionRects.append(data)
+        if isinstance(data,CollisionRect):
+            data_manager.collisionRects.append(data)
+        else:
+            data_manager.locationPoints.append(data)
 
     def _redo_remove_collision(self, data, data_manager):
-        data_manager.collisionRects = [
-            c for c in data_manager.collisionRects 
-            if c != data
-        ]
+        if isinstance(data,CollisionRect):
+            data_manager.collisionRects = [
+                c for c in data_manager.collisionRects 
+                if c != data
+            ]
+        else:
+            data_manager.locationPoints = [
+                c for c in data_manager.locationPoints 
+                if c.rect != data.rect
+            ]
+
 
     # ----- Méthodes d'enregistrement -----
     def RegisterAddTiles(self, layer_index, new_tiles, replaced_tiles):
@@ -112,13 +130,13 @@ class HistoryManager:
                 (layer_index, [], copy.deepcopy(RemoveTiles))
             )
 
-    def RegisterAddCollisions(self, collision):
+    def RegisterAddElement(self, collision):
         self._register_action(
             ActionType.AddCollision, 
             copy.deepcopy(collision)
         )
 
-    def RegisterRemoveCollisions(self, collision):
+    def RegisterRemoveElement(self, collision):
         self._register_action(
             ActionType.RemoveCollision, 
             copy.deepcopy(collision)

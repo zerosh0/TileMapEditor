@@ -36,6 +36,8 @@ class DrawManager:
                              min_value=0, max_value=1, initial_value=1,
                              progress_color=(198, 128, 93),bar_color=(159, 167, 198))
         self.colorPick=ColorButton(rect=(self.screen.get_width() - 70, 195, 40, 20),initial_color=(255, 0, 0),action=self.actions.get("editColor"))
+        self.locationPointImage=pygame.image.load('./Assets/ui/LocationPoint.png')
+        self.DottedlocationPointImage=pygame.image.load('./Assets/ui/DottedLocationPoint.png')
         self.load_buttons("./Assets/ui/ui.json")
         self.UpdateRect()
 
@@ -74,24 +76,23 @@ class DrawManager:
         self.drawSelectionPreview()
         
     def UpdateCollisionText(self):
-        if self.dataManager.selectedCollisionRect:
-            self.NameText=self.font.render(f"Name: {self.dataManager.selectedCollisionRect.name}", True, (255, 255, 255))
-            self.TypeText=self.font.render(f"Type: {self.dataManager.selectedCollisionRect.type}", True, (255, 255, 255))
+        if self.dataManager.selectedElement:
+            self.NameText=self.font.render(f"Name: {self.dataManager.selectedElement.name}", True, (255, 255, 255))
+            self.TypeText=self.font.render(f"Type: {self.dataManager.selectedElement.type}", True, (255, 255, 255))
             self.ColorText=self.font.render("Color: ", True, (255, 255, 255))
-            self.colorPick.color=self.dataManager.selectedCollisionRect.color
+            self.colorPick.color=self.dataManager.selectedElement.color
         else:
             self.NameText=self.font.render("", True, (255, 255, 255))
             self.TypeText=self.font.render("", True, (255, 255, 255))
             self.ColorText=self.font.render("", True, (255, 255, 255))
 
-    def drawCollisionRects(self):
+    def drawElements(self):
         if not self.viewportData.displayRect:
             return
         for CollisionRect in self.dataManager.collisionRects:
-            if CollisionRect==self.dataManager.selectedCollisionRect:
-                CollisionRect.draw(self.screen,self.viewportData.panningOffset,self.viewportData.zoom,True)
-            else:
-                CollisionRect.draw(self.screen,self.viewportData.panningOffset,self.viewportData.zoom)
+            CollisionRect.draw(self.screen,self.viewportData.panningOffset,self.viewportData.zoom,CollisionRect==self.dataManager.selectedElement)
+        for locationPoint in self.dataManager.locationPoints:
+            locationPoint.draw(self.screen,self.viewportData.panningOffset,self.viewportData.zoom,locationPoint==self.dataManager.selectedElement)
 
     def drawSelectionPreview(self):
         if self.PaletteSelectionPreview and self.dataManager.selectionPalette:
@@ -225,11 +226,11 @@ class DrawManager:
         screen_height = self.screen.get_height()
         if self.activeTileMap:
             self.screen.blit(self.viewport,self.viewportRect)
-            self.drawCollisionRects()
+            self.drawElements()
         # Interface latérale
         pygame.draw.rect(self.screen, (36, 43, 59), (screen_width - 250, 0, 250, screen_height))
         pygame.draw.rect(self.screen, (50, 58, 81), (screen_width - 230, 30, 210, 200), border_radius=3)
-        pygame.draw.rect(self.screen, (107, 114, 150), (screen_width - 230, 250, 210, 100), border_radius=3)
+        pygame.draw.rect(self.screen, (107, 114, 150), (screen_width - 230, 250, 210, 140), border_radius=3)
         pygame.draw.rect(self.screen, (50, 58, 81), self.palette_area_rect, border_radius=3)
         pygame.draw.rect(self.screen, (36, 43, 59), (0, 0, screen_width - 250, 30))
         self.screen.blit(self.layerText,(screen_width - 220,40))
@@ -243,12 +244,12 @@ class DrawManager:
         for button in self.buttons:
             self.UpdateEyeButtons(button)
             if hasattr(button, "image_path") and "edit" in button.image_path:
-                if self.dataManager.selectedCollisionRect:
+                if self.dataManager.selectedElement:
                     button.draw(self.screen)
             else:
                 button.draw(self.screen)
         self.slider.draw(self.screen)
-        if self.dataManager.selectedCollisionRect:
+        if self.dataManager.selectedElement:
             self.colorPick.draw(self.screen)
     
     def UpdateEyeButtons(self,button):

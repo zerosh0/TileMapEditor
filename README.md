@@ -2,10 +2,12 @@
 **TileMapEditor** est un éditeur de niveaux développé en Python avec Pygame, permettant de créer facilement des maps à base de tiles, avec gestion des layers, collisions et outils de dessin avancés. C'est avant tout un proof of concept, visant à démontrer une version fonctionnelle mais non optimisée du projet. Le code et le stockage doivent être améliorés pour une utilisation en production.
 
 ## ✨ Nouveautés
+- 🟢 Ajout de Points de Repère (Locations Points)  
 - 🔄 Undo/Redo : Annulez ou rétablissez facilement vos modifications avec ```ctrl + z``` et ```ctrl + y ``` 
 - 📏 Redimensionnement de la fenêtre : L'éditeur s'adapte désormais dynamiquement à la taille de la fenêtre
 - 🎛️ Affichage de la grille : Activez ou désactivez la grille avec la touche ```H```
 - 🔒 Secure Save : En cas d'erreur, l'éditeur crée automatiquement une sauvegarde sécurisée pour protéger votre travail. Une sauvegarde temporaire est générée avec un nom unique (ex: SecureSave_20231015_143258_4729.json) et un message détaillé s'affiche dans la console.  
+
 
 ![Secure save Message](Assets/images/secureSave.png)
 ## 📌 Fonctionnalités  
@@ -206,7 +208,7 @@ L’éditeur dispose de **9 layers (couches)**, numérotés de **0 à 8** :
 | **Flip** ↔️    | Retourne les tuiles horizontalement ou verticalement | Non                   |
 | **Rotation** 🔄| Fait pivoter les tuiles sélectionnées         | Possible    (sur TileMap)             |
 | **Pinceau** 🖌️| Dessine des tuiles               | Possible (sur TileMap)                      |
-
+| **Location Point** 🟢 (nouveau)| Met un point de localisation               | Non                      |
 
 
 
@@ -382,8 +384,6 @@ Détection de collision : Utilisez les méthodes ```colliderect()``` ou ```colli
 
 - Utilisez un système de décalage pour simuler le mouvement de la caméra. Vous devez décaler l’affichage du niveau et des objets à l'écran en fonction de la position du joueur.  
 
-## 🔮 Fonctionnalités à venir
--	🟢 Ajout de Points de Repère (Locations Points)
 ________________________________________
 ## 💡 Notes et retours
 L’éditeur est encore en alpha. Si vous trouvez des bugs ou avez des suggestions, faites-moi signe ! 🚀

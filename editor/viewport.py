@@ -50,7 +50,7 @@ class ViewPort():
         return pygame.Rect(rect_x, rect_y, grid_cell_size, grid_cell_size)
 
     def Zoom(self,zoom):
-        self.zoom=round(max(self.zoom+zoom*self.zoomSensitivity,0.1),2)
+        self.zoom=round(max(self.zoom+zoom*self.zoomSensitivity,0.25),2)
 
 
     def toMapCoords(self, screen_pos: tuple):

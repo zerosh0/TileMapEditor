@@ -2,7 +2,7 @@ import json
 import pygame
 import tkinter as tk
 from tkinter import filedialog
-from editor.utils import Colors, TileMap, Tools, Tile, Layer, CollisionRect
+from editor.utils import Colors, LocationPoint, TileMap, Tools, Tile, Layer, CollisionRect
 from dataclasses import is_dataclass
 
 class SaveLoadManager:
@@ -84,6 +84,21 @@ class SaveLoadManager:
             }
             collision_rects_data.append(collision_dict)
 
+         # Sauvegarde des points de localisation
+        location_point_data = []
+        for point in level_design.dataManager.locationPoints:
+            if not (is_dataclass(point) and isinstance(point, LocationPoint)): 
+                print(f"{Colors.RED}Données corrompues (Location Point){Colors.RESET}")
+                corrupted_data=True
+                continue
+            location_dict = {
+                "type": point.type,
+                "name": point.name,
+                "rect": [point.rect.x, point.rect.y, point.rect.width, point.rect.height],
+                "color": list(point.color)
+            }
+            location_point_data.append(location_dict)
+
         # Sauvegarde des TileMap de la palette
         tilemaps_data = []
         for tilemap in level_design.tilePalette.Maps:
@@ -105,6 +120,7 @@ class SaveLoadManager:
             "layers": layers_data,
             "currentLayer": level_design.dataManager.currentLayer,
             "collisionRects": collision_rects_data,
+            "locationPoint":location_point_data,
             "currentTool": level_design.dataManager.currentTool.name,
             "viewport": {
                 "panningOffset": level_design.viewport.panningOffset,
@@ -189,6 +205,21 @@ class SaveLoadManager:
             )
             collision_rects.append(collision)
         level_design.dataManager.collisionRects = collision_rects
+
+        # Reconstruction des LocationPoint
+        locationPoints = []
+        if data.get("locationPoint"):
+            for point in data["locationPoint"]:
+                location = LocationPoint(
+                    type=point["type"],
+                    name=point["name"],
+                    rect=pygame.Rect(*point["rect"]),
+                    color=tuple(point["color"]),
+                    image=pygame.image.load('./Assets/ui/LocationPoint.png'),
+                    SelectedImage=pygame.image.load('./Assets/ui/DottedLocationPoint.png')
+                )
+                locationPoints.append(location)
+            level_design.dataManager.locationPoints = locationPoints
 
         level_design.dataManager.currentTool = Tools[data["currentTool"]]
 
