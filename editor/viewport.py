@@ -12,15 +12,19 @@ class ViewPort():
         self.panningOffset=[0,0]
         self.surface=pygame.surface.Surface((self.screen.get_width() - 250,self.screen.get_height()-45))
         self.rect = self.surface.get_rect()
+        self.tilePaletteRect=pygame.Rect(self.screen.get_width() - 230, self.screen.get_height() - 270,210,230)
         self.screen_pos = (self.rect.x, self.rect.y)
         self.displayRect=True
 
-    def UpdateRect(self):
+    def UpdateRect(self,SurfaceZoom):
         self.surface=pygame.surface.Surface((self.screen.get_width() - 250,self.screen.get_height()-45))
         self.rect = self.surface.get_rect()
+        self.tilePaletteRect=pygame.Rect(self.screen.get_width() - 230, self.screen.get_height() - 270,210*SurfaceZoom,230*SurfaceZoom)
+        self.tilePaletteRect.bottom=self.screen.get_height()-40
+        self.tilePaletteRect.right=self.screen.get_width()-20
 
     def InRegion(self):
-        return self.rect.collidepoint(pygame.mouse.get_pos()[0],pygame.mouse.get_pos()[1]-30)   
+        return self.rect.collidepoint(pygame.mouse.get_pos()[0],pygame.mouse.get_pos()[1]-30) and not  self.tilePaletteRect.collidepoint(pygame.mouse.get_pos()[0],pygame.mouse.get_pos()[1])
 
     def move(self,dx,dy):
         self.panningOffset[0]+=dx*self.moveSensitivity

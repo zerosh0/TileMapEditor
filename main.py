@@ -14,7 +14,7 @@ from editor.viewport import ViewPort
 
 class LevelDesign:
     def __init__(self, screen: pygame.surface.Surface):
-        self.version=0.2
+        self.version=0.3
         self.screen = screen
         self.zoom_sensitivity = 0.25
         self.move_sensitivity = 1
@@ -74,7 +74,7 @@ class LevelDesign:
             return
         self.TmapOpener.filepath=file_path
         self.TmapOpener.image = pygame.image.load(file_path).convert_alpha()
-        tileSize=simpledialog.askinteger("Taille des tiles", "Entrez la taille des tiles (ex: 32):", initialvalue=32)
+        tileSize=simpledialog.askinteger("Taille des tiles", "Entrez la taille des tiles (ex: 32):", initialvalue=16)
         if not tileSize:
             print("Opération Annulée")
             return
@@ -122,14 +122,14 @@ class LevelDesign:
 
     def ResizeWindow(self):
         self.DrawManager.UpdateRect()
-        self.tilePalette.UpdateRect()
-        self.viewport.UpdateRect()
+        self.tilePalette.UpdateRect(self.DrawManager.TilePaletteSurfaceZoom)
+        self.viewport.UpdateRect(self.DrawManager.TilePaletteSurfaceZoom)
 
     def EditName(self):
         if self.dataManager.currentTool==Tools.LocationPoint:
             self.dataManager.currentTool=Tools.Draw
         self.dataManager.currentTiles=[]
-        name = simpledialog.askstring("Nom du rectangle", "Entrez le nouveau nom du rectangle:")
+        name = simpledialog.askstring("Nom de l'élément", "Entrez le nouveau nom de l'élément:")
         if name:
             self.dataManager.selectedElement.name = name
         else:
@@ -145,7 +145,7 @@ class LevelDesign:
         self.dataManager.currentTiles=[]
         if self.dataManager.currentTool==Tools.LocationPoint:
             self.dataManager.currentTool=Tools.Draw
-        type_value = simpledialog.askstring("Type du rectangle", "Entrez le nouveau type du rectangle:")
+        type_value = simpledialog.askstring("Type de l'élément", "Entrez le nouveau type de l'élément:")
         if type_value:
             self.dataManager.selectedElement.type = type_value
         else:
@@ -162,9 +162,15 @@ class LevelDesign:
 
     def HandleMouseWheel(self, event):
         if self.tilePalette.InRegion() and self.tilePalette.GetCurrentTileMap():
-            self.tilePalette.Zoom(event.y)
-            self.DrawManager.viewportSelectionPreview=False
-            self.dataManager.selectionViewPort=[]
+            mods = pygame.key.get_mods()
+            if mods & pygame.KMOD_CTRL:
+                self.DrawManager.TilePaletteSurfaceZoom=max(1.0,self.DrawManager.TilePaletteSurfaceZoom+event.y*0.1)
+                self.DrawManager.UpdateRect()
+                self.tilePalette.UpdateRect(self.DrawManager.TilePaletteSurfaceZoom)
+            else:   
+                self.tilePalette.Zoom(event.y)
+                self.DrawManager.viewportSelectionPreview=False
+                self.dataManager.selectionViewPort=[]
         elif self.viewport.InRegion() and self.tilePalette.GetCurrentTileMap():
             self.DrawManager.viewportSelectionPreview=False
             self.dataManager.selectionViewPort=[]
@@ -205,7 +211,7 @@ class LevelDesign:
             if abs(event.pos[0] - self.RightClickStartPos[0]) > self.DragThreshold or \
                abs(event.pos[1] - self.RightClickStartPos[1]) > self.DragThreshold:
                 self.RightDragging = True
-                if self.RightViewPortDragActive:
+                if self.RightViewPortDragActive and not self.MapDragActive:
                     self.viewport.move(event.pos[0] - self.RightTempPos[0], event.pos[1] - self.RightTempPos[1])
                 elif self.MapDragActive and self.RightMapDragActive:
                     self.DrawManager.PaletteSelectionPreview=True

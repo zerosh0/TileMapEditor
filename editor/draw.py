@@ -13,6 +13,7 @@ class DrawManager:
         self.viewportRect = self.viewport.get_rect()
         self.viewportRect.top = 30
         self.TilePalette=pygame.surface.Surface((210, 230))
+        self.TilePaletteSurfaceZoom=1
         self.buttons: List[Button] = []
         self.bg_color = (200, 200, 200)
         self.actions=actions
@@ -191,7 +192,10 @@ class DrawManager:
         self.screen.blit(self.TilePalette,self.TilePaletteRect)
         
     def UpdateRect(self):
-        self.TilePaletteRect=pygame.Rect(self.screen.get_width() - 230, self.screen.get_height() - 270,210,230)
+        self.TilePaletteRect=pygame.Rect(self.screen.get_width() - 230, self.screen.get_height() - 270,210*self.TilePaletteSurfaceZoom,230*self.TilePaletteSurfaceZoom)
+        self.TilePalette=pygame.surface.Surface((210*self.TilePaletteSurfaceZoom, 230*self.TilePaletteSurfaceZoom))
+        self.TilePaletteRect.bottom=self.screen.get_height()-40
+        self.TilePaletteRect.right=self.screen.get_width()-20
         self.palette_area_rect = pygame.Rect(self.screen.get_width() - 230, self.screen.get_height() - 270, 210, 230)
         self.bar = pygame.image.load('./Assets/ui/travaux.png')
         self.bar = pygame.transform.scale(self.bar, (self.screen.get_width(), 17))
@@ -234,7 +238,7 @@ class DrawManager:
         pygame.draw.rect(self.screen, (50, 58, 81), self.palette_area_rect, border_radius=3)
         pygame.draw.rect(self.screen, (36, 43, 59), (0, 0, screen_width - 250, 30))
         self.screen.blit(self.layerText,(screen_width - 220,40))
-        self.screen.blit(self.MapText,(screen_width - 230,screen_height - 295))
+        self.screen.blit(self.MapText,(screen_width - 230,400))
         self.screen.blit(self.collisionsText,(screen_width - 220, 95))
         self.screen.blit(self.TypeText,(screen_width - 220, 125))
         self.screen.blit(self.NameText,(screen_width - 220, 160))

@@ -13,8 +13,11 @@ class TilePalette():
         self.surface=pygame.surface.Surface((210, 230))
         self.rect=pygame.Rect(self.screen.get_width() - 230, self.screen.get_height() - 270,210,230)
     
-    def UpdateRect(self):
-        self.rect=pygame.Rect(self.screen.get_width() - 230, self.screen.get_height() - 270,210,230)
+    def UpdateRect(self,SurfaceZoom):
+        self.rect=pygame.Rect(self.screen.get_width() - 230, self.screen.get_height() - 270,210*SurfaceZoom,230*SurfaceZoom)
+        self.surface=pygame.surface.Surface((210*SurfaceZoom, 230*SurfaceZoom))
+        self.rect.bottom=self.screen.get_height()-40
+        self.rect.right=self.screen.get_width()-20
 
     def changeCurrentTileMap(self, change: int):
         # Sauvegarde des paramètres actuels de la map

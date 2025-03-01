@@ -247,5 +247,6 @@ class SaveLoadManager:
             )
             tilemaps.append(tilemap)
         level_design.tilePalette.Maps = tilemaps
+        level_design.DrawManager.updateLayerText(data["currentLayer"])
 
         print("✅ Chargement réussi !")
