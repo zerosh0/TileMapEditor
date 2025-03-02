@@ -184,7 +184,7 @@ class LevelDesign:
             self.MapDragActive = self.tilePalette.InRegion()
             self.LeftViewPortDragActive = self.viewport.InRegion() and self.tilePalette.GetCurrentTileMap()
             if self.dataManager.currentTool == Tools.LocationPoint and self.LeftViewPortDragActive:
-                self.dataManager.AddLocationPoint(self.viewport,self.DrawManager.locationPointImage,self.DrawManager.DottedlocationPointImage)
+                self.dataManager.AddLocationPoint(self.viewport,self.DrawManager.locationPointImage)
         elif event.button == 3:  # Clic droit
             self.RightClickStartPos = event.pos
             self.RightTempPos = event.pos
@@ -240,7 +240,7 @@ class LevelDesign:
             if self.RightDragging:
                 self.Handledragclick()
             else:
-                self.dataManager.ChangeSelectedCollisionRect(self.viewport)
+                self.dataManager.ChangeSelectedCollisionRect(self.viewport,self.DrawManager.locationPointImage)
             self.DrawManager.PaletteSelectionPreview=False
             self.MapDragActive=False
             self.RightDragging = False

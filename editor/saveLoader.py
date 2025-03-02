@@ -214,9 +214,7 @@ class SaveLoadManager:
                     type=point["type"],
                     name=point["name"],
                     rect=pygame.Rect(*point["rect"]),
-                    color=tuple(point["color"]),
-                    image=pygame.image.load('./Assets/ui/LocationPoint.png'),
-                    SelectedImage=pygame.image.load('./Assets/ui/DottedLocationPoint.png')
+                    color=tuple(point["color"])
                 )
                 locationPoints.append(location)
             level_design.dataManager.locationPoints = locationPoints

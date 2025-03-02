@@ -167,12 +167,10 @@ class CollisionRect:
 class LocationPoint:
     type: str
     name: str
-    image: pygame.Surface
-    SelectedImage: pygame.Surface
     rect: pygame.Rect
     color: tuple = (148, 148, 148)
 
-    def get_screen_rect(self, map_offset, zoom):
+    def get_screen_rect(self, map_offset, zoom,image):
         """
         Convertit les coordonnées relatives en coordonnées écran,
         en appliquant le décalage (panning) et le zoom.
@@ -184,8 +182,8 @@ class LocationPoint:
             int(self.rect.height * zoom)
         )
 
-        scaled_width = int(self.image.get_width() * zoom)
-        scaled_height = int(self.image.get_height() * zoom)
+        scaled_width = int(image.get_width() * zoom)
+        scaled_height = int(image.get_height() * zoom)
         return pygame.Rect(
             base_rect.centerx - scaled_width,
             base_rect.bottom - scaled_height * 2,
@@ -194,29 +192,22 @@ class LocationPoint:
         )
 
 
-    def collidePoint(self, point, map_offset, zoom):
-        screen_rect = self.get_screen_rect(map_offset, zoom)
+    def collidePoint(self, point, map_offset, zoom,image):
+        screen_rect = self.get_screen_rect(map_offset, zoom,image)
         return screen_rect.collidepoint(point)
 
-    def draw(self, surface, map_offset, zoom, selected=False):
-        if selected:
-            image = pygame.transform.scale(
-                self.SelectedImage,
-                (int(self.image.get_width() * zoom), int(self.image.get_height() * zoom))
-            )
-        else:
-            image = pygame.transform.scale(
-                self.image,
-                (int(self.image.get_width() * zoom), int(self.image.get_height() * zoom))
-            )
-
+    def draw(self, surface, map_offset, zoom, Oimage):
+        image = pygame.transform.scale(
+            Oimage,
+            (int(Oimage.get_width() * zoom), int(Oimage.get_height() * zoom))
+        )
 
         image = image.copy()
         color_surface = pygame.Surface(image.get_size(), pygame.SRCALPHA)
         color_surface.fill(self.color)
         image.blit(color_surface, (0, 0), special_flags=pygame.BLEND_RGB_ADD)
         image.set_alpha(150)
-        screen_rect = self.get_screen_rect(map_offset, zoom)
+        screen_rect = self.get_screen_rect(map_offset, zoom,Oimage)
         surface.blit(image, screen_rect)
 
 

@@ -23,13 +23,13 @@ class DataManager():
         self.lastAddedTileState = None
         self.lastAddTime = 0
 
-    def ChangeSelectedCollisionRect(self,viewport):
+    def ChangeSelectedCollisionRect(self,viewport,locationPointImage):
         self.selectedElement=None
         for rect in self.collisionRects:
             if rect.collidePoint(pygame.mouse.get_pos(),viewport.panningOffset,viewport.zoom):
                 self.selectedElement=rect
         for point in self.locationPoints:
-            if point.collidePoint(pygame.mouse.get_pos(),viewport.panningOffset,viewport.zoom):
+            if point.collidePoint(pygame.mouse.get_pos(),viewport.panningOffset,viewport.zoom,locationPointImage):
                 self.selectedElement=point
 
 
@@ -265,14 +265,12 @@ class DataManager():
         else:
             self.currentTool=tool
 
-    def AddLocationPoint(self, viewport,image: pygame.Surface,dottedImage : pygame.Surface):
+    def AddLocationPoint(self, viewport,image: pygame.Surface):
         x1, y1 = viewport.toMapCoords(pygame.mouse.get_pos())
         new_location = LocationPoint(
             type="Player",
             name=f"point_{len(self.locationPoints)}",
             rect=pygame.Rect(x1, y1, image.get_width(), image.get_height()),
-            image=image,
-            SelectedImage=dottedImage,
             color=(255, 0, 0)
         )
         self.history.RegisterAddElement(new_location)

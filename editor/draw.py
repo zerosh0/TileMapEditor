@@ -93,7 +93,10 @@ class DrawManager:
         for CollisionRect in self.dataManager.collisionRects:
             CollisionRect.draw(self.screen,self.viewportData.panningOffset,self.viewportData.zoom,CollisionRect==self.dataManager.selectedElement)
         for locationPoint in self.dataManager.locationPoints:
-            locationPoint.draw(self.screen,self.viewportData.panningOffset,self.viewportData.zoom,locationPoint==self.dataManager.selectedElement)
+            image=self.locationPointImage
+            if locationPoint==self.dataManager.selectedElement:
+                image=self.DottedlocationPointImage
+            locationPoint.draw(self.screen,self.viewportData.panningOffset,self.viewportData.zoom,image)
 
     def drawSelectionPreview(self):
         if self.PaletteSelectionPreview and self.dataManager.selectionPalette:
