@@ -175,6 +175,7 @@ class LevelDesign:
             self.DrawManager.viewportSelectionPreview=False
             self.dataManager.selectionViewPort=[]
             self.viewport.Zoom(event.y)
+            self.DrawManager.tile_cache.clear()
             self.UpdateCurrentTiles()
 
     def HandleMouseButtonDown(self, event):

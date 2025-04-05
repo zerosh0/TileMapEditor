@@ -21,6 +21,7 @@ class DrawManager:
         self.PaletteSelectionPreview=False
         self.viewportSelectionPreview=False
         self.drawVGrid=True
+        self.tile_cache = {}
         self.loadAssets()
 
     def loadAssets(self):
@@ -133,33 +134,60 @@ class DrawManager:
         self.viewport.blit(overlay, rect)
 
 
-    def drawTile(self,tile: Tile,alpha=None,overlay=False):
-        tileMap=self.tilePaletteData.GetMapByName(tile.TileMap)
-        rect = self.viewportData.GetTileRectFromRelative(tile.x,tile.y)
-        # Extraire la portion d'image correspondant à la tile
-        tile_rect = pygame.Rect(tile.Originalx * tileMap.tileSize,tile.Originaly * tileMap.tileSize,tileMap.tileSize,tileMap.tileSize)
-        try:
-            tile_surface = tileMap.image.subsurface(tile_rect).copy()
-        except:
+    def drawTile(self, tile: Tile, alpha=None, overlay=False):
+        tileMap = self.tilePaletteData.GetMapByName(tile.TileMap)
+        rect = self.viewportData.GetTileRectFromRelative(tile.x, tile.y)
+
+        if not rect.colliderect(self.viewportData.rect):
             return
-        if tileMap.colorKey:
-            tile_surface.set_colorkey(tileMap.colorKey)
-        # Appliquer les transformations
-        if tile.flipHorizontal or tile.flipVertical:
-            tile_surface = pygame.transform.flip(tile_surface, tile.flipHorizontal, tile.flipVertical)
-    
-        # Appliquer la rotation si nécessaire
-        if tile.rotation != 0:
-            tile_surface = pygame.transform.rotate(tile_surface, tile.rotation)
-            
-        # Redimensionner la tile selon le zoom
-        scaled = self.GetScaledTile(tile_surface)
-        scaled.set_alpha(alpha)
-        self.viewport.blit(scaled, rect)
+
+        key = (
+            tile.TileMap,
+            tile.Originalx,
+            tile.Originaly,
+            tile.flipHorizontal,
+            tile.flipVertical,
+            tile.rotation,
+            alpha
+        )
+
+        if key in self.tile_cache:
+            tile_surface = self.tile_cache[key]
+        else:
+            tile_rect = pygame.Rect(
+                tile.Originalx * tileMap.tileSize,
+                tile.Originaly * tileMap.tileSize,
+                tileMap.tileSize,
+                tileMap.tileSize
+            )
+            try:
+                tile_surface = tileMap.image.subsurface(tile_rect).copy()
+            except:
+                return
+
+            if tileMap.colorKey:
+                tile_surface.set_colorkey(tileMap.colorKey)
+
+            if tile.flipHorizontal or tile.flipVertical:
+                tile_surface = pygame.transform.flip(tile_surface, tile.flipHorizontal, tile.flipVertical)
+
+            if tile.rotation != 0:
+                tile_surface = pygame.transform.rotate(tile_surface, tile.rotation)
+
+            tile_surface = self.GetScaledTile(tile_surface)
+            tile_surface.set_alpha(alpha)
+
+            # Stocker dans le cache
+            self.tile_cache[key] = tile_surface
+
+        self.viewport.blit(tile_surface, rect)
+
         if overlay:
-            overlay = pygame.Surface(scaled.get_size(), pygame.SRCALPHA)  # Activer la transparence
-            overlay.fill((255, 0, 0, 100)) 
-            self.viewport.blit(overlay, rect)
+            overlay_surface = pygame.Surface(tile_surface.get_size(), pygame.SRCALPHA)
+            overlay_surface.fill((255, 0, 0, 100))
+            self.viewport.blit(overlay_surface, rect)
+
+
 
 
     def GetScaledTile(self,surface):
