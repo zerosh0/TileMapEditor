@@ -8,6 +8,9 @@
 - 📏 Redimensionnement de la fenêtre : L'éditeur s'adapte désormais dynamiquement à la taille de la fenêtre
 - 🎛️ Affichage de la grille : Activez ou désactivez la grille avec la touche ```H```
 - 🔒 Secure Save : En cas d'erreur, l'éditeur crée automatiquement une sauvegarde sécurisée pour protéger votre travail. Une sauvegarde temporaire est générée avec un nom unique (ex: SecureSave_20231015_143258_4729.json) et un message détaillé s'affiche dans la console.  
+- 🔄 Mise à jour : L'éditeur vérifie automatiquement les mises à jour disponibles et affiche une petite fenêtre pop-up pour vous notifier d'une nouvelle version.
+- 🚨 Envoi des crashs critiques : En cas de crash critique, l'éditeur envoie automatiquement un rapport contenant uniquement des informations liées à l'erreur, sans inclure de données concernant la machine ou l'utilisateur.
+
 
 
 ![Secure save Message](Assets/images/secureSave.png)

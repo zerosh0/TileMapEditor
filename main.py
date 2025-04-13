@@ -1,4 +1,4 @@
-from datetime import datetime
+import threading
 import tkinter as tk
 from tkinter import simpledialog,filedialog,colorchooser
 from editor.DataManager import *
@@ -10,11 +10,12 @@ from editor.tilemapOpener import FileOpener
 import pygame
 from editor.utils import Colors
 from editor.viewport import ViewPort
+from editor.Updater import UpdateAndCrashHandler
 
 
 class LevelDesign:
     def __init__(self, screen: pygame.surface.Surface):
-        self.version=0.3
+        self.version=0.4
         self.screen = screen
         self.zoom_sensitivity = 0.25
         self.move_sensitivity = 1
@@ -48,8 +49,18 @@ class LevelDesign:
             "editType": self.EditType,
             "editColor":self.EditColor
         }
-        self.DrawManager = DrawManager(self.screen, self.actions)
+        
         self.saveLoadManager=SaveLoadManager()
+        self.updateChecker = UpdateAndCrashHandler(
+            repo_owner="zerosh0",
+            repo_name="TileMapEditor",
+            local_commit_file="last_commit.txt",
+            screen=self.screen
+        )
+        threading.Thread(target=self.updateChecker.schedule_update_check, daemon=True).start()
+        self.DrawManager = DrawManager(self.screen, self.actions,self.updateChecker)
+
+
         self.PostInit()
 
     def PostInit(self):
@@ -314,24 +325,6 @@ if __name__ == "__main__":
     screen = pygame.display.set_mode((1000, 700),pygame.RESIZABLE)
     Editor=LevelDesign(screen)
     pygame.display.set_caption(f'Editeur de Niveau Alpha {Editor.version}')
-    try:
-        Editor.run()
-    except Exception as e:
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        random_id = random.randint(1000, 9999)
-        save_name = f"SecureSave_{timestamp}_{random_id}.json"
-        
-        # Sauvegarde d'urgence
-        Editor.saveLoadManager.save(Editor, save_name)
-        
-        print(f"\n{Colors.RED}╔═══════════════════════════════════════════════════╗")
-        print(f"║ {Colors.YELLOW}CRASH DE L'EDITEUR ! {Colors.RED}")
-        print(f"╠═══════════════════════════════════════════════════╣")
-        print(f"║ {Colors.YELLOW}Erreur : {Colors.RESET}{str(e)}{Colors.RED}")
-        print(f"║ {Colors.YELLOW}Type : {Colors.RESET}{type(e).__name__}{Colors.RED}")
-        print(f"╠═══════════════════════════════════════════════════╣")
-        print(f"║ {Colors.GREEN}Une sauvegarde de secours a été créée :{Colors.RED}")
-        print(f"║ {Colors.BLUE}{save_name}{Colors.RED}")
-        print(f"╚═══════════════════════════════════════════════════╝{Colors.RESET}\n")
-        
-        raise
+    Editor.run = Editor.updateChecker.handle_crash(Editor.run,Editor)
+    Editor.run()
+

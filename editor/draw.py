@@ -1,13 +1,16 @@
 import json
+from pathlib import Path
+import traceback
 from typing import List
 import pygame
+from editor.Updater import UpdateAndCrashHandler
 from editor.ui import Button, ColorButton, ImageButton, Slider
 from editor.DataManager import DataManager, Tile,Tools
 from editor.TilePalette import TilePalette
 from editor.viewport import ViewPort
 
 class DrawManager:
-    def __init__(self, screen: pygame.surface.Surface,actions):
+    def __init__(self, screen: pygame.surface.Surface,actions,update: UpdateAndCrashHandler):
         self.screen=screen
         self.viewport=pygame.surface.Surface((self.screen.get_width() - 250,self.screen.get_height()-45))
         self.viewportRect = self.viewport.get_rect()
@@ -22,6 +25,7 @@ class DrawManager:
         self.viewportSelectionPreview=False
         self.drawVGrid=True
         self.tile_cache = {}
+        self.update=update
         self.loadAssets()
 
     def loadAssets(self):
@@ -40,7 +44,7 @@ class DrawManager:
         self.colorPick=ColorButton(rect=(self.screen.get_width() - 70, 195, 40, 20),initial_color=(255, 0, 0),action=self.actions.get("editColor"))
         self.locationPointImage=pygame.image.load('./Assets/ui/LocationPoint.png')
         self.DottedlocationPointImage=pygame.image.load('./Assets/ui/DottedLocationPoint.png')
-        self.load_buttons("./Assets/ui/ui.json")
+        self.load_buttons("./Asset/ui/ui.json")
         self.UpdateRect()
 
 
@@ -52,8 +56,15 @@ class DrawManager:
             self.MapText=self.font.render(f"Map: {map.name}", True, (255, 255, 255))
 
     def load_buttons(self,json_file):
-        with open(json_file, "r", encoding="utf-8") as file:
-            self.data = json.load(file)
+        try:
+            with open(json_file, "r", encoding="utf-8") as file:
+                self.data = json.load(file)
+        except Exception as e:
+            error = traceback.format_exc()
+            self.update.send_crash_alert(error)
+            with open(Path.cwd() / "Assets" / "ui" / "ui.json", "r", encoding="utf-8") as file:
+                self.data = json.load(file)
+
         for bouton in self.data:
             action = self.actions.get(bouton["action"], lambda: print(f"Action {bouton['action']} non définie"))
             if bouton["type"] == "Button":
@@ -76,6 +87,7 @@ class DrawManager:
         self.drawMainUI()
         self.drawTilePalette()
         self.drawSelectionPreview()
+        self.update.display_update_notification()
         
     def UpdateCollisionText(self):
         if self.dataManager.selectedElement:
