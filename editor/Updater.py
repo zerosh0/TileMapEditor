@@ -66,10 +66,10 @@ class UpdateAndCrashHandler:
     def check_for_update(self):
         latest = self.get_latest_commit()
         local = self.read_local_commit()
-        if local is None:
-            return False
         if latest and latest != local:
             self.write_local_commit(latest)
+        if local is None:
+            return False
         return latest and latest != local
 
     def send_crash_alert(self, error_msg):
