@@ -1,7 +1,9 @@
 import copy
+import json
+from pathlib import Path
 import time
 from editor.History import HistoryManager
-from editor.utils import Layer, LocationPoint,Tile,Tools,Axis,CollisionRect
+from editor.utils import Layer, Light, LocationPoint,Tile,Tools,Axis,CollisionRect
 import random
 from typing import List
 import pygame
@@ -14,6 +16,7 @@ class DataManager():
         self.layers=[Layer() for _ in range(9)]
         self.collisionRects: list[CollisionRect]=[]
         self.locationPoints: list[LocationPoint]=[]
+        self.lights: list[Light]=[]
         self.currentLayer=0
         self.currentTiles: List[Tile]=[]
         self.currentTool: Tools = Tools.Draw
@@ -22,12 +25,59 @@ class DataManager():
         self.selectedElement: CollisionRect | LocationPoint | None=None
         self.lastAddedTileState = None
         self.lastAddTime = 0
+        self.show_settings=False
+        self.backgrounds: list[dict] = []
+        self.current_bg_index: int = 0
+        self.load_backgrounds("./Assets/backgrounds.json")
+
+    def load_backgrounds(self, json_path: str):
+        try:
+            data = json.load(Path(json_path).open(encoding="utf-8"))
+            self.backgrounds = data.get("backgrounds", [])
+            # trouver l’index du default
+            default_name = data.get("default")
+            for i, bg in enumerate(self.backgrounds):
+                if bg.get("name") == default_name:
+                    self.current_bg_index = i
+                    break
+        except Exception as e:
+            print(f"Erreur de chargement des backgrounds: {e}")
+            self.backgrounds = []
+            self.current_bg_index = 0
+
+    def get_current_background(self) -> dict | None:
+        if not self.backgrounds:
+            return None
+        return self.backgrounds[self.current_bg_index]
+
+    def bg_next(self):
+        if not self.backgrounds:
+            return
+        self.current_bg_index = (self.current_bg_index + 1) % len(self.backgrounds)
+
+    def bg_prev(self):
+        if not self.backgrounds:
+            return
+        self.current_bg_index = (self.current_bg_index - 1) % len(self.backgrounds)
+
+    def addLight(self, pos, radius,viewport):
+        x,y=viewport.toMapCoords(pos)
+        new_light= Light(
+            x=x,
+            y=y,
+            radius=radius
+        )
+        self.lights.append(new_light)
+        self.selectedElement=self.lights[-1]
 
     def ChangeSelectedCollisionRect(self,viewport,locationPointImage):
         self.selectedElement=None
         for rect in self.collisionRects:
             if rect.collidePoint(pygame.mouse.get_pos(),viewport.panningOffset,viewport.zoom):
                 self.selectedElement=rect
+        for light in self.lights:
+            if light.collidePoint(pygame.mouse.get_pos(),viewport.panningOffset,viewport.zoom):
+                self.selectedElement=light
         for point in self.locationPoints:
             if point.collidePoint(pygame.mouse.get_pos(),viewport.panningOffset,viewport.zoom,locationPointImage):
                 self.selectedElement=point

@@ -15,6 +15,9 @@ class ViewPort():
         self.tilePaletteRect=pygame.Rect(self.screen.get_width() - 230, self.screen.get_height() - 270,210,230)
         self.screen_pos = (self.rect.x, self.rect.y)
         self.displayRect=True
+        self.light_origin = None
+        self.light_preview = False
+        self.light_current=None
 
     def UpdateRect(self,SurfaceZoom):
         self.surface=pygame.surface.Surface((self.screen.get_width() - 250,self.screen.get_height()-45))

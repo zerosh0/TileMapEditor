@@ -2,7 +2,7 @@ import json
 import pygame
 import tkinter as tk
 from tkinter import filedialog
-from editor.utils import Colors, LocationPoint, TileMap, Tools, Tile, Layer, CollisionRect
+from editor.utils import Colors, Light, LocationPoint, TileMap, Tools, Tile, Layer, CollisionRect
 from dataclasses import is_dataclass
 
 class SaveLoadManager:
@@ -98,6 +98,22 @@ class SaveLoadManager:
                 "color": list(point.color)
             }
             location_point_data.append(location_dict)
+        # Sauvegarde des lumières
+        light_data = []
+        for light in level_design.dataManager.lights:
+            if not (is_dataclass(light) and isinstance(light, Light)): 
+                print(f"{Colors.RED}Données corrompues (Light){Colors.RESET}")
+                corrupted_data=True
+                continue
+            light_dict = {
+                "x": light.x,
+                "y": light.y,
+                "radius": light.radius,
+                "color": list(light.color),
+                "blink": light.blink
+                
+            }
+            light_data.append(light_dict)
 
         # Sauvegarde des TileMap de la palette
         tilemaps_data = []
@@ -116,11 +132,21 @@ class SaveLoadManager:
             }
             tilemaps_data.append(tilemap_data)
 
+        settings = {
+            "backgroundIndex": level_design.dataManager.current_bg_index,
+            "globalIllumination": level_design.DrawManager.slider_gi.value,
+            "updateSchedule": level_design.DrawManager.current_schedule,
+            "showLights": level_design.DrawManager.chk_states[0],
+            "showCollisions": level_design.DrawManager.chk_states[1],
+            "showLocationPoints": level_design.DrawManager.chk_states[2]
+        }
+
         data = {
             "layers": layers_data,
             "currentLayer": level_design.dataManager.currentLayer,
             "collisionRects": collision_rects_data,
             "locationPoint":location_point_data,
+            "lights":light_data,
             "currentTool": level_design.dataManager.currentTool.name,
             "viewport": {
                 "panningOffset": level_design.viewport.panningOffset,
@@ -129,7 +155,8 @@ class SaveLoadManager:
             "tilePalette": {
                 "currentTileMapIndex": level_design.tilePalette.currentTileMap,
                 "tileMaps": tilemaps_data
-            }
+            },
+            "settings": settings
         }
         if not file_path:
             file_path = SaveLoadManager.choose_save_file()
@@ -219,6 +246,18 @@ class SaveLoadManager:
                 locationPoints.append(location)
             level_design.dataManager.locationPoints = locationPoints
 
+        lights = []
+        if data.get("lights"):
+            for light in data["lights"]:
+                new_light = Light(
+                    x=light["x"],
+                    y=light["y"],
+                    radius=light["radius"],
+                    color=tuple(light["color"]),
+                    blink=light["blink"]
+                )
+                lights.append(new_light)
+            level_design.dataManager.lights = lights
         level_design.dataManager.currentTool = Tools[data["currentTool"]]
 
         level_design.viewport.panningOffset = data["viewport"]["panningOffset"]
@@ -246,5 +285,26 @@ class SaveLoadManager:
             tilemaps.append(tilemap)
         level_design.tilePalette.Maps = tilemaps
         level_design.DrawManager.updateLayerText(data["currentLayer"])
+        settings = data.get("settings", {})
 
+        bg_idx = settings.get("backgroundIndex")
+        if bg_idx is not None:
+            level_design.dataManager.current_bg_index = bg_idx
+        gi = settings.get("globalIllumination")
+        if gi is not None:
+            level_design.DrawManager.slider_gi.value = gi
+            level_design.DrawManager.shadow_alpha = int(gi * 255)
+
+        upd = settings.get("updateSchedule")
+        if upd is not None:
+            level_design.DrawManager.current_schedule = upd
+
+        lights = settings.get("showLights")
+        coll  = settings.get("showCollisions")
+        locs  = settings.get("showLocationPoints")
+        if lights is not None:   level_design.DrawManager.chk_states[0] = lights
+        if coll is not None:     level_design.DrawManager.chk_states[1] = coll
+        if locs is not None:     level_design.DrawManager.chk_states[2] = locs
+
+        level_design.DrawManager.last_bg_index = None
         print("✅ Chargement réussi !")

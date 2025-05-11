@@ -1,6 +1,9 @@
 
 from dataclasses import dataclass, field
 from enum import Enum
+import math
+import random
+import time
 from typing import List
 
 import pygame
@@ -19,6 +22,7 @@ class Tools(Enum):
     Random = 4
     Selection = 5
     LocationPoint = 6
+    Light = 7
     
 class ActionType(Enum):
     AddTile = 1
@@ -160,6 +164,66 @@ class CollisionRect:
             pygame.draw.circle(surface, color, (rect.right, y), dot_radius)
             y += gap
 
+
+
+@dataclass
+class Light:
+    x: float
+    y: float
+    radius: int
+    color: tuple = (255, 180, 80)
+    blink: bool = False
+    radius_var: int = 3
+    start_time = time.time() + random.random()*10
+
+    def get_screen_pos(self, map_offset, zoom):
+        return (
+            int(map_offset[0] + self.x * zoom),
+            int(map_offset[1] + self.y * zoom + 30)
+        )
+
+    def collidePoint(self, point: tuple[int,int], map_offset, zoom) -> bool:
+        cx, cy = self.get_screen_pos(map_offset, zoom)
+        dx = point[0] - cx
+        dy = point[1] - cy
+        return dx*dx + dy*dy <= (self.radius * zoom)**2
+
+    def draw(self, surface, light_mask, base_alpha, map_offset, zoom, selected):
+        cx = int(map_offset[0] + self.x * zoom)
+        cy = int(map_offset[1] + self.y * zoom)
+        radius_px = int(self.radius * zoom)
+
+        if self.blink:
+            now = time.time()
+            phase = (now - self.start_time) * 2
+            flick_r = radius_px + math.sin(phase) * self.radius_var + (random.random() - 0.5) * 5
+            for r in range(int(flick_r), 0, -1):
+                f = 1 - (r / flick_r)
+                col = (
+                    int(self.color[0] * f),
+                    int(self.color[1] * f),
+                    int(self.color[2] * f),
+                )
+                a = int((1 - f) * base_alpha)
+                pygame.draw.circle(light_mask, (*col, a), (cx, cy), r)
+
+        else:
+            for r in range(radius_px, 0, -1):
+                f = 1 - (r / radius_px)
+                col = (
+                    int(self.color[0] * f),
+                    int(self.color[1] * f),
+                    int(self.color[2] * f)
+                ) 
+                local_a = int(base_alpha * (1 - f))
+                pygame.draw.circle(light_mask, (*col, local_a), (cx, cy), r)
+
+        if selected:
+            pygame.draw.circle(surface, (43, 255, 255), (cx, cy+30), radius_px, width=4)
+        elif base_alpha<70:
+                pygame.draw.circle(surface, self.color, (cx, cy+30), radius_px,width=2)
+
+        
 
 
 

@@ -25,9 +25,9 @@
     },
     {
         "type": "Button",
-        "rect": [200, 0, 60, 30],
-        "text": "Play",
-        "action": "play",
+        "rect": [210, 0, 80, 30],
+        "text": "Settings",
+        "action": "settings",
         "bg_color": [36, 43, 59],
         "size": 25
     },
@@ -84,6 +84,12 @@
         "rect": [795, 350, 32, 32],
         "image": "./Assets/ui/icones/locationPoint.png",
         "action": "location_point"
+    },
+    {
+        "type": "ImageButton",
+        "rect": [840, 350, 32, 32],
+        "image": "./Assets/ui/icones/light.png",
+        "action": "light"
     },
     {
         "type": "ImageButton",

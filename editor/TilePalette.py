@@ -49,7 +49,7 @@ class TilePalette():
         return None
 
     def InRegion(self):
-        return self.rect.collidepoint(pygame.mouse.get_pos()[0],pygame.mouse.get_pos()[1]) 
+        return self.rect.collidepoint(pygame.mouse.get_pos()[0],pygame.mouse.get_pos()[1])
     
     def move(self, dx, dy):
         new_x = self.panningOffset[0] + dx * self.moveSensitivity

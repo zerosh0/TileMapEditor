@@ -1,6 +1,8 @@
 # 🎨 TileMapEditor
 **TileMapEditor** est un éditeur de niveaux développé en Python avec Pygame, permettant de créer facilement des maps à base de tiles, avec gestion des layers, collisions et outils de dessin avancés. C'est avant tout un proof of concept, visant à démontrer une version fonctionnelle mais non optimisée du projet. Le code et le stockage doivent être améliorés pour une utilisation en production.
 
+![Nouveautées](Assets/images/news.png)
+
 ## ✨ Nouveautés
 - 🔎 Zoom dans la Tile Palette : Utilisez Ctrl + Molette pour zoomer avant/arrière dans la palette de tuiles. Attention : Assurez-vous de cliquer au moins une fois dans la fenêtre avant d'utiliser cette fonctionnalité, sinon Pygame ne pourra pas capturer l'événement.
 - 🟢 Ajout de Points de Repère (Locations Points)  
@@ -10,7 +12,8 @@
 - 🔒 Secure Save : En cas d'erreur, l'éditeur crée automatiquement une sauvegarde sécurisée pour protéger votre travail. Une sauvegarde temporaire est générée avec un nom unique (ex: SecureSave_20231015_143258_4729.json) et un message détaillé s'affiche dans la console.  
 - 🔄 Mise à jour : L'éditeur vérifie automatiquement les mises à jour disponibles et affiche une petite fenêtre pop-up pour vous notifier d'une nouvelle version.
 - 🚨 Envoi des crashs critiques : En cas de crash critique, l'éditeur envoie automatiquement un rapport contenant uniquement des informations liées à l'erreur, sans inclure de données concernant la machine ou l'utilisateur.
-
+- 💡 Système de lumières : Ajoutez des sources lumineuses à votre scène avec personnalisation du rayon, de la couleur et effet de scintillement.
+- ⚙️ Système de paramètres : Ajustez la luminosité globale, configurez des arrière-plans avec effet parallax, et adaptez automatiquement l'affichage selon les paramètres du projet.
 
 
 ![Secure save Message](Assets/images/secureSave.png)
@@ -34,6 +37,16 @@
 ### 🎭 **Gestion des calques (Layers)**  
 - **Superposition de couches** pour organiser les éléments du niveau  
 - 🔄 **Opacité ajustable** des calques  
+
+### 💡 **Système de lumières**  
+- 💡 **Ajout de sources lumineuses** dans la scène  
+- 🎚️ **Personnalisation des propriétés** des lumières (rayon, couleur)  
+- ✨ **Effet visuel de scintillement** des lumières  
+
+### ⚙️ **Système de paramètres**  
+- 🌕 **Réglage de la luminosité globale**  
+- 🛠️ **Personnalisation des fonds avec support du parallax**  
+- 👀 **Réglage automatique de l’affichage selon les paramètres du projet**  
 
 
 ### 🚧 **Collisions et objets**  

@@ -1,0 +1,33 @@
+{
+  "backgrounds": [
+    {
+      "name": "Forest Woods",
+      "type": "image",
+      "bg_color": [20, 20, 20],
+      "layers": [
+        { "path": "Assets/images/BG_1/Woods 2.png", "parallax": 0.6 },
+        { "path": "Assets/images/BG_1/Lights 2.png", "parallax": 0.2 },
+        { "path": "Assets/images/BG_1/Woods 1.png", "parallax": 0.8 },
+        { "path": "Assets/images/BG_1/Lights 1.png", "parallax": 0.4 }
+      ]
+    },
+    {
+      "name": "Cherry Blossom",
+      "type": "image",
+      "bg_color": [150, 101, 128],
+      "layers": [
+        { "path": "Assets/images/BG_2/Woods 2.png", "parallax": 0.6 },
+        { "path": "Assets/images/BG_2/Lights 2.png", "parallax": 0.3 },
+        { "path": "Assets/images/BG_2/Woods 1.png", "parallax": 0.8 },
+        { "path": "Assets/images/BG_2/Lights 1.png", "parallax": 0.4 },
+        { "path": "Assets/images/BG_2/Fog.png", "parallax": 0.2 }
+      ]
+    },
+    {
+      "name": "Solid Gray",
+      "type": "color",
+      "color": [200, 200, 200]
+    }
+  ],
+  "default": "Solid Gray"
+}

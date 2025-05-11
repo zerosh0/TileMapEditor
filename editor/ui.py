@@ -53,14 +53,18 @@ class ImageButton:
                                  Si None, une version assombrie de l'image sera générée automatiquement.
         """
         self.rect = pygame.Rect(rect)
+        self.init_image(image_path,hover_image_path)
+        self.action = action
+        self.is_hovered = False
+
+    def init_image(self,image_path,hover_image_path=None):
         self.image = self._load_image(image_path)
         self.image_path=image_path
-        self.action = action
+        
         if hover_image_path is None:
             self.hover_image = self._create_hover_image(self.image)
         else:
             self.hover_image = self._load_image(hover_image_path)
-        self.is_hovered = False
 
     def _load_image(self, path):
         image = pygame.image.load(path).convert_alpha()

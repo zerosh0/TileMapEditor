@@ -9665,13 +9665,38 @@
             ]
         }
     ],
+    "locationPoint": [],
+    "lights": [
+        {
+            "x": 344.4,
+            "y": 183.2,
+            "radius": 40.12779585275025,
+            "color": [
+                255,
+                180,
+                80
+            ],
+            "blink": true
+        },
+        {
+            "x": 664.4,
+            "y": 178.4,
+            "radius": 36.50753346913483,
+            "color": [
+                255,
+                180,
+                80
+            ],
+            "blink": true
+        }
+    ],
     "currentTool": "Draw",
     "viewport": {
         "panningOffset": [
-            -251,
-            -206
+            -506,
+            -90
         ],
-        "zoom": 2.0
+        "zoom": 1.75
     },
     "tilePalette": {
         "currentTileMapIndex": 2,
@@ -9715,5 +9740,13 @@
                 ]
             }
         ]
+    },
+    "settings": {
+        "backgroundIndex": 0,
+        "globalIllumination": 0.6510416666666666,
+        "updateSchedule": 0,
+        "showLights": true,
+        "showCollisions": true,
+        "showLocationPoints": true
     }
 }

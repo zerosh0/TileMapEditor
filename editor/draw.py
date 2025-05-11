@@ -3,16 +3,21 @@ from pathlib import Path
 import traceback
 from typing import List
 import pygame
+from editor.Parallax import ParallaxBackground
 from editor.Updater import UpdateAndCrashHandler
 from editor.ui import Button, ColorButton, ImageButton, Slider
 from editor.DataManager import DataManager, Tile,Tools
 from editor.TilePalette import TilePalette
+from editor.utils import Light
 from editor.viewport import ViewPort
 
 class DrawManager:
     def __init__(self, screen: pygame.surface.Surface,actions,update: UpdateAndCrashHandler):
         self.screen=screen
         self.viewport=pygame.surface.Surface((self.screen.get_width() - 250,self.screen.get_height()-45))
+        self.light_mask = pygame.Surface((self.screen.get_width() - 250,self.screen.get_height()-45), flags=pygame.SRCALPHA)
+        self.shadow_alpha=0
+        self.light_mask.fill((0,0,0,self.shadow_alpha))
         self.viewportRect = self.viewport.get_rect()
         self.viewportRect.top = 30
         self.TilePalette=pygame.surface.Surface((210, 230))
@@ -26,6 +31,8 @@ class DrawManager:
         self.drawVGrid=True
         self.tile_cache = {}
         self.update=update
+        self.parallax_bg: ParallaxBackground | None = None
+        self.last_bg_index: int | None = None
         self.loadAssets()
 
     def loadAssets(self):
@@ -33,6 +40,7 @@ class DrawManager:
         self.bar = pygame.transform.scale(self.bar, (self.screen.get_width(), 17))
         self.font = pygame.font.Font(None, 26)
         self.layerText=self.font.render("Layer: 0", True, (255, 255, 255))
+        self.GlobalIllumination=self.font.render("Global Illumination", True, (255, 255, 255))
         self.MapText=self.font.render("Map:", True, (255, 255, 255))
         self.collisionsText=self.font.render("Références", True, (255, 255, 255))
         self.NameText=self.font.render("Name: ", True, (255, 255, 255))
@@ -45,8 +53,83 @@ class DrawManager:
         self.locationPointImage=pygame.image.load('./Assets/ui/LocationPoint.png')
         self.DottedlocationPointImage=pygame.image.load('./Assets/ui/DottedLocationPoint.png')
         self.load_buttons("./Asset/ui/ui.json")
+        # === SETTINGS PANEL ===
+        self.settings_bg_name = "default_bg"
+        self.font_settings = pygame.font.Font(None, 24)
+
+        # Flèches pour changer le background
+        x0 = self.screen.get_width() - 240
+        self.btn_bg_prev = ImageButton(rect=(x0, 60, 24, 24),
+                                       image_path="./Assets/ui/icones/arrow_left.png",
+                                       action=self.actions.get("bg_prev"))
+        self.btn_bg_next = ImageButton(rect=(x0+210-20, 60, 24, 24),
+                                       image_path="./Assets/ui/icones/arrow_right.png",
+                                       action=self.actions.get("bg_next"))
+        self.btn_close = ImageButton(
+            rect=(0, 0, 24, 24),
+            image_path="./Assets/ui/icones/close.png",
+            action=self.actions.get("toggle_settings")
+        )
+        # Slider Global Illumination
+        self.slider_gi = Slider(rect=(self.screen.get_width() - 230, 120, 200, 12),
+                                min_value=0.0, max_value=1.0, initial_value=self.shadow_alpha/255,
+                                progress_color=(198,128,93), bar_color=(159,167,198))
+        # Boutons “Update Schedule”
+        self.schedule_intervals = [
+            ("Never", 0), ("30 min", 30), ("1 h", 60), ("On Start", -1)
+        ]
+        self.schedule_buttons = []
+        # état interne
+        self.current_schedule = 0  # par défaut "Never"
+        
+        sx = self.screen.get_width() - 230
+        sy = 180
+        for i, (label, interval) in enumerate(self.schedule_intervals):
+            # on fait une closure capturant `interval`
+            def make_action(val=interval):
+                return lambda: self._set_schedule(val)
+            btn = Button(rect=(sx + i*55, sy, 60, 25),
+                         text=label,
+                         action=make_action(),
+                         bg_color=(36, 43, 59), size=20)
+            self.schedule_buttons.append(btn)
+
+        # Checkboxes pour lights, collisions, location points
+        self.chk_labels = ["Lights", "Collisions", "Location points"]
+        self.chk_states = [True, True, True]
+        self.chk_buttons = []
+        cx = self.screen.get_width() - 230
+        cy = 220
+        line_height = 40
+        for i, label in enumerate(self.chk_labels):
+            # petite case à cocher
+            rect = (cx, cy + i * line_height, 20, 20)
+            btn = Button(rect=rect, text="",
+                         action=lambda idx=i: self._toggle_chk(idx),
+                         bg_color=(50,50,50))
+            self.chk_buttons.append(btn)
+
+        self.icon_checked   = pygame.image.load("./Assets/ui/icones/checked.png").convert_alpha()
+        self.icon_unchecked = pygame.image.load("./Assets/ui/icones/unchecked.png").convert_alpha()
         self.UpdateRect()
 
+
+
+    def _set_schedule(self, interval_minutes):
+        self.current_schedule = interval_minutes
+        # si vous avez un callback externe pour appliquer ce choix :
+        if "apply_schedule" in self.actions:
+            self.actions["apply_schedule"](interval_minutes)
+
+    def _toggle_chk(self, idx):
+        self.chk_states[idx] = not self.chk_states[idx]
+        # appliquer l’affichage dans ViewPort ou DataManager
+        if idx == 0:
+            self.viewportData.displayLights = self.chk_states[idx]
+        elif idx == 1:
+            self.dataManager.showCollisions = self.chk_states[idx]
+        else:
+            self.dataManager.showLocationPoints = self.chk_states[idx]
 
     def updateLayerText(self,layer):
         self.layerText=self.font.render(f"Layer: {layer}", True, (255, 255, 255))
@@ -86,13 +169,82 @@ class DrawManager:
         self.drawTilePreview()
         self.drawMainUI()
         self.drawTilePalette()
+        self.drawSettings()
         self.drawSelectionPreview()
+        self.drawLight()
         self.update.display_update_notification()
+
+    def drawSettings(self):
+        if self.dataManager.show_settings:
+            panel_rect = (self.screen.get_width() - 250, 0, 250, self.screen.get_height()-40)
+            pygame.draw.rect(self.screen, (36, 43, 59), panel_rect)
+
+            # — Fond de niveau —
+            # Label centré
+            title_surf = self.font_settings.render("Background:", True, (255,255,255))
+            tx = panel_rect[0] + (panel_rect[2] - title_surf.get_width())//2
+            self.screen.blit(title_surf, (tx, 30))
+
+            # Nom du bg
+            bg = self.dataManager.get_current_background()
+            name = bg["name"] if bg else "None"
+            name_surf = self.font_settings.render(name, True, (200,200,200))
+            nx = panel_rect[0] + (panel_rect[2] - name_surf.get_width())//2
+            self.screen.blit(name_surf, (nx, 65))
+
+            # Flèches
+            self.btn_bg_prev.draw(self.screen)
+            self.btn_bg_next.draw(self.screen)
+
+            # — Global Illumination —
+            gi_label = self.font_settings.render("Global Illumination", True, (255,255,255))
+            self.screen.blit(gi_label, (panel_rect[0]+10, 90))
+            self.slider_gi.draw(self.screen)
+            # appliquer la valeur au shadow_alpha
+            self.shadow_alpha = int(self.slider_gi.value * 255)
+
+            # — Update Schedule —
+            sched_label = self.font_settings.render("Update Schedule", True, (255,255,255))
+            self.screen.blit(sched_label, (panel_rect[0]+10, 150))
+            for i, btn in enumerate(self.schedule_buttons):
+                # on compare à l’état interne
+                if self.current_schedule == self.schedule_intervals[i][1]:
+                    btn.bg_color = (159, 167, 198)
+                else:
+                    btn.bg_color = (36, 43, 59)
+                btn.draw(self.screen)
+
+            # — Checkboxes —
+            for i, label in enumerate(self.chk_labels):
+                btn = self.chk_buttons[i]
+                # choisir l'icône
+                icon = self.icon_checked if self.chk_states[i] else self.icon_unchecked
+                # dessiner l'icône
+                self.screen.blit(icon, btn.rect.topleft)
+                # texte à droite, vertical centré
+                lbl_surf = self.font_settings.render(label, True, (255,255,255))
+                text_x = btn.rect.right + 8
+                text_y = btn.rect.y + (btn.rect.height - lbl_surf.get_height()) // 2+3
+                self.screen.blit(lbl_surf, (text_x, text_y))
+            self.btn_close.draw(self.screen)
+
+
+
+    def drawLight(self):
+        if self.viewportData.light_preview and self.viewportData.light_origin:
+            ox, oy = self.viewportData.light_origin
+            cx, cy = self.viewportData.light_current
+            radius = int(((cx-ox)**2 + (cy-oy)**2)**0.5)
+            pygame.draw.circle(self.screen, (255, 255, 0), (ox, oy), radius, 2)
         
     def UpdateCollisionText(self):
         if self.dataManager.selectedElement:
-            self.NameText=self.font.render(f"Name: {self.dataManager.selectedElement.name}", True, (255, 255, 255))
-            self.TypeText=self.font.render(f"Type: {self.dataManager.selectedElement.type}", True, (255, 255, 255))
+            if not isinstance(self.dataManager.selectedElement,Light):
+                self.NameText=self.font.render(f"Name: {self.dataManager.selectedElement.name}", True, (255, 255, 255))
+                self.TypeText=self.font.render(f"Type: {self.dataManager.selectedElement.type}", True, (255, 255, 255))
+            else:
+                self.TypeText=self.font.render(f"Blink", True, (255, 255, 255))
+                self.NameText=self.font.render(f"Radius: {round(self.dataManager.selectedElement.radius,1)}", True, (255, 255, 255))
             self.ColorText=self.font.render("Color: ", True, (255, 255, 255))
             self.colorPick.color=self.dataManager.selectedElement.color
         else:
@@ -103,13 +255,22 @@ class DrawManager:
     def drawElements(self):
         if not self.viewportData.displayRect:
             return
-        for CollisionRect in self.dataManager.collisionRects:
-            CollisionRect.draw(self.screen,self.viewportData.panningOffset,self.viewportData.zoom,CollisionRect==self.dataManager.selectedElement)
-        for locationPoint in self.dataManager.locationPoints:
-            image=self.locationPointImage
-            if locationPoint==self.dataManager.selectedElement:
-                image=self.DottedlocationPointImage
-            locationPoint.draw(self.screen,self.viewportData.panningOffset,self.viewportData.zoom,image)
+        if self.chk_states[1]:
+            for CollisionRect in self.dataManager.collisionRects:
+                CollisionRect.draw(self.screen,self.viewportData.panningOffset,self.viewportData.zoom,CollisionRect==self.dataManager.selectedElement)
+        if self.chk_states[2]:
+            for locationPoint in self.dataManager.locationPoints:
+                image=self.locationPointImage
+                if locationPoint==self.dataManager.selectedElement:
+                    image=self.DottedlocationPointImage
+                locationPoint.draw(self.screen,self.viewportData.panningOffset,self.viewportData.zoom,image)
+        self.light_mask = pygame.Surface((self.screen.get_width() - 250,self.screen.get_height()-45), flags=pygame.SRCALPHA)
+        self.light_mask.fill((0,0,0,self.shadow_alpha))
+        if self.chk_states[0]:
+            for light in self.dataManager.lights:
+                light.draw(self.screen,self.light_mask,self.shadow_alpha,self.viewportData.panningOffset,self.viewportData.zoom,light==self.dataManager.selectedElement)
+        self.screen.blit(self.light_mask, (0,30))
+
 
     def drawSelectionPreview(self):
         if self.PaletteSelectionPreview and self.dataManager.selectionPalette:
@@ -133,7 +294,30 @@ class DrawManager:
     def drawViewport(self):
         if not self.activeTileMap:
             return
-        self.viewport.fill(self.bg_color)
+        # === fond parallax ou couleur
+        bg_def = self.dataManager.get_current_background()
+        idx   = self.dataManager.current_bg_index
+
+        if bg_def and bg_def["type"] == "image":
+            layers = [(ly["path"], ly["parallax"]) for ly in bg_def["layers"]]
+            if self.parallax_bg is None or self.last_bg_index != idx:
+                self.parallax_bg = ParallaxBackground(
+                    surface=self.viewport,
+                    viewport_data=self.viewportData,
+                    layers=layers,
+                    bg_color=bg_def["bg_color"]
+                )
+                self.last_bg_index = idx
+            else:
+                self.parallax_bg.surface = self.viewport
+                self.parallax_bg.viewport_data = self.viewportData
+            self.parallax_bg.render()
+
+        elif bg_def and bg_def["type"] == "color":
+            self.viewport.fill(tuple(bg_def["color"]))
+        else:
+            self.viewport.fill(self.bg_color)
+
         for layer in self.dataManager.layers:
             for tile in layer.tiles:
                 self.drawTile(tile,alpha=int(layer.opacity * 255))
@@ -253,6 +437,34 @@ class DrawManager:
         for i,bouton in enumerate(self.data):
                 if bouton["type"] == "ImageButton":
                     self.buttons[i].rect.x=self.screen.get_width()-bouton["rect"][0]-1000
+        sw, sh = self.screen.get_size()
+        panel_x = sw - 250
+        panel_w = 250
+        cx = panel_x + panel_w - 8 - self.btn_close.rect.width
+        cy = 8
+        self.btn_close.rect.topleft = (cx, cy)
+          # Flèches Background
+        x0 = panel_x + 20
+        y0 = 60
+        self.btn_bg_prev.rect.topleft = (x0, y0)
+        self.btn_bg_next.rect.topleft = (x0 + panel_w - 20 - self.btn_bg_next.rect.width, y0)
+
+        # Slider GI
+        self.slider_gi.rect.topleft = (panel_x + 20, 120)
+
+        # Schedule buttons
+        sx = panel_x + 5
+        sy = 180
+        for i, btn in enumerate(self.schedule_buttons):
+            btn.rect.topleft = (sx + i * (btn.rect.width), sy)
+
+        # Checkboxes
+        cx = panel_x + 20
+        cy = 220
+        line_height = 40
+        for i, btn in enumerate(self.chk_buttons):
+            btn.rect.topleft = (cx, cy + i * line_height)
+
 
     def drawPalettegrid(self):
         image_rect = self.activeTileMap.zoomedImage.get_rect()
@@ -268,7 +480,7 @@ class DrawManager:
             y += grid_cell_size
 
     def drawMainUI(self):
-        self.screen.fill(self.bg_color)
+        self.screen.fill((200,200,200))
         screen_width = self.screen.get_width()
         screen_height = self.screen.get_height()
         if self.activeTileMap:
@@ -287,17 +499,28 @@ class DrawManager:
         self.screen.blit(self.NameText,(screen_width - 220, 160))
         self.screen.blit(self.ColorText,(screen_width - 220, 195))
         self.screen.blit(self.bar, self.barRect)
-
+        edit=0
         for button in self.buttons:
             self.UpdateEyeButtons(button)
             if hasattr(button, "image_path") and "edit" in button.image_path:
                 if self.dataManager.selectedElement:
-                    button.draw(self.screen)
+                    edit+=1
+                    if isinstance(self.dataManager.selectedElement,Light) and edit==1:
+                        if self.dataManager.selectedElement.blink:
+                            button.init_image("./Assets/ui/icones/checked.png")
+                        else:
+                            button.init_image("./Assets/ui/icones/unchecked.png")
+                        button.draw(self.screen)
+                        button.init_image("./Assets/ui/icones/edit.png")
+                    else:
+                        button.draw(self.screen)
             else:
                 button.draw(self.screen)
         self.slider.draw(self.screen)
         if self.dataManager.selectedElement:
             self.colorPick.draw(self.screen)
+
+        
     
     def UpdateEyeButtons(self,button):
         if hasattr(button, "image_path") and isinstance(button.image_path, str) and "eyes" in button.image_path:

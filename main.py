@@ -8,14 +8,13 @@ from editor.TilePalette import TilePalette
 from editor.saveLoader import SaveLoadManager
 from editor.tilemapOpener import FileOpener
 import pygame
-from editor.utils import Colors
 from editor.viewport import ViewPort
 from editor.Updater import UpdateAndCrashHandler
 
 
 class LevelDesign:
     def __init__(self, screen: pygame.surface.Surface):
-        self.version=0.4
+        self.version=0.5
         self.screen = screen
         self.zoom_sensitivity = 0.25
         self.move_sensitivity = 1
@@ -34,7 +33,7 @@ class LevelDesign:
             "save": self.save_level,
             "open": self.open_level,
             "load": self.load_level,
-            "play": lambda: print("play"),
+            "settings": self.settings,
             "rubber": lambda: self.setTool(Tools.Rubber),
             "selection": lambda: self.setTool(Tools.Selection),
             "fill": lambda: self.setTool(Tools.Fill),
@@ -43,11 +42,15 @@ class LevelDesign:
             "flip_horizontal": lambda: self.dataManager.flipCurrentTiles(Axis.Horizontal),
             "draw": lambda: self.setTool(Tools.Draw),
             "location_point": lambda: self.setTool(Tools.LocationPoint),
+            "light": lambda: self.setTool(Tools.Light),
             "rotate": self.dataManager.RotateCurrentTiles,
             "show": self.ChangeShowState,
             "editName": self.EditName,
             "editType": self.EditType,
-            "editColor":self.EditColor
+            "editColor": self.EditColor,
+            "bg_next": self.dataManager.bg_next,
+            "bg_prev": self.dataManager.bg_prev,
+            "toggle_settings": self.settings
         }
         
         self.saveLoadManager=SaveLoadManager()
@@ -59,7 +62,6 @@ class LevelDesign:
         )
         threading.Thread(target=self.updateChecker.schedule_update_check, daemon=True).start()
         self.DrawManager = DrawManager(self.screen, self.actions,self.updateChecker)
-
 
         self.PostInit()
 
@@ -76,6 +78,9 @@ class LevelDesign:
         self.RightMapDragActive = False
         self.RightViewPortDragActive = False
 
+
+    def settings(self):
+        self.dataManager.show_settings=not self.dataManager.show_settings
 
     def open_level(self):
         file_path=self.saveLoadManager.open(self)
@@ -97,6 +102,8 @@ class LevelDesign:
 
 
     def save_level(self):
+        if self.dataManager.currentTool==Tools.Light:
+            self.dataManager.currentTool=Tools.Draw
         self.saveLoadManager.save(self)
 
     def load_level(self):
@@ -107,6 +114,8 @@ class LevelDesign:
         self.viewport.displayRect = not self.viewport.displayRect
 
     def setTool(self,tool : Tools):
+        if self.dataManager.show_settings:
+            return
         self.dataManager.setTool(tool,self.viewport)
         if self.DrawManager.viewportSelectionPreview:
             self.DrawManager.viewportSelectionPreview=False
@@ -137,37 +146,68 @@ class LevelDesign:
         self.viewport.UpdateRect(self.DrawManager.TilePaletteSurfaceZoom)
 
     def EditName(self):
-        if self.dataManager.currentTool==Tools.LocationPoint:
+        if self.dataManager.show_settings:
+            return
+        if self.dataManager.currentTool in [Tools.LocationPoint,Tools.Light]:
             self.dataManager.currentTool=Tools.Draw
         self.dataManager.currentTiles=[]
-        name = simpledialog.askstring("Nom de l'élément", "Entrez le nouveau nom de l'élément:")
-        if name:
-            self.dataManager.selectedElement.name = name
+        if not isinstance(self.dataManager.selectedElement,Light):
+            name = simpledialog.askstring("Nom de l'élément", "Entrez le nouveau nom de l'élément:")
+            if name:
+                self.dataManager.selectedElement.name = name
+            else:
+                print("Format d'entrée invalide")
         else:
-            print("Format d'entrée invalide")
+            radius = simpledialog.askstring("Rayon de l'élément", "Entrez le nouveau rayon de l'élément:")
+            if radius and radius.isdigit():
+                radius=int(radius)
+                if radius<10e3:
+                    self.dataManager.selectedElement.radius = radius
+                else:
+                    print("Rayon trop grand")
+            else:
+                print("Format d'entrée invalide")
+
 
     def EditColor(self,new_color):
-        if self.dataManager.currentTool==Tools.LocationPoint:
+        if self.dataManager.show_settings:
+            return
+        if self.dataManager.currentTool in [Tools.LocationPoint,Tools.Light]:
             self.dataManager.currentTool=Tools.Draw
         self.dataManager.currentTiles=[]
         self.dataManager.selectedElement.color = new_color
 
     def EditType(self):
+        if self.dataManager.show_settings:
+            return
         self.dataManager.currentTiles=[]
-        if self.dataManager.currentTool==Tools.LocationPoint:
+        if self.dataManager.currentTool in [Tools.LocationPoint,Tools.Light]:
             self.dataManager.currentTool=Tools.Draw
-        type_value = simpledialog.askstring("Type de l'élément", "Entrez le nouveau type de l'élément:")
-        if type_value:
-            self.dataManager.selectedElement.type = type_value
+        if not isinstance(self.dataManager.selectedElement,Light):
+            type_value = simpledialog.askstring("Type de l'élément", "Entrez le nouveau type de l'élément:")
+            if type_value:
+                self.dataManager.selectedElement.type = type_value
+            else:
+                print("Format d'entrée invalide")
         else:
-            print("Format d'entrée invalide")
+            self.dataManager.selectedElement.blink=not self.dataManager.selectedElement.blink
 
 
 
     def HandleUiEvents(self, event):
+        self.DrawManager.btn_close.handle_event(event)
         for button in self.DrawManager.buttons:
             button.handle_event(event)
-        self.DrawManager.slider.handle_event(event)
+        if not self.dataManager.show_settings:
+            self.DrawManager.slider.handle_event(event)
+        else:
+            self.DrawManager.btn_bg_prev.handle_event(event)
+            self.DrawManager.btn_bg_next.handle_event(event)
+            self.DrawManager.slider_gi.handle_event(event)
+            for btn in self.DrawManager.schedule_buttons:
+                btn.handle_event(event)
+            for chk in self.DrawManager.chk_buttons:
+                chk.handle_event(event)
         self.DrawManager.colorPick.handle_event(event)
         self.dataManager.getCurrentLayer().opacity=self.DrawManager.slider.value
 
@@ -197,6 +237,11 @@ class LevelDesign:
             self.LeftViewPortDragActive = self.viewport.InRegion() and self.tilePalette.GetCurrentTileMap()
             if self.dataManager.currentTool == Tools.LocationPoint and self.LeftViewPortDragActive:
                 self.dataManager.AddLocationPoint(self.viewport,self.DrawManager.locationPointImage)
+            if self.dataManager.currentTool == Tools.Light and not self.viewport.light_preview and  \
+                self.viewport.InRegion() and self.tilePalette.GetCurrentTileMap():
+                self.viewport.light_origin = event.pos
+                self.viewport.light_preview = True
+                self.viewport.light_current = event.pos
         elif event.button == 3:  # Clic droit
             self.RightClickStartPos = event.pos
             self.RightTempPos = event.pos
@@ -237,7 +282,8 @@ class LevelDesign:
             self.UpdateCurrentTiles()
         else:
             self.DrawManager.TilePreview=False
-
+        if self.viewport.light_preview and self.viewport.light_origin:
+            self.viewport.light_current = event.pos
 
 
     def HandleMouseUp(self, event):
@@ -245,7 +291,7 @@ class LevelDesign:
             if self.LeftDragging:
                 self.Handledragclick()
             else:
-                self.Handleclick()
+                self.Handleclick(event)
             self.LeftDragging = False
             self.MapDragActive = False
         elif event.button == 3:
@@ -273,11 +319,20 @@ class LevelDesign:
                 self.HistoryManager.RegisterRemoveTiles(self.dataManager.currentLayer,[self.viewport.toGrid(pygame.mouse.get_pos())],self.dataManager)
                 self.dataManager.getCurrentLayer().removeTile(self.viewport.toGrid(pygame.mouse.get_pos()))
 
-    def Handleclick(self):
+    def Handleclick(self,event):
         self.HandleAction()
         if self.tilePalette.GetCurrentTileMap() and self.tilePalette.InRegion():
             grid_x, grid_y = self.tilePalette.toGrid(pygame.mouse.get_pos(), self.tilePalette.GetCurrentTileMap().tileSize)
             self.dataManager.currentTiles = [Tile(self.tilePalette.GetCurrentTileMap().name, 0, 0, grid_x, grid_y)]
+        if self.dataManager.currentTool == Tools.Light:
+            if self.viewport.light_preview and self.viewport.light_origin :
+                ox, oy = self.viewport.light_origin
+                x, y = event.pos
+                radius = ((x-ox)**2 + (y-oy)**2)**0.5 / self.viewport.zoom
+                if radius>25:
+                    self.dataManager.addLight(self.viewport.light_origin, radius,self.viewport)
+                    self.viewport.light_origin = None
+                    self.viewport.light_preview = False
 
 
     def HandleKeyDown(self, event):
@@ -298,8 +353,10 @@ class LevelDesign:
             if self.dataManager.selectedElement:
                 if isinstance(self.dataManager.selectedElement,CollisionRect):
                     self.dataManager.collisionRects.remove(self.dataManager.selectedElement)
-                else:
+                elif isinstance(self.dataManager.selectedElement,LocationPoint):
                     self.dataManager.locationPoints.remove(self.dataManager.selectedElement)
+                else:
+                    self.dataManager.lights.remove(self.dataManager.selectedElement)
                 self.HistoryManager.RegisterRemoveElement(self.dataManager.selectedElement)
                 self.dataManager.selectedElement=None
         elif event.key == pygame.K_z and event.mod & pygame.KMOD_LCTRL:
