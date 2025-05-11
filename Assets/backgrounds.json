@@ -24,10 +24,223 @@
       ]
     },
     {
-      "name": "Solid Gray",
-      "type": "color",
-      "color": [200, 200, 200]
-    }
+      "name": "Fresh sky",
+      "type": "image",
+      "bg_color": [100, 100, 100],
+      "layers": [
+        { "path": "Assets/images/Parallax/Clouds 1/1.png", "parallax": 0.1 },
+        { "path": "Assets/images/Parallax/Clouds 1/2.png", "parallax": 0.15 },
+        { "path": "Assets/images/Parallax/Clouds 1/3.png", "parallax": 0.18 },
+        { "path": "Assets/images/Parallax/Clouds 1/4.png", "parallax": 0.2 }
+      ]
+    },
+    {
+      "name": "sunset",
+      "type": "image",
+      "bg_color": [110, 110, 110],
+      "layers": [
+        { "path": "Assets/images/Parallax/Clouds 2/1.png", "parallax": 0.1 },
+        { "path": "Assets/images/Parallax/Clouds 2/2.png", "parallax": 0.15 },
+        { "path": "Assets/images/Parallax/Clouds 2/3.png", "parallax": 0.18 },
+        { "path": "Assets/images/Parallax/Clouds 2/4.png", "parallax": 0.2 }
+      ]
+    },
+    {
+      "name": "Night sky",
+      "type": "image",
+      "bg_color": [120, 120, 120],
+      "layers": [
+        { "path": "Assets/images/Parallax/Clouds 3/1.png", "parallax": 0.1 },
+        { "path": "Assets/images/Parallax/Clouds 3/2.png", "parallax": 0.15 },
+        { "path": "Assets/images/Parallax/Clouds 3/3.png", "parallax": 0.18 },
+        { "path": "Assets/images/Parallax/Clouds 3/4.png", "parallax": 0.2 }
+      ]
+    },
+    {
+      "name": "Clouds",
+      "type": "image",
+      "bg_color": [130, 130, 130],
+      "layers": [
+        { "path": "Assets/images/Parallax/Clouds 4/1.png", "parallax": 0.1 },
+        { "path": "Assets/images/Parallax/Clouds 4/2.png", "parallax": 0.15 },
+        { "path": "Assets/images/Parallax/Clouds 4/3.png", "parallax": 0.18 },
+        { "path": "Assets/images/Parallax/Clouds 4/4.png", "parallax": 0.2 }
+      ]
+    },
+    {
+      "name": "New sky",
+      "type": "image",
+      "bg_color": [140, 140, 140],
+      "layers": [
+        { "path": "Assets/images/Parallax/Clouds 5/1.png", "parallax": 0.1 },
+        { "path": "Assets/images/Parallax/Clouds 5/2.png", "parallax": 0.13 },
+        { "path": "Assets/images/Parallax/Clouds 5/3.png", "parallax": 0.16 },
+        { "path": "Assets/images/Parallax/Clouds 5/4.png", "parallax": 0.19 },
+        { "path": "Assets/images/Parallax/Clouds 5/5.png", "parallax": 0.22 }
+      ]
+    },
+    {
+      "name": "Sunrise",
+      "type": "image",
+      "bg_color": [150, 150, 150],
+      "layers": [
+        { "path": "Assets/images/Parallax/Clouds 6/1.png", "parallax": 0.1 },
+        { "path": "Assets/images/Parallax/Clouds 6/2.png", "parallax": 0.13 },
+        { "path": "Assets/images/Parallax/Clouds 6/3.png", "parallax": 0.16 },
+        { "path": "Assets/images/Parallax/Clouds 6/4.png", "parallax": 0.19 },
+        { "path": "Assets/images/Parallax/Clouds 6/5.png", "parallax": 0.22 },
+        { "path": "Assets/images/Parallax/Clouds 6/6.png", "parallax": 0.25 }
+      ]
+    },
+    {
+      "name": "Sunrise 2",
+      "type": "image",
+      "bg_color": [160, 160, 160],
+      "layers": [
+        { "path": "Assets/images/Parallax/Clouds 7/1.png", "parallax": 0.1 },
+        { "path": "Assets/images/Parallax/Clouds 7/2.png", "parallax": 0.15 },
+        { "path": "Assets/images/Parallax/Clouds 7/3.png", "parallax": 0.18 },
+        { "path": "Assets/images/Parallax/Clouds 7/4.png", "parallax": 0.2 }
+      ]
+    },
+    {
+      "name": "Purple Could",
+      "type": "image",
+      "bg_color": [170, 170, 170],
+      "layers": [
+        { "path": "Assets/images/Parallax/Clouds 8/1.png", "parallax": 0.1 },
+        { "path": "Assets/images/Parallax/Clouds 8/2.png", "parallax": 0.13 },
+        { "path": "Assets/images/Parallax/Clouds 8/3.png", "parallax": 0.16 },
+        { "path": "Assets/images/Parallax/Clouds 8/4.png", "parallax": 0.19 },
+        { "path": "Assets/images/Parallax/Clouds 8/5.png", "parallax": 0.22 },
+        { "path": "Assets/images/Parallax/Clouds 8/6.png", "parallax": 0.25 }
+      ]
+    },
+        {
+      "name": "Sea",
+      "type": "image",
+      "bg_color": [180, 180, 180],
+      "layers": [
+        { "path": "Assets/images/Parallax/background 1/orig.png", "parallax": 0.1 },
+        { "path": "Assets/images/Parallax/background 1/1.png", "parallax": 0.15 },
+        { "path": "Assets/images/Parallax/background 1/2.png", "parallax": 0.2 },
+        { "path": "Assets/images/Parallax/background 1/3.png", "parallax": 0.25 },
+        { "path": "Assets/images/Parallax/background 1/4.png", "parallax": 0.3 },
+        { "path": "Assets/images/Parallax/background 1/5.png", "parallax": 0.35 }
+      ]
+    },
+    {
+      "name": "Toxic Depths",
+      "type": "image",
+      "bg_color": [190, 190, 190],
+      "layers": [
+        { "path": "Assets/images/Parallax/background 2/orig.png", "parallax": 0.1 },
+        { "path": "Assets/images/Parallax/background 2/1.png", "parallax": 0.15 },
+        { "path": "Assets/images/Parallax/background 2/2.png", "parallax": 0.2 },
+        { "path": "Assets/images/Parallax/background 2/3.png", "parallax": 0.25 },
+        { "path": "Assets/images/Parallax/background 2/4.png", "parallax": 0.3 },
+        { "path": "Assets/images/Parallax/background 2/5.png", "parallax": 0.35 }
+      ]
+    },
+    {
+      "name": "Watery Ruins",
+      "type": "image",
+      "bg_color": [200, 200, 200],
+      "layers": [
+        { "path": "Assets/images/Parallax/background 3/orig.png", "parallax": 0.1 },
+        { "path": "Assets/images/Parallax/background 3/1.png", "parallax": 0.13 },
+        { "path": "Assets/images/Parallax/background 3/2.png", "parallax": 0.16 },
+        { "path": "Assets/images/Parallax/background 3/3.png", "parallax": 0.19 },
+        { "path": "Assets/images/Parallax/background 3/4.png", "parallax": 0.22 },
+        { "path": "Assets/images/Parallax/background 3/5.png", "parallax": 0.25 },
+        { "path": "Assets/images/Parallax/background 3/6.png", "parallax": 0.28 }
+      ]
+    },
+    {
+      "name": "Graveyard of Ships",
+      "type": "image",
+      "bg_color": [210, 210, 210],
+      "layers": [
+        { "path": "Assets/images/Parallax/background 4/orig.png", "parallax": 0.1 },
+        { "path": "Assets/images/Parallax/background 4/1.png", "parallax": 0.15 },
+        { "path": "Assets/images/Parallax/background 4/2.png", "parallax": 0.2 },
+        { "path": "Assets/images/Parallax/background 4/3.png", "parallax": 0.25 },
+        { "path": "Assets/images/Parallax/background 4/4.png", "parallax": 0.3 }
+      ]
+    },
+    {
+      "name": "Jungle",
+      "type": "image",
+      "bg_color": [210, 210, 210],
+      "layers": [
+        { "path": "Assets/images/Parallax/Jungle/j4.png", "parallax": 0.1 },
+        { "path": "Assets/images/Parallax/Jungle/j3.png", "parallax": 0.15 },
+        { "path": "Assets/images/Parallax/Jungle/j2.png", "parallax": 0.18 },
+        { "path": "Assets/images/Parallax/Jungle/j1.png", "parallax": 0.2 }
+      ]
+    },
+    {
+      "name": "Glacial",
+      "type": "image",
+      "bg_color": [180, 200, 255],
+      "layers": [
+        { "path": "Assets/images/Parallax/Glacial/sky.png", "parallax": 0.05 },
+        { "path": "Assets/images/Parallax/Glacial/clouds_bg.png", "parallax": 0.1 },
+        { "path": "Assets/images/Parallax/Glacial/glacial_mountains.png", "parallax": 0.15 },
+        { "path": "Assets/images/Parallax/Glacial/clouds_mg_3.png", "parallax": 0.2 },
+        { "path": "Assets/images/Parallax/Glacial/clouds_mg_2.png", "parallax": 0.25 },
+        { "path": "Assets/images/Parallax/Glacial/clouds_mg_1.png", "parallax": 0.3 },
+        { "path": "Assets/images/Parallax/Glacial/cloud_lonely.png", "parallax": 0.35 }
+      ]
+    },
+    {
+    "name": "Cave",
+    "type": "image",
+    "bg_color": [10, 10, 10],
+    "layers": [
+      { "path": "Assets/images/Parallax/cave/1.png", "parallax": 0.05 },
+      { "path": "Assets/images/Parallax/cave/2.png", "parallax": 0.1 },
+      { "path": "Assets/images/Parallax/cave/3fx.png", "parallax": 0.45 },
+      { "path": "Assets/images/Parallax/cave/4.png", "parallax": 0.4 },
+      { "path": "Assets/images/Parallax/cave/5.png", "parallax": 0.35 },
+      { "path": "Assets/images/Parallax/cave/6fx.png", "parallax": 0.3 },
+      { "path": "Assets/images/Parallax/cave/7.png", "parallax": 0.25 },
+      { "path": "Assets/images/Parallax/cave/8fx.png", "parallax": 0.2 },
+      { "path": "Assets/images/Parallax/cave/9.png", "parallax": 0.15 }
+      ]
+    },
+    {
+    "name": "Abandoned Valley",
+    "type": "image",
+    "bg_color": [30, 30, 40],
+    "layers": [
+      { "path": "Assets/images/Parallax/Abandoned valley/0_sky.png", "parallax": 0.03 },
+      { "path": "Assets/images/Parallax/Abandoned valley/1_moon.png", "parallax": 0.05 },
+      { "path": "Assets/images/Parallax/Abandoned valley/2_clouds.png", "parallax": 0.1 },
+      { "path": "Assets/images/Parallax/Abandoned valley/3_bg_mountains.png", "parallax": 0.15 },
+      { "path": "Assets/images/Parallax/Abandoned valley/4_ground.png", "parallax": 0.25 },
+      { "path": "Assets/images/Parallax/Abandoned valley/5_fg_bush.png", "parallax": 0.35 },
+      { "path": "Assets/images/Parallax/Abandoned valley/6_fg.png", "parallax": 0.45 }
+    ]
+  },
+  {
+    "name": "Apocalyptic",
+    "type": "image",
+    "bg_color": [50, 40, 40],
+    "layers": [
+      { "path": "Assets/images/Parallax/Apocalyptic/1.png", "parallax": 0.05 },
+      { "path": "Assets/images/Parallax/Apocalyptic/2.png", "parallax": 0.1 },
+      { "path": "Assets/images/Parallax/Apocalyptic/3.png", "parallax": 0.15 },
+      { "path": "Assets/images/Parallax/Apocalyptic/4.png", "parallax": 0.2 },
+      { "path": "Assets/images/Parallax/Apocalyptic/5.png", "parallax": 0.25 }
+    ]
+  },
+  {
+    "name": "Solid Gray",
+    "type": "color",
+    "color": [200, 200, 200]
+  }
   ],
   "default": "Solid Gray"
 }
+
