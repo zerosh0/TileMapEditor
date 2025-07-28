@@ -1,10 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   const headings = Array.from(document.querySelectorAll(".content .inner h1[id], .content .inner h2[id], .content .inner h3[id]"));
   const tocLinks = Array.from(document.querySelectorAll(".sidebar-right .toc a"));
-  const linkById = tocLinks.reduce((map, a) => {
-    map[a.getAttribute("href").slice(1)] = a;
-    return map;
-  }, {});
+
 
   // Fonction qui met à jour l'item actif en parcourant les titres
   function updateActiveLink() {
@@ -112,7 +109,9 @@ function wrapWithBlur(node) {
   // crée l'image floutée de fond
   const blurImg = document.createElement('img');
   blurImg.classList.add('bg-blur');
-  blurImg.src = '../assets/images/bg.jpg';
+  const assetPath = window.location.pathname.includes('index.html') ? 'assets/' : '../assets/';
+  blurImg.src = `${assetPath}images/bg.jpg`;
+
 
   // insère le wrapper avant le nœud cible
   node.parentNode.insertBefore(wrapper, node);
@@ -122,7 +121,8 @@ function wrapWithBlur(node) {
 }
 document.addEventListener('DOMContentLoaded', async () => {
   // 1. Charger l'index JSON
-  const res = await fetch('../assets/search_index.json');
+  const assetPath = window.location.pathname.includes('index.html') ? 'assets/' : '../assets/';
+  const res = await fetch(`${assetPath}search_index.json`);
   const docs = await res.json();
 
   // 2. Initialiser Fuse.js
@@ -151,10 +151,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     resultsContainer.innerHTML = '';
     results.forEach(({ item }) => {
       const a = document.createElement('a');
-      a.href = item.url;
+      if (window.location.pathname === "/" || window.location.pathname.includes("index.html")) {
+        a.href = `./pages/${item.url}`;
+      } else {
+        a.href = item.url;
+      }
+
       a.textContent = item.title;
       resultsContainer.appendChild(a);
     });
+
 
     // 6. Afficher ou masquer le container
     if (results.length) {

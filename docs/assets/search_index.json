@@ -2,326 +2,326 @@
   {
     "title": "🎞️ Présentation des animations",
     "content": "Le système d'animation permet de poser, modifier et visualiser des tiles animées directement dans l'éditeur. Celles-ci fonctionnent sur une timeline indépendante par animation et sont intégrées dans le niveau via le même système de layers. Pour créer une animation, allez dans Animation > New . Renseignez un nom unique, une durée (en secondes) et une vitesse (facteur de lecture). Une fois créée, la timeline s'affiche en bas, et l' éditeur d'animation en haut à droite. Vous pouvez aussi ouvrir l'éditeur d'animation depuis Animation > Editor . Il vous permet de : • Renommer l'animation • Modifier sa durée • Changer sa vitesse (par défaut 1s sur la timeline = 1s réel) • Changer l'animation courante via un menu déroulant • Supprimer une animation • Afficher les keyframes sur la carte en temps réel (affichage en cyan) La timeline permet de poser des keyframes dans le temps. Chaque frame peut contenir plusieurs modifications visuelles (pose ou suppression de tiles). • Clic gauche: déplacer le",
-    "url": "/pages/animations.html#intro"
+    "url": "animations.html#intro"
   },
   {
     "title": "🧰 Animation Editor",
     "content": "Pour créer une animation, allez dans Animation > New . Renseignez un nom unique, une durée (en secondes) et une vitesse (facteur de lecture). Une fois créée, la timeline s'affiche en bas, et l' éditeur d'animation en haut à droite. Vous pouvez aussi ouvrir l'éditeur d'animation depuis Animation > Editor . Il vous permet de : • Renommer l'animation • Modifier sa durée • Changer sa vitesse (par défaut 1s sur la timeline = 1s réel) • Changer l'animation courante via un menu déroulant • Supprimer une animation • Afficher les keyframes sur la carte en temps réel (affichage en cyan)",
-    "url": "/pages/animations.html#animation-editor"
+    "url": "animations.html#animation-editor"
   },
   {
     "title": "⏱️ Timeline",
     "content": "La timeline permet de poser des keyframes dans le temps. Chaque frame peut contenir plusieurs modifications visuelles (pose ou suppression de tiles). • Clic gauche: déplacer le curseur • Clic gauche glissé: déplacer le curseur • Clic droitsur une keyframe : la sélectionner • Clic droit glissé: sélectionner plusieurs keyframes • Suppr: supprimer les keyframes sélectionnées • Shift + Drag gauche: déplacer les keyframes sélectionnées • Molette: zoom dans la timeline • Espace: jouer ou mettre en pause l'animation • +et-: déplacer le curseur image par image Les boutons de la barre de timeline permettent de : • ▶️Play • ⏸️Pause • 🔁Loop / Unloop • ➖Hidela timeline • 🔵Record: active l'enregistrement des poses Dans l'éditeur, les tiles animées sont dessinées sur le même layer que les tiles classiques. Elles sont simplement affichées par-dessus les tiles statiques présentes à la même position. Cela signifie que : • Si une tile statique est déjà placée sur un layer, et qu'une tile animée est ajou",
-    "url": "/pages/animations.html#timeline"
+    "url": "animations.html#timeline"
   },
   {
     "title": "💡 Affichage et Overlay",
     "content": "Dans l'éditeur, les tiles animées sont dessinées sur le même layer que les tiles classiques. Elles sont simplement affichées par-dessus les tiles statiques présentes à la même position. Cela signifie que : • Si une tile statique est déjà placée sur un layer, et qu'une tile animée est ajoutée au même endroit sur le même layer, la tile animée sera visible à la place de la statique. • Inversement, si vous ajoutez une tile statique par-dessus une tile animée déjà présente, elle risque de ne pas être visible, car masquée par l'animation lors de sa lecture. Pour vous éviter ce genre de conflit, l'éditeur affiche un aperçu jaune dans les zones où une animation est déjà présente sur le layer courant. Cela vous alerte que vous êtes sur le point de poser une tuile là où une animation s'exécute déjà.",
-    "url": "/pages/animations.html"
+    "url": "animations.html"
   },
   {
     "title": "🎮 Intégration en mode Play",
     "content": "Lors du passage en mode Play, les animations se comportent comme dans l'éditeur : une animation en pause le restera, une animation en loop continuera à jouer.",
-    "url": "/pages/animations.html#playmode-integration"
+    "url": "animations.html#playmode-integration"
   },
   {
     "title": "🔌 Contrôle via l'éditeur nodal",
     "content": "Voici les nodes disponibles pour contrôler les animations : • Play Animation— Démarre l'animation à 0s • Set Animation Time— Modifie manuellement la position temporelle • Stop Animation,Pause Animation • Loop / Unloop Animation • Set Animation Speed,Get Animation Speed",
-    "url": "/pages/animations.html"
+    "url": "animations.html"
   },
   {
     "title": "Envie d'en savoir plus ?",
     "content": "Consultez les pages suivantes pour explorer les fonctionnalités clés de l'éditeur : • 🔧Interface— Comprendre les outils de dessin, la gestion des layers et le fonctionnement du viewport. • 🎮Mode Play— Tester votre niveau avec un personnage jouable et déclencher des événements de gameplay. • 🧠Éditeur Nodal— Prototyper des logiques interactives avec un système de nœuds visuels.",
-    "url": "/pages/animations.html#next-steps"
+    "url": "animations.html#next-steps"
   },
   {
     "title": "Niveau",
     "content": "Un niveau est stocké en JSON, décrivant l'ensemble des calques, collisions, points de localisation, lumières, état de l'éditeur et chemin vers le LevelGraph. // Extrait d'un fichier level.json { \"layers\": [ { \"opacity\": 1.0, \"tiles\": [ { \"TileMap\": \"dungeon\", \"x\": 18, \"y\": 19, \"Originalx\": 1, \"Originaly\": 1, \"rotation\": 0, \"flipHorizontal\": false, \"flipVertical\": false }, /* … autres tuiles … */ ] }, /* layers 1 à 8 vides ou partiellement remplies */ ], \"currentLayer\": 0, \"currentTool\": \"LocationPoint\", \"viewport\": { \"panningOffset\": [-456.0, -508.5], \"zoom\": 2.5 }, /* … autres sections … */ } • x, y: position de la tuile dans le monde (grille) • Originalx, Originaly: indices de la tuile dans la source TileMap • rotation: angle en degrés (0, 90, 180, 270) • flipHorizontal/flipVertical: retournement La section tilePalette décrit les tilesets chargés : \"tilePalette\": { \"currentTileMapIndex\": 0, \"tileMaps\": [ { \"name\": \"dungeon\", \"filepath\": \"C:\\\\…\\\\Dungeon Tile Set.png\", \"tileSize\": 16, ",
-    "url": "/pages/data-format.html#level"
+    "url": "data-format.html#level"
   },
   {
     "title": "📐 Coordonnées & dimensions",
     "content": "• x, y: position de la tuile dans le monde (grille) • Originalx, Originaly: indices de la tuile dans la source TileMap • rotation: angle en degrés (0, 90, 180, 270) • flipHorizontal/flipVertical: retournement",
-    "url": "/pages/data-format.html#coords"
+    "url": "data-format.html#coords"
   },
   {
     "title": "TileMaps",
     "content": "La section tilePalette décrit les tilesets chargés : \"tilePalette\": { \"currentTileMapIndex\": 0, \"tileMaps\": [ { \"name\": \"dungeon\", \"filepath\": \"C:\\\\…\\\\Dungeon Tile Set.png\", \"tileSize\": 16, \"colorKey\": null, \"zoom\": 1.0, \"panningOffset\": [0, 0] } ] }",
-    "url": "/pages/data-format.html#tilemaps"
+    "url": "data-format.html#tilemaps"
   },
   {
     "title": "Animations",
     "content": "La section animations liste chaque animation avec son nom, durée, vitesse, boucle, état de lecture et ses keyframes : \"animations\": [ { \"name\": \"animation_1\", \"end\": 2.0, \"speed\": 1.0, \"loop\": false, \"play\": false, \"keyframes\": [] }, { \"name\": \"test\", \"end\": 1.5, \"speed\": 2.0, \"loop\": true, \"play\": true, \"keyframes\": [ { \"tile_map\": \"dungeon\", \"x\": 24, \"y\": 20, \"layer\": 0, \"time\": 0.402, \"Originalx\": 3, \"Originaly\": 5, \"rotation\": 0, \"flipH\": false, \"flipV\": false }, /* … autres keyframes … */ ] } ] Quand vous supprimez une tuile animée, un keyframe de suppression est généré : { \"tile_map\": \"\", \"x\": 24, \"y\": 20, \"layer\": 0, \"time\": 1.17, \"Originalx\": 0, \"Originaly\": 0, \"rotation\": 0, \"flipH\": false, \"flipV\": false }",
-    "url": "/pages/data-format.html#animations"
+    "url": "data-format.html#animations"
   },
   {
     "title": "🔑 Keyframes de suppression",
     "content": "Quand vous supprimez une tuile animée, un keyframe de suppression est généré : { \"tile_map\": \"\", \"x\": 24, \"y\": 20, \"layer\": 0, \"time\": 1.17, \"Originalx\": 0, \"Originaly\": 0, \"rotation\": 0, \"flipH\": false, \"flipV\": false }",
-    "url": "/pages/data-format.html#anim-keyframes"
+    "url": "data-format.html#anim-keyframes"
   },
   {
     "title": "💡 Lumières",
     "content": "Les sources lumineuses sont enregistrées dans la section lights du JSON : \"lights\": [ { \"x\": 376.4, \"y\": 367.4, \"radius\": 59.79, \"color\": [255,180,80], \"blink\": false } /* … autres lights … */ ] • x, y: position dans le monde (coordonnées du centre) • radius: rayon d'éclairage • color: couleur RGB • blink: clignotement activé ou non",
-    "url": "/pages/data-format.html#lights"
+    "url": "data-format.html#lights"
   },
   {
     "title": "LevelGraph (Nodes)",
     "content": "Le chemin vers le fichier .lvg du graphe nodal est indiqué en fin de JSON : \"levelGraph\": \"C:\\\\…\\\\test_graph.lvg\"",
-    "url": "/pages/data-format.html#nodes"
+    "url": "data-format.html#nodes"
   },
   {
     "title": "🗃️ Format des fichiers LevelGraph (.lvg)",
     "content": "Le fichier .lvg stocke l'ensemble des graphes nodaux d'un niveau. Chaque graphe correspond à un rectangle de collision dans l'éditeur et contient des nœuds connectés entre eux pour définir des logiques de gameplay. { \"graphs\": [ { \"rect_id\": \"UUID_du_Rectangle\", \"nodes\": [...], \"connections\": [...] } ] } • rect_id— Identifiant unique du rectangle de collision associé. • nodes— Liste des nœuds placés dans ce graphe, avec leur position et paramètres. • connections— Connexions entre les nœuds via leurs pins (exec ou data). Voici un exemple de graphe associé à un rectangle de collision : { \"rect_id\": \"2bfc28a5-7d5a-4fa4-8d41-81fc045b16f2\", \"nodes\": [ { \"node_id\": \"on_enter_197_226\", \"label\": \"On Enter\", \"pos\": [197, 226], \"properties\": {} }, { \"node_id\": \"Set SpawnPoint_670_244\", \"label\": \"Set SpawnPoint\", \"pos\": [670, 244], \"properties\": { \"choice\": \"point_0\" } }, { \"node_id\": \"Sequence_437_261\", \"label\": \"Sequence\", \"pos\": [437, 261], \"properties\": {} }, { \"node_id\": \"Teleport_923_339\", ",
-    "url": "/pages/data-format.html"
+    "url": "data-format.html"
   },
   {
     "title": "🔌 Structure des données",
     "content": "{ \"graphs\": [ { \"rect_id\": \"UUID_du_Rectangle\", \"nodes\": [...], \"connections\": [...] } ] } • rect_id— Identifiant unique du rectangle de collision associé. • nodes— Liste des nœuds placés dans ce graphe, avec leur position et paramètres. • connections— Connexions entre les nœuds via leurs pins (exec ou data).",
-    "url": "/pages/data-format.html"
+    "url": "data-format.html"
   },
   {
     "title": "📄 Exemple complet",
     "content": "Voici un exemple de graphe associé à un rectangle de collision : { \"rect_id\": \"2bfc28a5-7d5a-4fa4-8d41-81fc045b16f2\", \"nodes\": [ { \"node_id\": \"on_enter_197_226\", \"label\": \"On Enter\", \"pos\": [197, 226], \"properties\": {} }, { \"node_id\": \"Set SpawnPoint_670_244\", \"label\": \"Set SpawnPoint\", \"pos\": [670, 244], \"properties\": { \"choice\": \"point_0\" } }, { \"node_id\": \"Sequence_437_261\", \"label\": \"Sequence\", \"pos\": [437, 261], \"properties\": {} }, { \"node_id\": \"Teleport_923_339\", \"label\": \"Teleport\", \"pos\": [923, 339], \"properties\": { \"choice\": \"point_0\" } }, { \"node_id\": \"Print Console_675_408\", \"label\": \"Print Console\", \"pos\": [675, 408], \"properties\": { \"value\": \"Hello World\" } }, { \"node_id\": \"Get Player Health_543_498\", \"label\": \"Get Player Health\", \"pos\": [543, 498], \"properties\": { \"health\": 200 } } ], \"connections\": [ { \"out_node\": \"on_enter_197_226\", \"out_pin\": \"out\", \"in_node\": \"Sequence_437_261\", \"in_pin\": \"in\" }, { \"out_node\": \"Sequence_437_261\", \"out_pin\": \"out0\", \"in_node\": \"Set Spa",
-    "url": "/pages/data-format.html#example"
+    "url": "data-format.html#example"
   },
   {
     "title": "🧠 Analyse du graphe",
     "content": "• On Enter— Événement déclenché quand le joueur entre dans la collision. • Sequence— Exécute plusieurs branches dans l'ordre : spawnpoint → téléportation → console. • Set SpawnPoint— Définit le point d'apparition. • Teleport— Téléporte le joueur à un point nommépoint_0. • Print Console— Affiche dans la console le texte \"Hello World\" et y ajoute aussi la vie du joueur via le nœudGet Player Health.",
-    "url": "/pages/data-format.html"
+    "url": "data-format.html"
   },
   {
     "title": "🧩 Autre exemple de graphe (collision secondaire)",
     "content": "{ \"rect_id\": \"f4685698-3196-480a-b141-cdff2d4d86c7\", \"nodes\": [ { \"node_id\": \"on_start_320_284\", \"label\": \"On Start\", \"pos\": [320, 284], \"properties\": {} }, { \"node_id\": \"Set MaxHealth_550_354\", \"label\": \"Set MaxHealth\", \"pos\": [550, 354], \"properties\": { \"health\": \"20\" } } ], \"connections\": [ { \"out_node\": \"on_start_320_284\", \"out_pin\": \"out\", \"in_node\": \"Set MaxHealth_550_354\", \"in_pin\": \"in\" } ] } Ce graphe initialise la santé du joueur à 20 au début du mode Play .",
-    "url": "/pages/data-format.html"
+    "url": "data-format.html"
   },
   {
     "title": "Paramètres",
     "content": "La section settings stocke les préférences de l'éditeur pour ce niveau : \"settings\": { \"backgroundIndex\": 21, \"globalIllumination\": 0.0, \"start_mode\": 0, \"showLights\": true, \"showCollisions\": true, \"showLocationPoints\": true, \"playerSpawnPoint\": null, \"keyframeOverlay\": true }",
-    "url": "/pages/data-format.html#parameters"
+    "url": "data-format.html#parameters"
   },
   {
     "title": "Envie d'en savoir plus ?",
     "content": "Consultez les pages suivantes pour explorer les fonctionnalités clés de l'éditeur : • 🔧Interface— Comprendre les outils de dessin, la gestion des layers et le fonctionnement du viewport. • 🎞️Animations— Créez, éditez et déclenchez des animations dans vos niveaux à l'aide de la timeline visuelle.",
-    "url": "/pages/data-format.html#next-steps"
+    "url": "data-format.html#next-steps"
   },
   {
     "title": "Présentation générale",
     "content": "Le LevelGraph est un éditeur nodal intégré qui permet de définir des logiques personnalisées pour chaque collision présente dans un niveau. Lorsqu'une collision est sélectionnée, cliquez sur l'icône engrenage + clé à molette (en haut à droite de la section \"Editing\") pour ouvrir l'éditeur nodal associé. • Clique droit: ouvrir le menu de création de nœud à l'emplacement du curseur • Scroll: zoomer/dézoomer dans le menu contextuel ou le viewport • Drag avec molette: déplacer la vue dans le viewport • Drag clique gauche: sélectionner une ou plusieurs nodes • Supr: supprimer les nodes sélectionnées • Ctrl+C / Ctrl+V: copier-coller (fonctionne entre plusieurs LevelGraphs) • Drag sur un pin: connecter à un autre pin ou ouvrir une recherche de node connectée • Flèche gauche: ouvrir/fermer le panneau de node à gauche (catégorisé) Chaque nœud représente une instruction. On distingue 4 grands types : • Événements🔴 (rouge) :OnEnter,OnExit,OnStart,OnTick,OnEnd,OnOverlap • Actions⚪ : exécution d'u",
-    "url": "/pages/editor_nodal.html#overview"
+    "url": "editor_nodal.html#overview"
   },
   {
     "title": "Navigation et interaction",
     "content": "• Clique droit: ouvrir le menu de création de nœud à l'emplacement du curseur • Scroll: zoomer/dézoomer dans le menu contextuel ou le viewport • Drag avec molette: déplacer la vue dans le viewport • Drag clique gauche: sélectionner une ou plusieurs nodes • Supr: supprimer les nodes sélectionnées • Ctrl+C / Ctrl+V: copier-coller (fonctionne entre plusieurs LevelGraphs) • Drag sur un pin: connecter à un autre pin ou ouvrir une recherche de node connectée • Flèche gauche: ouvrir/fermer le panneau de node à gauche (catégorisé)",
-    "url": "/pages/editor_nodal.html#navigation"
+    "url": "editor_nodal.html#navigation"
   },
   {
     "title": "Types de nœuds",
     "content": "Chaque nœud représente une instruction. On distingue 4 grands types : • Événements🔴 (rouge) :OnEnter,OnExit,OnStart,OnTick,OnEnd,OnOverlap • Actions⚪ : exécution d'une tâche (ex :Teleport,Play Animation) • Setters🔧 : modification de données (ex :Set Player Speed) • Getters🟣 : récupération de données (ex :Get Player Health) Les pins blancs sont des exec pins pour déclencher des suites d'actions. Les pins violets sont des data pins pour transmettre des valeurs.",
-    "url": "/pages/editor_nodal.html#node-types"
+    "url": "editor_nodal.html#node-types"
   },
   {
     "title": "🧠 Nœuds logiques et événements",
     "content": "Pour construire des logiques dynamiques, l'éditeur propose plusieurs nœuds essentiels. Voici un aperçu des plus utilisés : • If— compare deux valeurs (AetB) avec un opérateur (==,!=,<, etc.) et exécute selon le résultat (sortiestrueoufalse). • For— exécute une bouclenfois. Utilisez la sortielooppour les instructions répétées n fois, etnextpour continuer à la fin de la boucle, i correspond à l'indice de cette dernière. • Sequence— déclenche une suite d'instructions dans l'ordre (utile pour enchaîner plusieurs actions). • FlipFlop— alterne entre deux sortiesAetBà chaque activation. • Once— n'exécute qu'une seule fois, même si le flux repasse dedans. Très utile pour déclencher des actions uniques. • Set Variable/Get Variable— permet de stocker et réutiliser des valeurs (états, compteurs, flags...) Chaque événement représente un déclencheur automatique. Un même événement ne peut être ajouté qu'une seule fois par LevelGraph. • OnEnter— déclenché lorsque le joueur entre dans la collision • O",
-    "url": "/pages/editor_nodal.html#logic-nodes"
+    "url": "editor_nodal.html#logic-nodes"
   },
   {
     "title": "⚙️ Nœuds de logique",
     "content": "• If— compare deux valeurs (AetB) avec un opérateur (==,!=,<, etc.) et exécute selon le résultat (sortiestrueoufalse). • For— exécute une bouclenfois. Utilisez la sortielooppour les instructions répétées n fois, etnextpour continuer à la fin de la boucle, i correspond à l'indice de cette dernière. • Sequence— déclenche une suite d'instructions dans l'ordre (utile pour enchaîner plusieurs actions). • FlipFlop— alterne entre deux sortiesAetBà chaque activation. • Once— n'exécute qu'une seule fois, même si le flux repasse dedans. Très utile pour déclencher des actions uniques. • Set Variable/Get Variable— permet de stocker et réutiliser des valeurs (états, compteurs, flags...)",
-    "url": "/pages/editor_nodal.html"
+    "url": "editor_nodal.html"
   },
   {
     "title": "🎯 Nœuds d'événements",
     "content": "Chaque événement représente un déclencheur automatique. Un même événement ne peut être ajouté qu'une seule fois par LevelGraph. • OnEnter— déclenché lorsque le joueur entre dans la collision • OnExit— déclenché à la sortie du joueur de la collision • OnOverlap— déclenché tant que le joueur reste dans la collision • OnStart— au lancement du mode Play • OnTick— déclenché à chaque frame (⚠️ à utiliser avec modération) • OnEnd— à la fermeture du mode Play",
-    "url": "/pages/editor_nodal.html"
+    "url": "editor_nodal.html"
   },
   {
     "title": "💥 Gestion des erreurs",
     "content": "Le système est doté d'un mécanisme de détection d'erreur runtime . Si une erreur est rencontrée pendant l'exécution en mode Play : • Le jeu est mis en pause automatiquement • Le LevelGraph concerné est rouvert • Un message d'erreur détaillé est affiché L'exécution du LevelGraph se fait entièrement dans le fil principal du jeu, aussi appelé thread principal. Cela signifie que chaque instruction nodale est traitée les unes après les autres, sans interruption ni exécution en parallèle. En pratique, cela veut dire que si une série de nœuds prend trop de temps à s'exécuter (par exemple une boucle très longue), le jeu peut se figer temporairement , le temps que toute la chaîne soit parcourue. Aucune autre logique ou animation ne pourra s'exécuter durant ce laps de temps. 🟢 Les exécutions sont séquentielles : une instruction à la fois 🔴 Aucune exécution parallèle n'est possible entre deux chaînes de nœuds ⏱️ Évitez les logiques coûteuses ou les boucles trop grandes sans contrôle 🧠 Pensez à is",
-    "url": "/pages/editor_nodal.html#errors"
+    "url": "editor_nodal.html#errors"
   },
   {
     "title": "🧵 Exécution mono-thread",
     "content": "L'exécution du LevelGraph se fait entièrement dans le fil principal du jeu, aussi appelé thread principal. Cela signifie que chaque instruction nodale est traitée les unes après les autres, sans interruption ni exécution en parallèle. En pratique, cela veut dire que si une série de nœuds prend trop de temps à s'exécuter (par exemple une boucle très longue), le jeu peut se figer temporairement , le temps que toute la chaîne soit parcourue. Aucune autre logique ou animation ne pourra s'exécuter durant ce laps de temps. 🟢 Les exécutions sont séquentielles : une instruction à la fois 🔴 Aucune exécution parallèle n'est possible entre deux chaînes de nœuds ⏱️ Évitez les logiques coûteuses ou les boucles trop grandes sans contrôle 🧠 Pensez à isoler des comportements complexes avec des Delay ou des séquences bien découpées",
-    "url": "/pages/editor_nodal.html"
+    "url": "editor_nodal.html"
   },
   {
     "title": "🔁 Boucles infinies ?",
     "content": "En théorie, une boucle infinie est impossible : chaque node ne peut avoir qu'un seul pin exec entrant et sortant. Toutefois, soyez attentif à vos logiques répétitives.",
-    "url": "/pages/editor_nodal.html"
+    "url": "editor_nodal.html"
   },
   {
     "title": "🔊 Système audio",
     "content": "Deux nœuds permettent de jouer des sons : • Play Sound: joue un son brut • Emit Sound From: joue un son spatialisé depuis unLocation Point",
-    "url": "/pages/editor_nodal.html#audio"
+    "url": "editor_nodal.html#audio"
   },
   {
     "title": "🧩 Conditions de placement",
     "content": "Tous les nœuds ne sont pas disponibles immédiatement : certains dépendent du contexte du niveau ou de la présence de certaines ressources. Ces restrictions évitent des erreurs lors de l'exécution. Exemple : certains nœuds comme Teleport sont désactivés tant qu'aucun point de localisation n'est placé sur la scène. • 🔀 Teleport: nécessite au moins unLocation Pointplacé dans le niveau. • 🎵 Nœuds Audio: pour utiliserPlay Sound,Emit Sound From, etc., il faut que des fichiers audio soient présents dans./Ressources/audio_files. • 🔁 Emit Sound From: dépend de la présence d'unLocation Pointdans la scène. Pour que les nœuds audio puissent jouer des sons dans un niveau, les fichiers doivent être placés dans des dossiers spécifiques. L'éditeur les parcourt automatiquement pour alimenter le menu de sélection. • ./Ressources/audio_files— répertoire principal pourvos sons personnalisés. Tous les fichiers audio ajoutés ici seront disponibles dans l'éditeur. • ./editor/game_engine/Assets/sounds_effects",
-    "url": "/pages/editor_nodal.html#conditions"
+    "url": "editor_nodal.html#conditions"
   },
   {
     "title": "🔄 Exemples fréquents",
     "content": "• 🔀 Teleport: nécessite au moins unLocation Pointplacé dans le niveau. • 🎵 Nœuds Audio: pour utiliserPlay Sound,Emit Sound From, etc., il faut que des fichiers audio soient présents dans./Ressources/audio_files. • 🔁 Emit Sound From: dépend de la présence d'unLocation Pointdans la scène.",
-    "url": "/pages/editor_nodal.html"
+    "url": "editor_nodal.html"
   },
   {
     "title": "📁 Emplacements des ressources",
     "content": "Pour que les nœuds audio puissent jouer des sons dans un niveau, les fichiers doivent être placés dans des dossiers spécifiques. L'éditeur les parcourt automatiquement pour alimenter le menu de sélection. • ./Ressources/audio_files— répertoire principal pourvos sons personnalisés. Tous les fichiers audio ajoutés ici seront disponibles dans l'éditeur. • ./editor/game_engine/Assets/sounds_effects— utilisé exclusivement par lesniveaux d'exemplefournis avec l'éditeur (par exemplenew_exemple.json). Il permet de séparer les ressources internes de démonstration des projets utilisateurs.",
-    "url": "/pages/editor_nodal.html"
+    "url": "editor_nodal.html"
   },
   {
     "title": "🧩 Créer ses propres Custom Nodes",
     "content": "Le système nodal est extensible grâce aux Custom Nodes , que vous pouvez ajouter simplement en Python. Chaque nœud personnalisé hérite de la classe Node et est enregistré via le décorateur @register_node . @register_node(\"NomAffiché\", category=\"MaCatégorie\") class MonNode(Node): def __init__(self, pos, editor, properties): super().__init__(pos, \"TitreDuNode\", editor, properties) # Ajouter des pins ici self.add_data_pin(\"nom\", is_output=False, default=0, label=\"Entrée\") def execute(self, context): # Code d'exécution ici next_node = next((p.connection.node for p in self.outputs if p.pin_type == \"exec\"), None) return next_node # ou None si c'est un getter car pas de pin exec à suivre Chaque nœud hérite de Node et doit redéfinir la méthode execute(self, context) . Les sorties (appelées pins ) peuvent être ajoutées avec add_data_pin . Expose une valeur du jeu via un pin de sortie. @register_node(\"Get Score\", category=\"Custom\") class GetScore(Node): def __init__(self, pos, editor, properties",
-    "url": "/pages/editor_nodal.html#custom-nodes"
+    "url": "editor_nodal.html#custom-nodes"
   },
   {
     "title": "🔧 Structure de base",
     "content": "@register_node(\"NomAffiché\", category=\"MaCatégorie\") class MonNode(Node): def __init__(self, pos, editor, properties): super().__init__(pos, \"TitreDuNode\", editor, properties) # Ajouter des pins ici self.add_data_pin(\"nom\", is_output=False, default=0, label=\"Entrée\") def execute(self, context): # Code d'exécution ici next_node = next((p.connection.node for p in self.outputs if p.pin_type == \"exec\"), None) return next_node # ou None si c'est un getter car pas de pin exec à suivre Chaque nœud hérite de Node et doit redéfinir la méthode execute(self, context) . Les sorties (appelées pins ) peuvent être ajoutées avec add_data_pin .",
-    "url": "/pages/editor_nodal.html"
+    "url": "editor_nodal.html"
   },
   {
     "title": "📤 Exemple 1 : Getter",
     "content": "Expose une valeur du jeu via un pin de sortie. @register_node(\"Get Score\", category=\"Custom\") class GetScore(Node): def __init__(self, pos, editor, properties): super().__init__(pos, \"Get Score\", editor, properties) self.inputs.clear() # Pas d'entrée self.outputs.clear() self.add_data_pin(\"score\", is_output=True, default=0, label=\"Score\") def execute(self, context): self.properties[\"score\"] = self.editor.game_state.get(\"player_score\", 0) return None",
-    "url": "/pages/editor_nodal.html"
+    "url": "editor_nodal.html"
   },
   {
     "title": "📥 Exemple 2 : Setter",
     "content": "Reçoit une valeur via un pin d'entrée et l'enregistre. @register_node(\"Set Health\", category=\"Custom\") class SetHealth(Node): def __init__(self, pos, editor, properties): super().__init__(pos, \"Set Health\", editor, properties) self.add_data_pin(\"hp\", is_output=False, default=100, label=\"HP\") def execute(self, context): pin = next(p for p in self.inputs if p.name == \"hp\") value = pin.connection.node.properties[pin.connection.name] if pin.connection else self.properties[\"hp\"] self.editor.game_state[\"player_health\"] = int(value) return next((p.connection.node for p in self.outputs if p.pin_type == \"exec\"), None)",
-    "url": "/pages/editor_nodal.html"
+    "url": "editor_nodal.html"
   },
   {
     "title": "▶️ Exemple 3 : Action",
     "content": "Déclenche une animation ou effet sans manipulation de données. @register_node(\"Play Animation\", category=\"Custom\") class PlayAnim(Node): def __init__(self, pos, editor, properties): super().__init__(pos, \"Play Animation\", editor, properties) self.add_data_pin(\"anim_name\", is_output=False, default=\"idle\", label=\"Animation\") def execute(self, context): pin = next(p for p in self.inputs if p.name == \"anim_name\") name = pin.connection.node.properties[pin.connection.name] if pin.connection else self.properties[\"anim_name\"] self.editor.game_engine.play_animation(name) return next((p.connection.node for p in self.outputs if p.pin_type == \"exec\"), None)",
-    "url": "/pages/editor_nodal.html"
+    "url": "editor_nodal.html"
   },
   {
     "title": "🎬 Exemple 4 : Action avec UI -Play Animation",
     "content": "Ce nœud permet de jouer une animation prédéfinie dans l'éditeur. L'utilisateur peut sélectionner l'animation via une liste déroulante dynamique. • Affiche dynamiquement les animations disponibles à partir du gestionnaire de l'éditeur. • Joue l'animation sélectionnée lorsque le nœud est exécuté. • Utilise unDropdownButtonpour l'UI. @register_node(\"Play Animation\", category=\"Animation\") class PlayAnimation(Node): def __init__(self, pos, editor, properties): super().__init__(pos, 'Play Animation', editor, properties) self.editor = editor # DropdownButton avec les noms des animations self.btn = DropdownButton( self, pygame.Rect(10, 30, 120, 24), list(self.editor.LevelEditor.animations.animations.keys()), callback=self._on_select ) # Réutilisation d'un choix précédent if self.properties.get('choice'): self.btn.selected = self.properties['choice'] # Ajout à l'UI self.ui_elements.append(self.btn) def _on_select(self, opt: str): self.properties['choice'] = opt def updateDropDownField(self): # ",
-    "url": "/pages/editor_nodal.html"
+    "url": "editor_nodal.html"
   },
   {
     "title": "Vue d'ensemble de TileMapEditor",
     "content": "Voici un aperçu des quatre grands axes de TileMapEditor pour comprendre en un clin d'œil ce que l'éditeur permet de faire. Construisez vos cartes en plaçant des tuiles, en gérant les calques, en dessinant des zones de collision et en ajoutant des points de repère pour guider le gameplay. • Placement de tuiles: dessinez directement sur la grille. • Layers: importez plusieurs TileMaps, superposez-les et ajustez leur opacité. • Collisions: définissez des rectangles semi-transparents pour les interactions. • Points de repère: placez des marqueurs (spawn, triggers) dans votre niveau. Animez vos tuiles grâce à une timeline : créez, déplacez et supprimez des keyframes, contrôlez la vitesse, la durée et le comportement en boucle. • Timeline: organise par calque vos séquences d'animation. • Keyframes: posez-les librement pour définir chaque état des tiles. • Aperçu en temps réelpour affiner directement le rendu dans l'éditeur. Testez instantanément votre niveau avec un personnage configuré : co",
-    "url": "/pages/getting-started.html#overview"
+    "url": "getting-started.html#overview"
   },
   {
     "title": "1. Édition de niveau",
     "content": "Construisez vos cartes en plaçant des tuiles, en gérant les calques, en dessinant des zones de collision et en ajoutant des points de repère pour guider le gameplay. • Placement de tuiles: dessinez directement sur la grille. • Layers: importez plusieurs TileMaps, superposez-les et ajustez leur opacité. • Collisions: définissez des rectangles semi-transparents pour les interactions. • Points de repère: placez des marqueurs (spawn, triggers) dans votre niveau.",
-    "url": "/pages/getting-started.html#level-editing"
+    "url": "getting-started.html#level-editing"
   },
   {
     "title": "2. Animations",
     "content": "Animez vos tuiles grâce à une timeline : créez, déplacez et supprimez des keyframes, contrôlez la vitesse, la durée et le comportement en boucle. • Timeline: organise par calque vos séquences d'animation. • Keyframes: posez-les librement pour définir chaque état des tiles. • Aperçu en temps réelpour affiner directement le rendu dans l'éditeur.",
-    "url": "/pages/getting-started.html#animations-overview"
+    "url": "getting-started.html#animations-overview"
   },
   {
     "title": "3. Mode Play",
     "content": "Testez instantanément votre niveau avec un personnage configuré : collisions, déplacements, animations et sauts sont gérés automatiquement. • Démarrage rapide: lancez votre carte en un clic. • Paramètres à la volée: ajustez gravité, vitesse, point d'apparition. • Mode fly: explorez librement pour repérer les issues.",
-    "url": "/pages/getting-started.html#playmode"
+    "url": "getting-started.html#playmode"
   },
   {
     "title": "4. Éditeur Nodal & Prototypage",
     "content": "Construisez la logique de votre jeu visuellement : connectez plus de 80 nœuds pour gérer événements, physique, IA ou audio. • Les nœuds: chaque nœud représente une action, un trigger ou un calcul. • Graphes modulaires: export indépendamment des niveaux (.lvg). • Debug & validation: erreurs repérées en temps réel dans l'éditeur.",
-    "url": "/pages/getting-started.html#node-editor-overview"
+    "url": "getting-started.html#node-editor-overview"
   },
   {
     "title": "Viewport",
     "content": "Le viewport est la zone principale où vous dessinez et naviguez dans votre carte. Vous pouvez : • Clic droit + glisser: déplacer la vue • Molette: zoom avant/arrière • Shift + Clic gauche: sélectionner une zone • H: afficher/masquer la grille",
-    "url": "/pages/interface.html#viewport"
+    "url": "interface.html#viewport"
   },
   {
     "title": "Tile Palette",
     "content": "La Tile Palette est l'espace dédié à la sélection des tuiles. Elle affiche les différentes TileMaps chargées, découpées automatiquement en tuiles, que vous pouvez choisir pour les placer dans votre niveau. • Clic gauche: sélectionner une tuile • Clic droit + glisser: sélectionner une zone de tuiles • Molette: zoom / dé-zoom dans la palette • Ctrl + Molette: agrandir ou réduire la taille d'affichage des tuiles (le canvas, pas le zoom) • Flèche gauche/droite: changer de TileMap active Ce système permet d'adapter visuellement la palette à votre confort de travail sans modifier la résolution des tuiles utilisées dans le niveau.",
-    "url": "/pages/interface.html#tilepalette"
+    "url": "interface.html#tilepalette"
   },
   {
     "title": "📥 Importer une TileMap",
     "content": "Pour ajouter une nouvelle TileMap dans l'éditeur, suivez les étapes suivantes : • Allez dansFile > Open. • Sélectionnez une image depuis votre disque (format PNG, JPG...). • Choisissez un nom unique pour cette TileMap. • Définissez la taille des tuiles (par exemple :16 x 16,32 x 32, etc.). • Un aperçu de la découpe s'affiche automatiquement pour vérification. • (Optionnel) Activez laColor Keysi vous souhaitez rendre un fond transparent (utile pour certaines images). • Validez pour ajouter la TileMap dans la palette.",
-    "url": "/pages/interface.html#import-tilemap"
+    "url": "interface.html#import-tilemap"
   },
   {
     "title": "Layers",
     "content": "Les layers (couches) vous permettent de superposer plusieurs plans de tuiles : • 0 (arrière-plan) à 8 (premier plan) • Flèches ↑/↓: changer de layer • Slider dans la zone éditing: Changer l'opacité pour voir à travers les couches Vous êtes prêt à aller plus loin ? Explorez les fonctionnalités de l'éditeur à travers les sections suivantes : • 🎞️ Animations— Apprenez à utiliser la timeline, créer des keyframes et gérer les tiles animées. • 🎮 Mode Play— Testez votre niveau avec un personnage contrôlable et configurez les paramètres de simulation. • 🧠 Éditeur Nodal— Créez des logiques personnalisées avec un système de nœuds visuels.",
-    "url": "/pages/interface.html#layers"
+    "url": "interface.html#layers"
   },
   {
     "title": "Outils",
     "content": "La barre d'outils vous permet d'interagir avec votre carte via différents modes : peinture, effacement, collision, points, lumière, etc. Sélectionnez un élément (tile, collision, point, light) par clic droit, puis modifiez ses propriétés dans le panneau Editing (en haut à gauche).",
-    "url": "/pages/interface.html#tools"
+    "url": "interface.html#tools"
   },
   {
     "title": "🖌️ Pinceau",
     "content": "Peindre des tuiles une à une ou par glissé. • Zone: Viewport • Raccourci: clic gauche / glisser",
-    "url": "/pages/interface.html"
+    "url": "interface.html"
   },
   {
     "title": "🧽 Gomme",
     "content": "Supprimer des tuiles ou une sélection entière. • Zone: Viewport • Sélectionpossible",
-    "url": "/pages/interface.html"
+    "url": "interface.html"
   },
   {
     "title": "🪄 Remplissage",
     "content": "Inonder une zone avec la tuile sélectionnée (flood fill). • Zone: Viewport",
-    "url": "/pages/interface.html"
+    "url": "interface.html"
   },
   {
     "title": "🎲 Random",
     "content": "Planter des tuiles aléatoires à partir de votre sélection. • Zone: Palette + Viewport",
-    "url": "/pages/interface.html"
+    "url": "interface.html"
   },
   {
     "title": "↔️ Flip",
     "content": "Retourner la sélection horizontalement ou verticalement.",
-    "url": "/pages/interface.html"
+    "url": "interface.html"
   },
   {
     "title": "🔄 Rotation",
     "content": "Pivoter la sélection (avant de la poser) par incréments de 90°.",
-    "url": "/pages/interface.html"
+    "url": "interface.html"
   },
   {
     "title": "📐 Collision",
     "content": "Créer et configurer des zones de collision rectangulaires. • Shift + Clic gauchepour sélectionner la zone • Propriétés :Type,Nom,Couleur",
-    "url": "/pages/interface.html"
+    "url": "interface.html"
   },
   {
     "title": "📌 Points de repère",
     "content": "Ajouter un marqueur de localisation (spawn, trigger, balise, etc.). • Propriétés :Type,Nom,Couleur • Pour le définir comme spawn : sélectionnez-le puisSettings > Player Profile > Set Spawn Point",
-    "url": "/pages/interface.html"
+    "url": "interface.html"
   },
   {
     "title": "💡 Light",
     "content": "Placer une source lumineuse en forme de disque. • Paramètres :Rayon,Couleur,Blink • Visible siGlobal Illumination< 100% (Settings > World Settings)",
-    "url": "/pages/interface.html"
+    "url": "interface.html"
   },
   {
     "title": "Prochaines étapes",
     "content": "Vous êtes prêt à aller plus loin ? Explorez les fonctionnalités de l'éditeur à travers les sections suivantes : • 🎞️ Animations— Apprenez à utiliser la timeline, créer des keyframes et gérer les tiles animées. • 🎮 Mode Play— Testez votre niveau avec un personnage contrôlable et configurez les paramètres de simulation. • 🧠 Éditeur Nodal— Créez des logiques personnalisées avec un système de nœuds visuels.",
-    "url": "/pages/interface.html#prochaine"
+    "url": "interface.html#prochaine"
   },
   {
     "title": "Paramètres",
     "content": "Cette section permet de configurer l'apparence globale du monde : • Global Illumination: Ajustable via un slider. Plus la valeur est élevée, plus le niveau est sombre. • Parallaxe: Choisissez un fond animé (parallax) ou une couleur unie. Les parallax sont définis dans Assets/backgrounds.json . Voici un exemple de configuration : { \"name\": \"Apocalyptic\", \"type\": \"image\", \"bg_color\": [50, 40, 40], \"layers\": [ { \"path\": \"Assets/images/Parallax/Apocalyptic/1.png\", \"parallax\": 0.05 }, ... ] } { \"name\": \"Solid Gray\", \"type\": \"color\", \"color\": [200, 200, 200] } Définit les caractéristiques du joueur pour le mode Play : • Vitesse(Speed) • Gravité(Gravity) • Force de saut(Jump Force) • Can Fly: Activer pour permettre au joueur de voler (utile pour le debug) • Spawn Point: Vous devez avoir sélectionné unLocation Pointpuis cliquer surSet Spawn Point. Le point affichera alors des drapeaux croisés. Cette section permet d'afficher ou masquer certains éléments : • Display Lights: Affiche les sources ",
-    "url": "/pages/settings.html#settings"
+    "url": "settings.html#settings"
   },
   {
     "title": "🌍 World Settings",
     "content": "Cette section permet de configurer l'apparence globale du monde : • Global Illumination: Ajustable via un slider. Plus la valeur est élevée, plus le niveau est sombre. • Parallaxe: Choisissez un fond animé (parallax) ou une couleur unie. Les parallax sont définis dans Assets/backgrounds.json . Voici un exemple de configuration : { \"name\": \"Apocalyptic\", \"type\": \"image\", \"bg_color\": [50, 40, 40], \"layers\": [ { \"path\": \"Assets/images/Parallax/Apocalyptic/1.png\", \"parallax\": 0.05 }, ... ] } { \"name\": \"Solid Gray\", \"type\": \"color\", \"color\": [200, 200, 200] }",
-    "url": "/pages/settings.html#world-settings"
+    "url": "settings.html#world-settings"
   },
   {
     "title": "👤 Player Profile",
     "content": "Définit les caractéristiques du joueur pour le mode Play : • Vitesse(Speed) • Gravité(Gravity) • Force de saut(Jump Force) • Can Fly: Activer pour permettre au joueur de voler (utile pour le debug) • Spawn Point: Vous devez avoir sélectionné unLocation Pointpuis cliquer surSet Spawn Point. Le point affichera alors des drapeaux croisés.",
-    "url": "/pages/settings.html#player-profile"
+    "url": "settings.html#player-profile"
   },
   {
     "title": "⚙️ Paramètres Avancés",
     "content": "Cette section permet d'afficher ou masquer certains éléments : • Display Lights: Affiche les sources de lumière • Show Collisions: Affiche les zones de collision • Show Location Points: Affiche les points de localisation • Display Grid: Affiche la grille d'édition • Display FPS: Affiche les performances de rendu • Keyframe Overlay: Affiche un surlignage jaune sur les tuiles avec animation Détermine le niveau chargé au démarrage : • Open NewExample: charge un nouveau niveau exemple • Open OldExample: charge l'ancien exemple • Empty Project: démarrage avec un projet vide • Open Last Level: recharge automatiquement le dernier niveau utilisé(⚠️ à éviter en cas de crash)",
-    "url": "/pages/settings.html#advanced"
+    "url": "settings.html#advanced"
   },
   {
     "title": "🧰 Start Mode",
     "content": "Détermine le niveau chargé au démarrage : • Open NewExample: charge un nouveau niveau exemple • Open OldExample: charge l'ancien exemple • Empty Project: démarrage avec un projet vide • Open Last Level: recharge automatiquement le dernier niveau utilisé(⚠️ à éviter en cas de crash)",
-    "url": "/pages/settings.html#startmode"
+    "url": "settings.html#startmode"
   }
 ]
