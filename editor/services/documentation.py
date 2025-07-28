@@ -19,7 +19,7 @@ class ThreadingHTTPServer(ThreadingMixIn, server.HTTPServer):
     allow_reuse_address = True
 
 class DocServer:
-    def __init__(self, nm, doc_path="Documentation", port_start=8000, port_end=8100, cooldown=5):
+    def __init__(self, nm, doc_path="docs", port_start=8000, port_end=8100, cooldown=5):
         self.nm = nm
         self.doc_path = os.path.abspath(doc_path)
         self.port_start = port_start
