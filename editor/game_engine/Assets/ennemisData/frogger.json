@@ -1,0 +1,78 @@
+{
+    "base_params": {
+        "speed": 3.0,
+        "health": 200,
+        "detection_range": 400,
+        "attack_range": 250,
+        "heal_threshold": 0.4,
+        "heal_amount": 25,
+        "heal_cooldown": 2000,
+        "scale":1.8
+    },
+    "collision": {
+        "width":130,
+        "height":110
+    },
+    "attacks": {
+        "spit": {
+            "type": "projectile",
+            "damage": 25,
+            "speed": 8,
+            "cooldown": 3000,
+            "hitbox":{
+                "height":70,
+                "y":-45,
+                "range":250,
+                "debug": false  
+              },
+            "animation": "spit",
+            "spawn_offset": [20, -10],
+            "hit_frame": 8
+        },
+        "tongue": {
+            "type": "melee",
+            "damage": 25,
+            "cooldown": 2000,
+            "hitbox":{
+              "height":30,
+              "y":-40,
+              "range":220,
+              "debug": false
+            },
+            "animation": "tongue",
+            "hit_frame": 4
+        }
+    },
+    "animations": {
+        "idle": {
+            "spritesheet": "Assets/images/Frogger/frogger_idle.png",
+            "frame_size": [128, 128],
+            "frame_duration": 100
+        },
+        "move": {
+            "spritesheet": "Assets/images/Frogger/frogger_move.png",
+            "frame_size": [384, 128],
+            "frame_duration": 100
+        },
+        "hurt": {
+            "spritesheet": "Assets/images/Frogger/frogger_hurt.png",
+            "frame_size": [384, 128],
+            "frame_duration": 50
+        },
+        "heal": {
+            "spritesheet": "Assets/images/Frogger/frogger_heal.png",
+            "frame_size": [384, 128],
+            "frame_duration": 100
+        },
+        "tongue": {
+            "spritesheet": "Assets/images/Frogger/frogger_tongue.png",
+            "frame_size": [384, 128],
+            "frame_duration": 100
+        },
+        "spit": {
+            "spritesheet": "Assets/images/Frogger/frogger_spit.png",
+            "frame_size": [384, 128],
+            "frame_duration": 100
+        }
+    }
+}

@@ -1,0 +1,252 @@
+{
+  "base_params": {
+      "speed": 3.0,
+      "health": 200
+  },
+  "collision": {
+      "width":43,
+      "height":50
+  },
+  "attacks": {
+      "sword": {
+          "type": "melee",
+          "damage": 15,
+          "cooldown": 3000,
+          "hitbox":{
+              "height":75,
+              "y":25,
+              "range":60,
+              "debug": false  
+            },
+          "animation": "sword",
+          "hit_frame": 4
+      }
+  },
+    "animations": [
+      {
+        "name": "idle",
+        "frameRate": 200,
+        "isCancelable": true,
+        "scale": 2.0,
+        "frames": [
+          [11, 14, 27, 39],
+          [11, 14, 27, 39],
+          [11, 14, 27, 39],
+          [11, 14, 27, 39],
+          [11, 14, 27, 39],
+          [11, 14, 27, 39],
+          [11, 14, 27, 39],
+          [11, 14, 27, 39],
+          [11, 14, 27, 39],
+          [11, 14, 27, 39],
+          [11, 14, 27, 39],
+          [11, 14, 27, 39],
+          [11, 14, 27, 39],
+          [11, 14, 27, 39],
+          [11, 14, 27, 39],
+          [11, 14, 27, 39],
+          [11, 14, 27, 39],
+          [11, 14, 27, 39],
+          [42,14,27,39]
+        ]
+      },
+            {
+        "name": "climb",
+        "frameRate": 80,
+        "isCancelable": true,
+        "scale": 2.0,
+        "frames": [
+          [11, 516, 23, 38],
+          [38, 516, 20, 38],
+          [62, 522, 23, 32],
+          [89, 522, 26, 32],
+          [119, 522, 31, 32],
+          [154, 520, 28, 34],
+          [186, 520, 26, 34],
+          [216, 514, 19, 40],
+          [239, 517, 20, 37]
+        ]
+      },
+      {
+        "name": "fall",
+        "frameRate": 90,
+        "isCancelable": false,
+        "scale": 2.0,
+        "frames": [
+          [266, 199, 25, 40],
+          [295, 199, 25, 40]
+        ]
+      },      
+      {
+        "name": "fall_slow",
+        "frameRate": 120,
+        "isCancelable": false,
+        "scale": 2.0,
+        "frames": [
+          [266, 199, 25, 40],
+          [295, 199, 25, 40]
+        ]
+      },
+      {
+        "name": "die",
+        "frameRate":60,
+        "isCancelable": false,
+        "scale": 2.0,
+        "frames": [
+          [11, 388, 20, 38],
+          [35, 389, 23, 37],
+          [62, 395, 32, 31],
+          [98, 401, 39, 25],
+          [141, 406, 38, 20],
+          [141, 406, 38, 20],
+          [141, 406, 38, 20],
+          [141, 406, 38, 20],
+          [141, 406, 38, 20],
+          [141, 406, 38, 20]
+        ]
+      },
+      {
+        "name": "run",
+        "sound": "./editor/game_engine/Assets/sounds_effects/footstep2.wav",
+        "frameRate": 50,
+        "isCancelable": true,
+        "scale": 2.0,
+        "frames": [
+          [11, 112, 25, 38],
+          [40, 113, 28, 37],
+          [72, 113, 31, 37],
+          [107, 113, 32, 37],
+          [144, 113, 32, 37],
+          [180, 112, 28, 38],
+          [212, 111, 24, 39]
+        ]
+      },
+      {
+        "name": "flip_jump",
+        "sound": "./editor/game_engine/Assets/sounds_effects/jump.mp3",
+        "frameRate": 60,
+        "isCancelable": false,
+        "scale": 2.0,
+        "frames": [
+          [11, 201, 30, 38],
+          [45, 201, 30, 38],
+          [79, 205, 21, 34],
+          [104, 211, 21, 28],
+          [129, 212, 22, 27],
+          [155, 202, 32, 37],
+          [191, 214, 35, 25],
+          [230, 207, 32, 32]
+        ]
+      },
+      {
+        "name": "long_jump",
+        "frameRate": 180,
+        "isCancelable": false,
+        "scale": 2.0,
+        "frames": [
+          [104, 11, 27, 42],
+          [73, 11, 27, 42],
+          [135, 11, 27, 42],
+          [166, 11, 27, 42]
+        ]
+      },
+      {
+        "name": "slash_jump",
+        "sound": "./editor/game_engine/Assets/sounds_effects/jump_slash.mp3",
+        "frameRate": 60,
+        "isCancelable": false,
+        "scale": 2.0,
+        "frames": [
+          [11, 201, 30, 38],
+          [45, 201, 30, 38],
+          [10, 1206, 34, 36],
+          [48, 1206, 32, 32],
+          [84, 1206, 36, 33],
+          [124, 1214, 32, 32],
+          [160, 1220, 33, 36],
+          [197, 1224, 32, 32],
+          [233, 1223, 36, 33],
+          [273, 1216, 32, 32],
+          [309, 1206, 26, 41]
+        ]
+      },
+      {
+        "name": "sword",
+        "frameRate": 60,
+        "isCancelable": false,
+        "scale": 2.0,
+        "sound": "./editor/game_engine/Assets/sounds_effects/sword.mp3",
+        "frames": [
+          [141, 578, 39, 27],
+          [191, 570, 43, 36],
+          [237, 570, 43, 36, 2, 0],
+          [285, 570, 64, 48, 0, -25],
+          [353, 570, 64, 48, 0, -25],
+          [418, 576, 52, 38, 30, -17],
+          [474, 577, 42, 29, 30, 0],
+          [520, 577, 37, 29, 30, 0],
+          [561, 570, 34, 36, 30, 0]
+        ]
+      },
+      {
+        "name": "fly_idle",
+        "frameRate": 60,
+        "isCancelable": true,
+        "scale": 2.0,
+        "frames": [
+          [344,287,28,46]
+        ]
+      },
+      {
+        "name": "fly_move",
+        "frameRate": 90,
+        "isCancelable": true,
+        "scale": 2.0,
+        "frames": [
+          [188,287,27,46],
+          [219,287,27,46],
+          [250,288,28,45],
+          [282,288,28,45],
+          [314,288,27,45],
+          [345,287,27,46]
+        ]
+      },
+      {
+        "name": "start_sleep",
+        "frameRate": 100,
+        "isCancelable": true,
+        "scale": 2.0,
+        "spritesheet": "./editor/game_engine/Assets/images/start_sleeping.png",
+        "sound": "./editor/game_engine/Assets/sounds_effects/sleep_move.mp3",
+        "frame_size": [49, 63]
+      },
+      {
+        "name": "sleeping1",
+        "frameRate": 200,
+        "isCancelable": true,
+        "scale": 2.0,
+        "spritesheet": "./editor/game_engine/Assets/images/sleeping1.png",
+        "sound": "./editor/game_engine/Assets/sounds_effects/bubble_snore.mp3",
+        "frame_size": [49, 63]
+      },
+      {
+        "name": "sleeping2",
+        "frameRate": 200,
+        "isCancelable": true,
+        "scale": 2.0,
+        "sound": "./editor/game_engine/Assets/sounds_effects/sleep_move.mp3",
+        "spritesheet": "./editor/game_engine/Assets/images/sleeping2.png",
+        "frame_size": [49, 63]
+      },
+      {
+        "name": "sleeping3",
+        "frameRate": 200,
+        "isCancelable": true,
+        "scale": 2.0,
+        "spritesheet": "./editor/game_engine/Assets/images/sleeping3.png",
+        "sound": "./editor/game_engine/Assets/sounds_effects/yawn.mp3",
+        "frame_size": [49, 63]
+      }
+    ]
+  }
+  

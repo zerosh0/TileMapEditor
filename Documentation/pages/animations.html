@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/7.1.0/fuse.min.js" integrity="sha512-H1bWCnc4dDJwdioqpOCkU76ZxEdvBvOy9R9Dd9EqftlzQg92owjX5IVdiOw00llAyQFUZJNPrzDnWZ/lZtf25A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <title>Documentation TileMapEditor</title>
+    <link rel="icon" href="/assets/images/search.ico" />
+</head>
+<body>
+  <header>
+    <nav>
+      <a class="nav-left" href="https://github.com/zerosh0/TileMapEditor" target="_blank">
+        <img src="../assets/images/github.svg" alt="GitHub" id="github"/>
+        <h1 id="title">TileMapEditor</h1>
+      </a>
+  <div id="search-container">
+    <input id="search" placeholder="Rechercher…" autocomplete="off" />
+    <div id="search-results"></div>
+  </div>
+    </nav>
+  </header>
+    <button id="mobile-menu-btn" aria-label="Ouvrir le menu" class="mobile-menu-btn">
+    &#9776;
+    </button>
+
+  <img id="illustration" src="../assets/images/illustration.svg" alt="Illustration" />
+
+  <div class="layout">
+
+<aside class="sidebar-left">
+  <nav>
+    <ul class="menu">
+      <li>
+        <a href="../index.html">Accueil</a>
+      </li>
+
+      <li>
+        <a href="getting-started.html">Prise en main</a>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="interface.html">Interface</a>
+        </div>
+        <ul class="submenu">
+          <li><a href="interface.html#viewport">Viewport</a></li>
+          <li><a href="interface.html#tilepalette">Tile Palette</a></li>
+          <li><a href="interface.html#layers">Layers</a></li>
+          <li><a href="interface.html#tools">Outils</a></li>
+        </ul>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="#" class="active">Animations</a>
+        </div>
+        <ul class="submenu">
+          <li><a href="#intro">Présentation</a></li>
+          <li><a href="#animation-editor">Éditeur d'animation</a></li>
+          <li><a href="#timeline">Timeline</a></li>
+          <li><a href="#playmode-integration">Intégration au mode Play</a></li>
+        </ul>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="editor_nodal.html#">Éditeur Nodal</a>
+        </div>
+        <ul class="submenu">
+          <li><a href="editor_nodal.html#overview">Présentation</a></li>
+          <li><a href="editor_nodal.html#node-types">Types de nœuds</a></li>
+          <li><a href="editor_nodal.html#errors">Erreurs & validation</a></li>
+          <li><a href="editor_nodal.html#custom-nodes">Nodes personnalisés</a></li>
+        </ul>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="settings.html" >Paramètres</a>
+        </div>
+        <ul class="submenu">
+        <li><a href="settings.html#world-settings">World Settings</a></li>
+        <li><a href="settings.html#player-profile">Player Profile</a></li>
+        <li><a href="settings.html#advanced">Paramètres Avancés</a></li>
+        </ul>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="data-format.html">Stockage & Données</a>
+        </div>
+        <ul class="submenu">
+          <li><a href="data-format.html#level">Niveau</a></li>
+          <li><a href="data-format.html#tilemaps">TileMaps</a></li>
+          <li><a href="data-format.html#animations">Animations</a></li>
+          <li><a href="data-format.html#nodes">Nodes</a></li>
+          <li><a href="data-format.html#parameters">Paramètres</a></li>
+        </ul>
+      </li>
+
+        <li>
+        <a href="references.html">Bibliothèque</a>
+      </li>
+
+    </ul>
+  </nav>
+</aside>
+
+
+
+
+
+<main class="content">
+  <div class="inner">
+    <article>
+
+      <h1 id="intro">🎞️ Présentation des animations</h1>
+      <p>
+        Le système d'animation permet de poser, modifier et visualiser des tiles animées directement dans l'éditeur. Celles-ci fonctionnent sur une timeline indépendante par animation et sont intégrées dans le niveau via le même système de layers.
+      </p>
+
+<picture>
+  <source srcset="../assets/image_webp/animation.webp" type="image/webp" />
+  <img src="../assets/images/animation.gif" alt="Animation Editor" style="max-width: 100%" loading="lazy" />
+</picture>
+
+
+      <div class="alert alert-info">
+        <div class="alert-body">
+          <strong>Info :</strong> Lorsqu'un niveau est créé, une animation nommée <code>animation_1</code> est automatiquement générée. Vous pouvez la renommer, la modifier ou la supprimer après avoir créé une autre animation.
+        </div>
+      </div>
+
+      <h2 id="animation-editor">🧰 Animation Editor</h2>
+      <p>
+        Pour créer une animation, allez dans <strong>Animation &gt; New</strong>. Renseignez un nom unique, une durée (en secondes) et une vitesse (facteur de lecture).
+      </p>
+      <p>
+        Une fois créée, la timeline s'affiche en bas, et l'<strong>éditeur d'animation</strong> en haut à droite. Vous pouvez aussi ouvrir l'éditeur d'animation depuis <strong>Animation &gt; Editor</strong>.<br> Il vous permet de :
+      </p>
+      <ul>
+        <li>Renommer l'animation</li>
+        <li>Modifier sa durée</li>
+        <li>Changer sa vitesse (par défaut 1s sur la timeline = 1s réel)</li>
+        <li>Changer l'animation courante via un menu déroulant</li>
+        <li>Supprimer une animation</li>
+        <li>Afficher les keyframes sur la carte en temps réel (affichage en cyan)</li>
+      </ul>
+      <div class="alert alert-info">
+        <div class="alert-body">
+          <strong>Astuce :</strong> Lors de la modification de la vitesse d'une animation elle s'effectue en temps réel.
+        </div></div>
+<picture>
+  <source srcset="../assets/image_webp/animation_editor.webp" type="image/webp" />
+  <img src="../assets/images/animation_editor.png" alt="Sélecteur d'animation" style="max-width: 100%" loading="lazy" />
+</picture>
+
+
+      <div class="alert alert-warning">
+        <div class="alert-body">
+          <strong>Attention :</strong> Chaque animation doit avoir un nom <strong>unique</strong>.
+        </div>
+      </div>
+
+      <h2 id="timeline">⏱️ Timeline</h2>
+      <p>
+        La timeline permet de poser des keyframes dans le temps. Chaque frame peut contenir plusieurs modifications visuelles (pose ou suppression de tiles).
+      </p>
+<picture class="no-bg">
+  <source srcset="../assets/image_webp/timeline.webp" type="image/webp" />
+  <img src="../assets/images/timeline.png" alt="Timeline" class="no-bg" style="max-width: 100%;box-shadow: -1px 7px 16px 3px rgb(208 208 219);" id="timeline_img" loading="lazy" />
+</picture>
+
+
+      <ul>
+        <li><strong>Clic gauche</strong> : déplacer le curseur</li>
+        <li><strong>Clic gauche glissé</strong> : déplacer le curseur</li>
+        <li><strong>Clic droit</strong> sur une keyframe : la sélectionner</li>
+        <li><strong>Clic droit glissé</strong> : sélectionner plusieurs keyframes</li>
+        <li><strong>Suppr</strong> : supprimer les keyframes sélectionnées</li>
+        <li><strong>Shift + Drag gauche</strong> : déplacer les keyframes sélectionnées</li>
+        <li><strong>Molette</strong> : zoom dans la timeline</li>
+        <li><strong>Espace</strong> : jouer ou mettre en pause l'animation</li>
+        <li><strong>+</strong> et <strong>-</strong> : déplacer le curseur image par image</li>
+      </ul>
+      <div class="alert alert-info">
+  <div class="alert-body">
+    <strong>Info :</strong> Les modifications de keyframes sont entièrement compatibles avec les raccourcis <kbd>Ctrl + Z</kbd> (annuler) et <kbd>Ctrl + Y</kbd> (restaurer).
+  </div>
+</div>
+
+<picture class="no-bg">
+  <source srcset="../assets/image_webp/keyframes.webp" type="image/webp" />
+  <img src="../assets/images/keyframes.gif" alt="Keyframes" class="no-bg" style="max-width: 100%;box-shadow: -1px 7px 16px 3px rgb(208 208 219);" id="keyframes_img" loading="lazy" />
+</picture>
+
+      <p>
+        Les boutons de la barre de timeline permettent de :
+      </p>
+      <ul>
+        <li>▶️ <strong>Play</strong></li>
+        <li>⏸️ <strong>Pause</strong></li>
+        <li>🔁 <strong>Loop / Unloop</strong></li>
+        <li> ➖ <strong>Hide</strong> la timeline</li>
+        <li>🔵 <strong>Record</strong> : active l'enregistrement des poses</li>
+      </ul>
+
+      <div class="alert alert-info">
+        <div class="alert-body">
+          <strong>Information :</strong> En mode record (🔵 activé), les poses de tiles créent automatiquement des keyframes dans l'animation courante. Les poses sont bleues, les suppressions cyan.
+        </div>
+      </div>
+<picture>
+  <source srcset="../assets/image_webp/animation_show.webp" type="image/webp" />
+  <img src="../assets/images/animation_show.gif" alt="animation" loading="lazy" />
+</picture>
+
+      <div class="alert alert-warning">
+        <div class="alert-body">
+          <strong>Attention :</strong> Si plusieurs keyframes sont posées au même moment, elles s'empilent verticalement. Si leur nombre dépasse 5, un compteur comme <code>+9</code> s'affiche.
+        </div>
+      </div>
+
+    <h3>💡 Affichage et Overlay</h3>
+    <p>
+    Dans l'éditeur, les tiles animées sont dessinées sur le même layer que les tiles classiques. Elles sont simplement affichées <strong>par-dessus</strong> les tiles statiques présentes à la même position. Cela signifie que :
+    </p>
+
+    <ul>
+    <li>Si une tile statique est déjà placée sur un layer, et qu'une tile animée est ajoutée au même endroit sur le même layer, la tile animée sera visible à la place de la statique.</li>
+    <li>Inversement, si vous ajoutez une tile statique par-dessus une tile animée déjà présente, elle risque de ne pas être visible, car masquée par l'animation lors de sa lecture.</li>
+    </ul>
+
+    <p>
+    Pour vous éviter ce genre de conflit, l'éditeur affiche un <strong>aperçu jaune</strong> dans les zones où une animation est déjà présente sur le layer courant. Cela vous alerte que vous êtes sur le point de poser une tuile là où une animation s'exécute déjà.
+    </p>
+
+    <div class="alert alert-info">
+    <div class="alert-body">
+        <strong>Conseil :</strong> Ce système de surbrillance peut être désactivé si vous le souhaitez. Rendez-vous dans <strong>Settings &gt; Advanced &gt; Keyframe Overlay</strong> pour couper l'aperçu jaune.
+    </div>
+    </div>
+<picture>
+  <source srcset="../assets/image_webp/keyframes_y.webp" type="image/webp" />
+  <img src="../assets/images/keyframes_y.gif" alt="keyframes" loading="lazy" />
+</picture>
+
+    <div class="alert alert-info">
+        <div class="alert-body">
+          <strong>Information :</strong> Le bouton <code>Animation &gt; Sync</code> permet de réinitialiser toutes les animations en cours à 0s pour une synchronisation parfaite.
+        </div>
+      </div>
+
+      <h2 id="playmode-integration">🎮 Intégration en mode Play</h2>
+      <p>
+        Lors du passage en mode Play, les animations se comportent comme dans l'éditeur : une animation en <em>pause</em> le restera, une animation en <em>loop</em> continuera à jouer.
+      </p>
+
+
+
+      <h2>🔌 Contrôle via l'éditeur nodal</h2>
+      <p>
+        Voici les nodes disponibles pour contrôler les animations :
+      </p>
+      <ul>
+        <li><code>Play Animation</code> — Démarre l'animation à 0s</li>
+        <li><code>Set Animation Time</code> — Modifie manuellement la position temporelle</li>
+        <li><code>Stop Animation</code>, <code>Pause Animation</code></li>
+        <li><code>Loop / Unloop Animation</code></li>
+        <li><code>Set Animation Speed</code>, <code>Get Animation Speed</code></li>
+      </ul>
+
+      <div class="alert alert-warning">
+        <div class="alert-body">
+          <strong>Important :</strong> si vous utilisez <code>Set Animation Time</code>, assurez-vous d'avoir d'abord lancé l'animation avec <code>Play Animation</code>, sinon la position temporelle sera réinitialisée à 0.
+        </div>
+      </div>
+
+
+  <h2 id="next-steps">Envie d'en savoir plus ?</h2>
+  <p>
+    Consultez les pages suivantes pour explorer les fonctionnalités clés de l'éditeur :
+  </p>
+  <ul>
+    <li>
+      🔧 <strong><a href="interface.html">Interface</a></strong> — Comprendre les outils de dessin, la gestion des layers et le fonctionnement du viewport.
+    </li>
+    <li>
+      🎮 <strong><a href="playmode.html">Mode Play</a></strong> — Tester votre niveau avec un personnage jouable et déclencher des événements de gameplay.
+    </li>
+    <li>
+      🧠 <strong><a href="editor_nodal.html">Éditeur Nodal</a></strong> — Prototyper des logiques interactives avec un système de nœuds visuels.
+    </li>
+  </ul>
+
+<picture>
+  <source srcset="../assets/image_webp/sleep3.webp" type="image/webp" />
+  <img src="../assets/images/sleep3.gif" alt="Éditeur Nodal" style="max-width:600px;" loading="lazy" />
+</picture>
+
+    </article>
+  </div>
+</main>
+
+<!-- Right Sidebar : table des matières locale -->
+<aside class="sidebar-right">
+  <div class="toc">
+    <strong>Sur cette page</strong>
+    <ul>
+      <li><a href="#intro">Présentation</a></li>
+      <li><a href="#animation-editor">Éditeur d'animation</a></li>
+      <li><a href="#timeline">Timeline</a></li>
+      <li><a href="#playmode-integration">Mode Play</a></li>
+    </ul>
+  </div>
+</aside>
+
+  </div>
+
+</body>
+    <script src="../assets/js/script.js"></script>
+</html>

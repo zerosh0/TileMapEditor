@@ -1,4 +1,7 @@
 last_commit.txt
+.filedialogrc
+.version
+settings_ui.settings
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

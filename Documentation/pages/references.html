@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <link href="../assets/css/references.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/7.1.0/fuse.min.js" integrity="sha512-H1bWCnc4dDJwdioqpOCkU76ZxEdvBvOy9R9Dd9EqftlzQg92owjX5IVdiOw00llAyQFUZJNPrzDnWZ/lZtf25A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <title>Documentation TileMapEditor</title>
+    <link rel="icon" href="/assets/images/search.ico" />
+</head>
+<body>
+  <header>
+    <nav>
+      <a class="nav-left" href="https://github.com/zerosh0/TileMapEditor" target="_blank">
+        <img src="../assets/images/github.svg" alt="GitHub" id="github"/>
+        <h1 id="title">TileMapEditor</h1>
+      </a>
+  <div id="search-container">
+    <input id="search" placeholder="Rechercher…" autocomplete="off" />
+    <div id="search-results"></div>
+  </div>
+    </nav>
+  </header>
+    <button id="mobile-menu-btn" aria-label="Ouvrir le menu" class="mobile-menu-btn">
+    &#9776;
+    </button>
+
+  <img id="illustration" src="../assets/images/illustration.svg" alt="Illustration" />
+
+  <div class="layout">
+
+<aside class="sidebar-left">
+  <nav>
+    <ul class="menu">
+      <li>
+        <a href="../index.html">Accueil</a>
+      </li>
+
+      <li>
+        <a href="getting-started.html">Prise en main</a>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="interface.html">Interface</a>
+        </div>
+        <ul class="submenu">
+          <li><a href="interface.html#viewport">Viewport</a></li>
+          <li><a href="interface.html#tilepalette">Tile Palette</a></li>
+          <li><a href="interface.html#layers">Layers</a></li>
+          <li><a href="interface.html#tools">Outils</a></li>
+        </ul>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="animations.html#">Animations</a>
+        </div>
+        <ul class="submenu">
+          <li><a href="animations.html#intro">Présentation</a></li>
+          <li><a href="animations.html#animation-editor">Éditeur d'animation</a></li>
+          <li><a href="animations.html#timeline">Timeline</a></li>
+          <li><a href="animations.html#playmode-integration">Intégration au mode Play</a></li>
+        </ul>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="editor_nodal.html#">Éditeur Nodal</a>
+        </div>
+        <ul class="submenu">
+          <li><a href="editor_nodal.html#overview">Présentation</a></li>
+          <li><a href="editor_nodal.html#node-types">Types de nœuds</a></li>
+          <li><a href="editor_nodal.html#errors">Erreurs & validation</a></li>
+          <li><a href="editor_nodal.html#custom-nodes">Nodes personnalisés</a></li>
+        </ul>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="settings.html" >Paramètres</a>
+        </div>
+        <ul class="submenu">
+        <li><a href="settings.html#world-settings">World Settings</a></li>
+        <li><a href="settings.html#player-profile">Player Profile</a></li>
+        <li><a href="settings.html#advanced">Paramètres Avancés</a></li>
+        </ul>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="data-format.html">Stockage & Données</a>
+        </div>
+        <ul class="submenu">
+          <li><a href="data-format.html#level">Niveau</a></li>
+          <li><a href="data-format.html#tilemaps">TileMaps</a></li>
+          <li><a href="data-format.html#animations">Animations</a></li>
+          <li><a href="data-format.html#nodes">Nodes</a></li>
+          <li><a href="data-format.html#parameters">Paramètres</a></li>
+        </ul>
+      </li>
+
+        <li>
+        <a href="#" class="active">Bibliothèque</a>
+      </li>
+
+    </ul>
+  </nav>
+</aside>
+
+
+  <main class="content">
+    <div class="inner">
+      <input id="node-search" type="text" placeholder="Recherchez parmi tous les nœuds…" autocomplete="off" />
+      <div style="display:flex; gap:2rem;">
+        <aside style="width:200px;">
+          <div class="toc">
+            <strong>Résultats</strong>
+            <ul id="node-list" style="padding-left:0; list-style:none;"></ul>
+          </div>
+        </aside>
+        <section id="nodes-container" style="flex:1;">
+            <section id="nodes-container" style="flex:1; position: relative;">
+            <div id="empty-placeholder" class="empty-state">
+                <img src="../assets/images/sleep.gif" alt="Aucun nœud sélectionné"/>
+                <p>Commencez votre recherche pour voir des nœuds</p>
+            </div>
+            </section>
+        </section>
+      </div>
+    </div>
+  </main>
+
+
+</body>
+    <script src="../assets/js/search.js"></script>
+    <script src="../assets/js/script.js"></script>
+</html>

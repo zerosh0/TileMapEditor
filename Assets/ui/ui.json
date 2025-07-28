@@ -1,35 +1,91 @@
-[
-    {
-        "type": "Button",
-        "rect": [20, 0, 60, 30],
-        "text": "Save",
-        "action": "save",
-        "bg_color": [36, 43, 59],
-        "size": 25
+[    {
+        "type": "Dropdown",
+        "rect": [255, 0, 70, 30],
+        "text": "Help",
+        "bg_color": [36, 36, 36],
+        "size": 25,
+        "items": [
+            {
+                "text": "GitHub",
+                "action": "open_github"
+            },
+            {
+                "text": "Documentation",
+                "action": "open_doc"
+            }
+        ]
     },
     {
-        "type": "Button",
-        "rect": [80, 0, 60, 30],
-        "text": "Open",
-        "action": "open",
-        "bg_color": [36, 43, 59],
-        "size": 25
-    },
-    {
-        "type": "Button",
-        "rect": [140, 0, 60, 30],
-        "text": "Load",
-        "action": "load",
-        "bg_color": [36, 43, 59],
-        "size": 25
-    },
-    {
-        "type": "Button",
-        "rect": [210, 0, 80, 30],
+        "type": "Dropdown",
+        "rect": [165, 0, 90, 30],
         "text": "Settings",
-        "action": "settings",
-        "bg_color": [36, 43, 59],
-        "size": 25
+        "bg_color": [36, 36, 36],
+        "size": 25,
+        "items": [
+            {
+                "text": "World Settings",
+                "action": "world_settings"
+            },
+            {
+                "text": "Player Profile",
+                "action": "player_settings"
+            },
+            {
+                "text": "Advanced",
+                "action": "advanced_settings"
+            }
+        ]
+    },
+
+    {
+        "type": "Dropdown",
+        "rect": [60, 0, 100, 30],
+        "text": "Animation",
+        "bg_color": [36, 36, 36],
+        "size": 25,
+        "items": [
+            {
+                "text": "Timeline",
+                "action": "open_timeline"
+            },
+            {
+                "text": "New",
+                "action": "new_animation"
+            },
+            {
+                "text": "Editor",
+                "action": "animation_panel"
+            },
+            {
+                "text": "Sync",
+                "action": "sync_animations"
+            }
+        ]
+    },
+    {
+        "type": "Dropdown",
+        "rect": [0, 0, 60, 30],
+        "text": "File",
+        "bg_color": [36, 36, 36],
+        "size": 25,
+        "items": [
+            {
+                "text": "Load",
+                "action": "load"
+            },
+            {
+                "text": "Open",
+                "action": "open"
+            },
+            {
+                "text": "New",
+                "action": "New"
+            },
+            {
+                "text": "Save",
+                "action": "save"
+            }
+        ]
     },
     {
         "type": "ImageButton",
@@ -108,5 +164,11 @@
         "rect": [940, 150, 24, 24],
         "image": "./Assets/ui/icones/edit.png",
         "action": "editName"
+    },
+    {
+        "type": "ImageButton",
+        "rect": [945, 35, 24, 24],
+        "image": "./Assets/ui/icones/graph.png",
+        "action": "graph"
     }
 ]

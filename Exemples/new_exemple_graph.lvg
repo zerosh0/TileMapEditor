@@ -1,0 +1,4450 @@
+{
+    "graphs": [
+        {
+            "rect_id": "026d3040-a92d-4074-9c5d-d682a38f70b6",
+            "nodes": [],
+            "connections": []
+        },
+        {
+            "rect_id": "c03115da-b64d-4324-b2cb-f365c0b6fbaa",
+            "nodes": [],
+            "connections": []
+        },
+        {
+            "rect_id": "9b981f42-9e3d-42dc-9005-03612e0de3c1",
+            "nodes": [],
+            "connections": []
+        },
+        {
+            "rect_id": "96337e69-c8e8-48f3-8259-cd0ba154d51f",
+            "nodes": [],
+            "connections": []
+        },
+        {
+            "rect_id": "a69de0ed-e5a2-4c21-8a23-d576a6018ef6",
+            "nodes": [
+                {
+                    "rect_id": "a69de0ed-e5a2-4c21-8a23-d576a6018ef6",
+                    "node_id": "on_overlap_192_291",
+                    "label": "On Overlap",
+                    "pos": [
+                        192,
+                        291
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "a69de0ed-e5a2-4c21-8a23-d576a6018ef6",
+                    "node_id": "Apply Force_765_309",
+                    "label": "Apply Force",
+                    "pos": [
+                        765,
+                        309
+                    ],
+                    "properties": {
+                        "force_x": "0.0",
+                        "force_y": -1.0,
+                        "duration": 0
+                    }
+                },
+                {
+                    "rect_id": "a69de0ed-e5a2-4c21-8a23-d576a6018ef6",
+                    "node_id": "If_437_438",
+                    "label": "If",
+                    "pos": [
+                        437,
+                        438
+                    ],
+                    "properties": {
+                        "A": "0",
+                        "B": "True",
+                        "operator": "=="
+                    }
+                },
+                {
+                    "rect_id": "a69de0ed-e5a2-4c21-8a23-d576a6018ef6",
+                    "node_id": "Is Player Colliding With_141_463",
+                    "label": "Is Player Colliding With",
+                    "pos": [
+                        141,
+                        463
+                    ],
+                    "properties": {
+                        "choice": "end",
+                        "colliding": false
+                    }
+                },
+                {
+                    "rect_id": "a69de0ed-e5a2-4c21-8a23-d576a6018ef6",
+                    "node_id": "on_start_227_116",
+                    "label": "On Start",
+                    "pos": [
+                        227,
+                        116
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "a69de0ed-e5a2-4c21-8a23-d576a6018ef6",
+                    "node_id": "Set Player Gravity_467_154",
+                    "label": "Set Player Gravity",
+                    "pos": [
+                        467,
+                        154
+                    ],
+                    "properties": {
+                        "gravity": "0.6"
+                    }
+                },
+                {
+                    "rect_id": "a69de0ed-e5a2-4c21-8a23-d576a6018ef6",
+                    "node_id": "Set Animation_1019_297",
+                    "label": "Set Animation",
+                    "pos": [
+                        1019,
+                        297
+                    ],
+                    "properties": {
+                        "choice": "fall",
+                        "isCancelable": false
+                    }
+                }
+            ],
+            "connections": [
+                {
+                    "rect_id": "a69de0ed-e5a2-4c21-8a23-d576a6018ef6",
+                    "out_node": "on_overlap_192_291",
+                    "out_pin": "out",
+                    "in_node": "If_437_438",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "a69de0ed-e5a2-4c21-8a23-d576a6018ef6",
+                    "out_node": "If_437_438",
+                    "out_pin": "false",
+                    "in_node": "Apply Force_765_309",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "a69de0ed-e5a2-4c21-8a23-d576a6018ef6",
+                    "out_node": "Is Player Colliding With_141_463",
+                    "out_pin": "colliding",
+                    "in_node": "If_437_438",
+                    "in_pin": "A"
+                },
+                {
+                    "rect_id": "a69de0ed-e5a2-4c21-8a23-d576a6018ef6",
+                    "out_node": "on_start_227_116",
+                    "out_pin": "out",
+                    "in_node": "Set Player Gravity_467_154",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "a69de0ed-e5a2-4c21-8a23-d576a6018ef6",
+                    "out_node": "Apply Force_765_309",
+                    "out_pin": "out",
+                    "in_node": "Set Animation_1019_297",
+                    "in_pin": "in"
+                }
+            ]
+        },
+        {
+            "rect_id": "0737a342-5cda-4e98-8805-1edd9fe6109d",
+            "nodes": [
+                {
+                    "rect_id": "0737a342-5cda-4e98-8805-1edd9fe6109d",
+                    "node_id": "on_enter_215_280",
+                    "label": "On Enter",
+                    "pos": [
+                        215,
+                        280
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "0737a342-5cda-4e98-8805-1edd9fe6109d",
+                    "node_id": "Set Player Gravity_463_313",
+                    "label": "Set Player Gravity",
+                    "pos": [
+                        463,
+                        313
+                    ],
+                    "properties": {
+                        "gravity": 0.0
+                    }
+                },
+                {
+                    "rect_id": "0737a342-5cda-4e98-8805-1edd9fe6109d",
+                    "node_id": "Clear Forces_662_341",
+                    "label": "Clear Forces",
+                    "pos": [
+                        662,
+                        341
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "0737a342-5cda-4e98-8805-1edd9fe6109d",
+                    "node_id": "on_exit_192_131",
+                    "label": "On Exit",
+                    "pos": [
+                        192,
+                        131
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "0737a342-5cda-4e98-8805-1edd9fe6109d",
+                    "node_id": "Set Player Gravity_528_152",
+                    "label": "Set Player Gravity",
+                    "pos": [
+                        528,
+                        152
+                    ],
+                    "properties": {
+                        "gravity": "0.6"
+                    }
+                },
+                {
+                    "rect_id": "0737a342-5cda-4e98-8805-1edd9fe6109d",
+                    "node_id": "on_overlap_216_488",
+                    "label": "On Overlap",
+                    "pos": [
+                        216,
+                        488
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "0737a342-5cda-4e98-8805-1edd9fe6109d",
+                    "node_id": "Set Animation_505_509",
+                    "label": "Set Animation",
+                    "pos": [
+                        505,
+                        509
+                    ],
+                    "properties": {
+                        "choice": "fall",
+                        "isCancelable": false
+                    }
+                }
+            ],
+            "connections": [
+                {
+                    "rect_id": "0737a342-5cda-4e98-8805-1edd9fe6109d",
+                    "out_node": "on_enter_215_280",
+                    "out_pin": "out",
+                    "in_node": "Set Player Gravity_463_313",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "0737a342-5cda-4e98-8805-1edd9fe6109d",
+                    "out_node": "Set Player Gravity_463_313",
+                    "out_pin": "out",
+                    "in_node": "Clear Forces_662_341",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "0737a342-5cda-4e98-8805-1edd9fe6109d",
+                    "out_node": "on_exit_192_131",
+                    "out_pin": "out",
+                    "in_node": "Set Player Gravity_528_152",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "0737a342-5cda-4e98-8805-1edd9fe6109d",
+                    "out_node": "on_overlap_216_488",
+                    "out_pin": "out",
+                    "in_node": "Set Animation_505_509",
+                    "in_pin": "in"
+                }
+            ]
+        },
+        {
+            "rect_id": "081a5f86-f9d2-4250-b159-78541de5f9dd",
+            "nodes": [
+                {
+                    "rect_id": "081a5f86-f9d2-4250-b159-78541de5f9dd",
+                    "node_id": "Damage Player_1341_288",
+                    "label": "Damage",
+                    "pos": [
+                        1341,
+                        288
+                    ],
+                    "properties": {
+                        "amount": "10"
+                    }
+                },
+                {
+                    "rect_id": "081a5f86-f9d2-4250-b159-78541de5f9dd",
+                    "node_id": "Delay_956_292",
+                    "label": "Delay",
+                    "pos": [
+                        956,
+                        292
+                    ],
+                    "properties": {
+                        "duration": "0.5"
+                    }
+                },
+                {
+                    "rect_id": "081a5f86-f9d2-4250-b159-78541de5f9dd",
+                    "node_id": "Respawn Player_1145_289",
+                    "label": "Respawn Player",
+                    "pos": [
+                        1145,
+                        289
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "081a5f86-f9d2-4250-b159-78541de5f9dd",
+                    "node_id": "on_enter_150_295",
+                    "label": "On Enter",
+                    "pos": [
+                        150,
+                        295
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "081a5f86-f9d2-4250-b159-78541de5f9dd",
+                    "node_id": "Set Input Active_370_293",
+                    "label": "Set Input Active",
+                    "pos": [
+                        370,
+                        293
+                    ],
+                    "properties": {
+                        "active": false
+                    }
+                },
+                {
+                    "rect_id": "081a5f86-f9d2-4250-b159-78541de5f9dd",
+                    "node_id": "Set Input Active_1557_295",
+                    "label": "Set Input Active",
+                    "pos": [
+                        1557,
+                        295
+                    ],
+                    "properties": {
+                        "active": true
+                    }
+                },
+                {
+                    "rect_id": "081a5f86-f9d2-4250-b159-78541de5f9dd",
+                    "node_id": "Play Sound_755_293",
+                    "label": "Play Sound",
+                    "pos": [
+                        755,
+                        293
+                    ],
+                    "properties": {
+                        "choice": "stab.mp3"
+                    }
+                },
+                {
+                    "rect_id": "081a5f86-f9d2-4250-b159-78541de5f9dd",
+                    "node_id": "Force Set Animation_560_287",
+                    "label": "Force Set Animation",
+                    "pos": [
+                        560,
+                        287
+                    ],
+                    "properties": {
+                        "isCancelable": false,
+                        "choice": "die"
+                    }
+                }
+            ],
+            "connections": [
+                {
+                    "rect_id": "081a5f86-f9d2-4250-b159-78541de5f9dd",
+                    "out_node": "Delay_956_292",
+                    "out_pin": "done",
+                    "in_node": "Respawn Player_1145_289",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "081a5f86-f9d2-4250-b159-78541de5f9dd",
+                    "out_node": "Respawn Player_1145_289",
+                    "out_pin": "out",
+                    "in_node": "Damage Player_1341_288",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "081a5f86-f9d2-4250-b159-78541de5f9dd",
+                    "out_node": "on_enter_150_295",
+                    "out_pin": "out",
+                    "in_node": "Set Input Active_370_293",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "081a5f86-f9d2-4250-b159-78541de5f9dd",
+                    "out_node": "Damage Player_1341_288",
+                    "out_pin": "out",
+                    "in_node": "Set Input Active_1557_295",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "081a5f86-f9d2-4250-b159-78541de5f9dd",
+                    "out_node": "Play Sound_755_293",
+                    "out_pin": "out",
+                    "in_node": "Delay_956_292",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "081a5f86-f9d2-4250-b159-78541de5f9dd",
+                    "out_node": "Set Input Active_370_293",
+                    "out_pin": "out",
+                    "in_node": "Force Set Animation_560_287",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "081a5f86-f9d2-4250-b159-78541de5f9dd",
+                    "out_node": "Force Set Animation_560_287",
+                    "out_pin": "out",
+                    "in_node": "Play Sound_755_293",
+                    "in_pin": "in"
+                }
+            ]
+        },
+        {
+            "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+            "nodes": [
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "on_start_835_386",
+                    "label": "On Start",
+                    "pos": [
+                        835,
+                        386
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "Hide Light_1068_387",
+                    "label": "Hide Light",
+                    "pos": [
+                        1068,
+                        387
+                    ],
+                    "properties": {
+                        "choice": "Light1"
+                    }
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "on_enter_677_561",
+                    "label": "On Enter",
+                    "pos": [
+                        677,
+                        561
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "on_exit_848_789",
+                    "label": "On Exit",
+                    "pos": [
+                        848,
+                        789
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "Set Bubble Text_2212_545",
+                    "label": "Set Bubble Text",
+                    "pos": [
+                        2212,
+                        545
+                    ],
+                    "properties": {
+                        "choice": "BulleRune",
+                        "text": "Touchez \u2018E\u2019 pour \u00e9veiller la rune oubli\u00e9e...",
+                        "font_size": 22,
+                        "speed": 50.0,
+                        "duration": -1.0,
+                        "text_color": [
+                            151,
+                            163,
+                            255
+                        ]
+                    }
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "Set Bubble Text_1748_791",
+                    "label": "Set Bubble Text",
+                    "pos": [
+                        1748,
+                        791
+                    ],
+                    "properties": {
+                        "choice": "BulleRune",
+                        "text": "",
+                        "font_size": 14,
+                        "speed": 0.0,
+                        "duration": -1.0,
+                        "text_color": [
+                            255,
+                            255,
+                            255
+                        ]
+                    }
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "Set Animation Time_1496_816",
+                    "label": "Set Animation Time",
+                    "pos": [
+                        1496,
+                        816
+                    ],
+                    "properties": {
+                        "time": 1.3,
+                        "choice": "Runes"
+                    }
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "Set Animation Time_1443_572",
+                    "label": "Set Animation Time",
+                    "pos": [
+                        1443,
+                        572
+                    ],
+                    "properties": {
+                        "time": 0.0,
+                        "choice": "Runes"
+                    }
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "Play Animation_1682_575",
+                    "label": "Play Animation",
+                    "pos": [
+                        1682,
+                        575
+                    ],
+                    "properties": {
+                        "choice": "Runes"
+                    }
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "on_tick_753_1005",
+                    "label": "On Tick",
+                    "pos": [
+                        753,
+                        1005
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "If_1070_1004",
+                    "label": "If",
+                    "pos": [
+                        1070,
+                        1004
+                    ],
+                    "properties": {
+                        "A": "0",
+                        "B": "True",
+                        "operator": "=="
+                    }
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "Is Player Colliding With_1060_1130",
+                    "label": "Is Player Colliding With",
+                    "pos": [
+                        1060,
+                        1130
+                    ],
+                    "properties": {
+                        "choice": "Rune",
+                        "colliding": true
+                    }
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "If_1557_1016",
+                    "label": "If",
+                    "pos": [
+                        1557,
+                        1016
+                    ],
+                    "properties": {
+                        "A": "0",
+                        "B": "1.3",
+                        "operator": ">"
+                    }
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "Get Animation Time_1563_1146",
+                    "label": "Get Animation Time",
+                    "pos": [
+                        1563,
+                        1146
+                    ],
+                    "properties": {
+                        "time": 1.34,
+                        "choice": "Runes"
+                    }
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "Pause Animation_1857_1029",
+                    "label": "Pause Animation",
+                    "pos": [
+                        1857,
+                        1029
+                    ],
+                    "properties": {
+                        "choice": "Runes"
+                    }
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "Play Animation_1292_823",
+                    "label": "Play Animation",
+                    "pos": [
+                        1292,
+                        823
+                    ],
+                    "properties": {
+                        "choice": "Runes"
+                    }
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "If_1509_1314",
+                    "label": "If",
+                    "pos": [
+                        1509,
+                        1314
+                    ],
+                    "properties": {
+                        "A": "0",
+                        "B": "True",
+                        "operator": "=="
+                    }
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "Is Key Pressed_1504_1434",
+                    "label": "Is Key Pressed",
+                    "pos": [
+                        1504,
+                        1434
+                    ],
+                    "properties": {
+                        "pressed": false,
+                        "key_code": 101,
+                        "key_name": "e"
+                    }
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "Sequence_1282_1005",
+                    "label": "Sequence",
+                    "pos": [
+                        1282,
+                        1005
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "Once_1723_1309",
+                    "label": "Once",
+                    "pos": [
+                        1723,
+                        1309
+                    ],
+                    "properties": {
+                        "triggered": false
+                    }
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "Show Light_1938_1309",
+                    "label": "Show Light",
+                    "pos": [
+                        1938,
+                        1309
+                    ],
+                    "properties": {
+                        "choice": "Light1"
+                    }
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "Set Bubble Text_2168_1306",
+                    "label": "Set Bubble Text",
+                    "pos": [
+                        2168,
+                        1306
+                    ],
+                    "properties": {
+                        "choice": "BulleRune",
+                        "text": "Le vent r\u00e9pond \u00e0 votre appel...",
+                        "font_size": 22,
+                        "speed": 50.0,
+                        "duration": 2.0,
+                        "text_color": [
+                            154,
+                            181,
+                            255
+                        ]
+                    }
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "Set SpawnPoint_2382_1319",
+                    "label": "Set SpawnPoint",
+                    "pos": [
+                        2382,
+                        1319
+                    ],
+                    "properties": {
+                        "choice": "point_2"
+                    }
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "Set Variable_1301_423",
+                    "label": "Set Variable",
+                    "pos": [
+                        1301,
+                        423
+                    ],
+                    "properties": {
+                        "value": "False",
+                        "var_name": "rune"
+                    }
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "Set Variable_2586_1327",
+                    "label": "Set Variable",
+                    "pos": [
+                        2586,
+                        1327
+                    ],
+                    "properties": {
+                        "value": "True",
+                        "var_name": "rune"
+                    }
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "If_1939_573",
+                    "label": "If",
+                    "pos": [
+                        1939,
+                        573
+                    ],
+                    "properties": {
+                        "A": "0",
+                        "B": "True",
+                        "operator": "=="
+                    }
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "Get Variable_1912_711",
+                    "label": "Get Variable",
+                    "pos": [
+                        1912,
+                        711
+                    ],
+                    "properties": {
+                        "value": "False",
+                        "var_name": "rune"
+                    }
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "Screen Shake_2833_1334",
+                    "label": "Screen Shake",
+                    "pos": [
+                        2833,
+                        1334
+                    ],
+                    "properties": {
+                        "intensity": 10.0,
+                        "duration": 30.0
+                    }
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "Play Sound_3027_1341",
+                    "label": "Play Sound",
+                    "pos": [
+                        3027,
+                        1341
+                    ],
+                    "properties": {
+                        "choice": "stone-push.mp3"
+                    }
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "Play Sound_3255_1377",
+                    "label": "Play Sound",
+                    "pos": [
+                        3255,
+                        1377
+                    ],
+                    "properties": {
+                        "choice": "mystic.mp3"
+                    }
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "Set Animation Time_1528_408",
+                    "label": "Set Animation Time",
+                    "pos": [
+                        1528,
+                        408
+                    ],
+                    "properties": {
+                        "time": "0",
+                        "choice": "Runes"
+                    }
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "Sequence_888_556",
+                    "label": "Sequence",
+                    "pos": [
+                        888,
+                        556
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "If_1128_644",
+                    "label": "If",
+                    "pos": [
+                        1128,
+                        644
+                    ],
+                    "properties": {
+                        "A": "0",
+                        "B": "Dark Blue",
+                        "operator": "!="
+                    }
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "Get Current Background_888_700",
+                    "label": "Get Current Background",
+                    "pos": [
+                        888,
+                        700
+                    ],
+                    "properties": {
+                        "background_name": "Dark Blue"
+                    }
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "node_id": "Set Current Background_1346_694",
+                    "label": "Set Current Background",
+                    "pos": [
+                        1346,
+                        694
+                    ],
+                    "properties": {
+                        "set_background_name": "Dark Blue",
+                        "duration": 0.3
+                    }
+                }
+            ],
+            "connections": [
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "out_node": "on_start_835_386",
+                    "out_pin": "out",
+                    "in_node": "Hide Light_1068_387",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "out_node": "Is Player Colliding With_1060_1130",
+                    "out_pin": "colliding",
+                    "in_node": "If_1070_1004",
+                    "in_pin": "A"
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "out_node": "Get Animation Time_1563_1146",
+                    "out_pin": "time",
+                    "in_node": "If_1557_1016",
+                    "in_pin": "A"
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "out_node": "Set Animation Time_1496_816",
+                    "out_pin": "out",
+                    "in_node": "Set Bubble Text_1748_791",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "out_node": "Play Animation_1292_823",
+                    "out_pin": "out",
+                    "in_node": "Set Animation Time_1496_816",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "out_node": "on_exit_848_789",
+                    "out_pin": "out",
+                    "in_node": "Play Animation_1292_823",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "out_node": "Is Key Pressed_1504_1434",
+                    "out_pin": "pressed",
+                    "in_node": "If_1509_1314",
+                    "in_pin": "A"
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "out_node": "If_1557_1016",
+                    "out_pin": "true",
+                    "in_node": "Pause Animation_1857_1029",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "out_node": "If_1070_1004",
+                    "out_pin": "true",
+                    "in_node": "Sequence_1282_1005",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "out_node": "Sequence_1282_1005",
+                    "out_pin": "out0",
+                    "in_node": "If_1557_1016",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "out_node": "Sequence_1282_1005",
+                    "out_pin": "out1",
+                    "in_node": "If_1509_1314",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "out_node": "If_1509_1314",
+                    "out_pin": "true",
+                    "in_node": "Once_1723_1309",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "out_node": "Once_1723_1309",
+                    "out_pin": "out",
+                    "in_node": "Show Light_1938_1309",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "out_node": "Show Light_1938_1309",
+                    "out_pin": "out",
+                    "in_node": "Set Bubble Text_2168_1306",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "out_node": "Set Bubble Text_2168_1306",
+                    "out_pin": "out",
+                    "in_node": "Set SpawnPoint_2382_1319",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "out_node": "Hide Light_1068_387",
+                    "out_pin": "out",
+                    "in_node": "Set Variable_1301_423",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "out_node": "Set SpawnPoint_2382_1319",
+                    "out_pin": "out",
+                    "in_node": "Set Variable_2586_1327",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "out_node": "Play Animation_1682_575",
+                    "out_pin": "out",
+                    "in_node": "If_1939_573",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "out_node": "Get Variable_1912_711",
+                    "out_pin": "value",
+                    "in_node": "If_1939_573",
+                    "in_pin": "A"
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "out_node": "If_1939_573",
+                    "out_pin": "false",
+                    "in_node": "Set Bubble Text_2212_545",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "out_node": "on_tick_753_1005",
+                    "out_pin": "out",
+                    "in_node": "If_1070_1004",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "out_node": "Set Variable_2586_1327",
+                    "out_pin": "out",
+                    "in_node": "Screen Shake_2833_1334",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "out_node": "Screen Shake_2833_1334",
+                    "out_pin": "out",
+                    "in_node": "Play Sound_3027_1341",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "out_node": "Set Animation Time_1443_572",
+                    "out_pin": "out",
+                    "in_node": "Play Animation_1682_575",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "out_node": "Play Sound_3027_1341",
+                    "out_pin": "out",
+                    "in_node": "Play Sound_3255_1377",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "out_node": "Set Variable_1301_423",
+                    "out_pin": "out",
+                    "in_node": "Set Animation Time_1528_408",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "out_node": "on_enter_677_561",
+                    "out_pin": "out",
+                    "in_node": "Sequence_888_556",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "out_node": "Sequence_888_556",
+                    "out_pin": "out0",
+                    "in_node": "Set Animation Time_1443_572",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "out_node": "Sequence_888_556",
+                    "out_pin": "out1",
+                    "in_node": "If_1128_644",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "out_node": "Get Current Background_888_700",
+                    "out_pin": "background_name",
+                    "in_node": "If_1128_644",
+                    "in_pin": "A"
+                },
+                {
+                    "rect_id": "52ccbd93-b7a3-4a82-913e-fe25067893ba",
+                    "out_node": "If_1128_644",
+                    "out_pin": "true",
+                    "in_node": "Set Current Background_1346_694",
+                    "in_pin": "in"
+                }
+            ]
+        },
+        {
+            "rect_id": "c0a95bb7-9c83-4247-ab68-c96a9da9f1f9",
+            "nodes": [],
+            "connections": []
+        },
+        {
+            "rect_id": "f77d2d48-0c08-4a84-8ee9-b1dd653baad6",
+            "nodes": [
+                {
+                    "rect_id": "f77d2d48-0c08-4a84-8ee9-b1dd653baad6",
+                    "node_id": "on_start_310_425",
+                    "label": "On Start",
+                    "pos": [
+                        310,
+                        425
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "f77d2d48-0c08-4a84-8ee9-b1dd653baad6",
+                    "node_id": "Emit Sound From_929_432",
+                    "label": "Emit Sound From",
+                    "pos": [
+                        929,
+                        432
+                    ],
+                    "properties": {
+                        "radius": 1600.0,
+                        "smooth": 0.1,
+                        "loc": "point_1",
+                        "choice": "jungle_ambiance.mp3",
+                        "volume": 1.5,
+                        "__sound_ui__": 0,
+                        "__loc_ui__": 0
+                    }
+                },
+                {
+                    "rect_id": "f77d2d48-0c08-4a84-8ee9-b1dd653baad6",
+                    "node_id": "Emit Sound From_1234_435",
+                    "label": "Emit Sound From",
+                    "pos": [
+                        1234,
+                        435
+                    ],
+                    "properties": {
+                        "radius": 600.0,
+                        "smooth": 0.1,
+                        "choice": "noisy-fan.mp3",
+                        "loc": "fan_sound",
+                        "volume": 1.0,
+                        "__sound_ui__": 0,
+                        "__loc_ui__": 0
+                    }
+                },
+                {
+                    "rect_id": "f77d2d48-0c08-4a84-8ee9-b1dd653baad6",
+                    "node_id": "Emit Sound From_1489_451",
+                    "label": "Emit Sound From",
+                    "pos": [
+                        1489,
+                        451
+                    ],
+                    "properties": {
+                        "volume": 2.0,
+                        "radius": 200.0,
+                        "smooth": 1.0,
+                        "__sound_ui__": 0,
+                        "__loc_ui__": 0,
+                        "choice": "waterfall.mp3",
+                        "loc": "point_1"
+                    }
+                },
+                {
+                    "rect_id": "f77d2d48-0c08-4a84-8ee9-b1dd653baad6",
+                    "node_id": "Sequence_552_426",
+                    "label": "Sequence",
+                    "pos": [
+                        552,
+                        426
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "f77d2d48-0c08-4a84-8ee9-b1dd653baad6",
+                    "node_id": "If_927_733",
+                    "label": "If",
+                    "pos": [
+                        927,
+                        733
+                    ],
+                    "properties": {
+                        "A": "0",
+                        "B": "Dark Blue",
+                        "operator": "!="
+                    }
+                },
+                {
+                    "rect_id": "f77d2d48-0c08-4a84-8ee9-b1dd653baad6",
+                    "node_id": "Get Current Background_650_772",
+                    "label": "Get Current Background",
+                    "pos": [
+                        650,
+                        772
+                    ],
+                    "properties": {
+                        "background_name": "Dark Blue"
+                    }
+                },
+                {
+                    "rect_id": "f77d2d48-0c08-4a84-8ee9-b1dd653baad6",
+                    "node_id": "Set Current Background_1174_737",
+                    "label": "Set Current Background",
+                    "pos": [
+                        1174,
+                        737
+                    ],
+                    "properties": {
+                        "background_name": "Dark Blue",
+                        "set_background_name": "Dark Blue",
+                        "duration": 0.0
+                    }
+                },
+                {
+                    "rect_id": "f77d2d48-0c08-4a84-8ee9-b1dd653baad6",
+                    "node_id": "on_end_274_120",
+                    "label": "On End",
+                    "pos": [
+                        274,
+                        120
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "f77d2d48-0c08-4a84-8ee9-b1dd653baad6",
+                    "node_id": "If_603_119",
+                    "label": "If",
+                    "pos": [
+                        603,
+                        119
+                    ],
+                    "properties": {
+                        "A": "0",
+                        "B": "Dark Blue",
+                        "operator": "!="
+                    }
+                },
+                {
+                    "rect_id": "f77d2d48-0c08-4a84-8ee9-b1dd653baad6",
+                    "node_id": "Get Current Background_304_276",
+                    "label": "Get Current Background",
+                    "pos": [
+                        304,
+                        276
+                    ],
+                    "properties": {
+                        "background_name": "Dark Blue"
+                    }
+                },
+                {
+                    "rect_id": "f77d2d48-0c08-4a84-8ee9-b1dd653baad6",
+                    "node_id": "Set Current Background_835_120",
+                    "label": "Set Current Background",
+                    "pos": [
+                        835,
+                        120
+                    ],
+                    "properties": {
+                        "set_background_name": "Dark Blue",
+                        "duration": 0.0
+                    }
+                },
+                {
+                    "rect_id": "f77d2d48-0c08-4a84-8ee9-b1dd653baad6",
+                    "node_id": "Set Input Active_1726_474",
+                    "label": "Set Input Active",
+                    "pos": [
+                        1726,
+                        474
+                    ],
+                    "properties": {
+                        "active": true
+                    }
+                },
+                {
+                    "rect_id": "f77d2d48-0c08-4a84-8ee9-b1dd653baad6",
+                    "node_id": "Set Input Active_1076_127",
+                    "label": "Set Input Active",
+                    "pos": [
+                        1076,
+                        127
+                    ],
+                    "properties": {
+                        "active": true
+                    }
+                }
+            ],
+            "connections": [
+                {
+                    "rect_id": "f77d2d48-0c08-4a84-8ee9-b1dd653baad6",
+                    "out_node": "Emit Sound From_929_432",
+                    "out_pin": "out",
+                    "in_node": "Emit Sound From_1234_435",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "f77d2d48-0c08-4a84-8ee9-b1dd653baad6",
+                    "out_node": "Emit Sound From_1234_435",
+                    "out_pin": "out",
+                    "in_node": "Emit Sound From_1489_451",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "f77d2d48-0c08-4a84-8ee9-b1dd653baad6",
+                    "out_node": "on_start_310_425",
+                    "out_pin": "out",
+                    "in_node": "Sequence_552_426",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "f77d2d48-0c08-4a84-8ee9-b1dd653baad6",
+                    "out_node": "Sequence_552_426",
+                    "out_pin": "out0",
+                    "in_node": "Emit Sound From_929_432",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "f77d2d48-0c08-4a84-8ee9-b1dd653baad6",
+                    "out_node": "Sequence_552_426",
+                    "out_pin": "out1",
+                    "in_node": "If_927_733",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "f77d2d48-0c08-4a84-8ee9-b1dd653baad6",
+                    "out_node": "Get Current Background_650_772",
+                    "out_pin": "background_name",
+                    "in_node": "If_927_733",
+                    "in_pin": "A"
+                },
+                {
+                    "rect_id": "f77d2d48-0c08-4a84-8ee9-b1dd653baad6",
+                    "out_node": "If_927_733",
+                    "out_pin": "true",
+                    "in_node": "Set Current Background_1174_737",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "f77d2d48-0c08-4a84-8ee9-b1dd653baad6",
+                    "out_node": "on_end_274_120",
+                    "out_pin": "out",
+                    "in_node": "If_603_119",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "f77d2d48-0c08-4a84-8ee9-b1dd653baad6",
+                    "out_node": "Get Current Background_304_276",
+                    "out_pin": "background_name",
+                    "in_node": "If_603_119",
+                    "in_pin": "A"
+                },
+                {
+                    "rect_id": "f77d2d48-0c08-4a84-8ee9-b1dd653baad6",
+                    "out_node": "If_603_119",
+                    "out_pin": "true",
+                    "in_node": "Set Current Background_835_120",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "f77d2d48-0c08-4a84-8ee9-b1dd653baad6",
+                    "out_node": "Emit Sound From_1489_451",
+                    "out_pin": "out",
+                    "in_node": "Set Input Active_1726_474",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "f77d2d48-0c08-4a84-8ee9-b1dd653baad6",
+                    "out_node": "Set Current Background_835_120",
+                    "out_pin": "out",
+                    "in_node": "Set Input Active_1076_127",
+                    "in_pin": "in"
+                }
+            ]
+        },
+        {
+            "rect_id": "022ee80f-ea25-4f09-abd3-81acb0dd2fb0",
+            "nodes": [
+                {
+                    "rect_id": "022ee80f-ea25-4f09-abd3-81acb0dd2fb0",
+                    "node_id": "on_start_617_388",
+                    "label": "On Start",
+                    "pos": [
+                        617,
+                        388
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "022ee80f-ea25-4f09-abd3-81acb0dd2fb0",
+                    "node_id": "Set Animation Time_847_388",
+                    "label": "Set Animation Time",
+                    "pos": [
+                        847,
+                        388
+                    ],
+                    "properties": {
+                        "time": "0",
+                        "choice": "bird"
+                    }
+                },
+                {
+                    "rect_id": "022ee80f-ea25-4f09-abd3-81acb0dd2fb0",
+                    "node_id": "Play Animation_1555_416",
+                    "label": "Play Animation",
+                    "pos": [
+                        1555,
+                        416
+                    ],
+                    "properties": {
+                        "choice": "bird"
+                    }
+                },
+                {
+                    "rect_id": "022ee80f-ea25-4f09-abd3-81acb0dd2fb0",
+                    "node_id": "on_enter_348_585",
+                    "label": "On Enter",
+                    "pos": [
+                        348,
+                        585
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "022ee80f-ea25-4f09-abd3-81acb0dd2fb0",
+                    "node_id": "Set Animation Time_1033_589",
+                    "label": "Set Animation Time",
+                    "pos": [
+                        1033,
+                        589
+                    ],
+                    "properties": {
+                        "time": 0.9,
+                        "choice": "bird"
+                    }
+                },
+                {
+                    "rect_id": "022ee80f-ea25-4f09-abd3-81acb0dd2fb0",
+                    "node_id": "Play Animation_805_586",
+                    "label": "Play Animation",
+                    "pos": [
+                        805,
+                        586
+                    ],
+                    "properties": {
+                        "choice": "bird"
+                    }
+                },
+                {
+                    "rect_id": "022ee80f-ea25-4f09-abd3-81acb0dd2fb0",
+                    "node_id": "Set Variable_1299_597",
+                    "label": "Set Variable",
+                    "pos": [
+                        1299,
+                        597
+                    ],
+                    "properties": {
+                        "value": "True",
+                        "var_name": "already"
+                    }
+                },
+                {
+                    "rect_id": "022ee80f-ea25-4f09-abd3-81acb0dd2fb0",
+                    "node_id": "Set Variable_1089_384",
+                    "label": "Set Variable",
+                    "pos": [
+                        1089,
+                        384
+                    ],
+                    "properties": {
+                        "value": "False",
+                        "var_name": "already"
+                    }
+                },
+                {
+                    "rect_id": "022ee80f-ea25-4f09-abd3-81acb0dd2fb0",
+                    "node_id": "on_tick_624_771",
+                    "label": "On Tick",
+                    "pos": [
+                        624,
+                        771
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "022ee80f-ea25-4f09-abd3-81acb0dd2fb0",
+                    "node_id": "If_894_768",
+                    "label": "If",
+                    "pos": [
+                        894,
+                        768
+                    ],
+                    "properties": {
+                        "A": "0",
+                        "B": "True",
+                        "operator": "=="
+                    }
+                },
+                {
+                    "rect_id": "022ee80f-ea25-4f09-abd3-81acb0dd2fb0",
+                    "node_id": "Get Variable_681_902",
+                    "label": "Get Variable",
+                    "pos": [
+                        681,
+                        902
+                    ],
+                    "properties": {
+                        "value": "True",
+                        "var_name": "already"
+                    }
+                },
+                {
+                    "rect_id": "022ee80f-ea25-4f09-abd3-81acb0dd2fb0",
+                    "node_id": "If_1195_791",
+                    "label": "If",
+                    "pos": [
+                        1195,
+                        791
+                    ],
+                    "properties": {
+                        "A": "0",
+                        "B": "0.8",
+                        "operator": ">="
+                    }
+                },
+                {
+                    "rect_id": "022ee80f-ea25-4f09-abd3-81acb0dd2fb0",
+                    "node_id": "Get Animation Time_1016_912",
+                    "label": "Get Animation Time",
+                    "pos": [
+                        1016,
+                        912
+                    ],
+                    "properties": {
+                        "time": 0.64,
+                        "choice": "bird"
+                    }
+                },
+                {
+                    "rect_id": "022ee80f-ea25-4f09-abd3-81acb0dd2fb0",
+                    "node_id": "Pause Animation_1434_789",
+                    "label": "Pause Animation",
+                    "pos": [
+                        1434,
+                        789
+                    ],
+                    "properties": {
+                        "choice": "bird"
+                    }
+                },
+                {
+                    "rect_id": "022ee80f-ea25-4f09-abd3-81acb0dd2fb0",
+                    "node_id": "Once_548_589",
+                    "label": "Once",
+                    "pos": [
+                        548,
+                        589
+                    ],
+                    "properties": {
+                        "triggered": true
+                    }
+                },
+                {
+                    "rect_id": "022ee80f-ea25-4f09-abd3-81acb0dd2fb0",
+                    "node_id": "Play Sound_1535_628",
+                    "label": "Play Sound",
+                    "pos": [
+                        1535,
+                        628
+                    ],
+                    "properties": {
+                        "choice": "bird.mp3"
+                    }
+                },
+                {
+                    "rect_id": "022ee80f-ea25-4f09-abd3-81acb0dd2fb0",
+                    "node_id": "Delay_1332_420",
+                    "label": "Delay",
+                    "pos": [
+                        1332,
+                        420
+                    ],
+                    "properties": {
+                        "duration": "0.4"
+                    }
+                }
+            ],
+            "connections": [
+                {
+                    "rect_id": "022ee80f-ea25-4f09-abd3-81acb0dd2fb0",
+                    "out_node": "on_start_617_388",
+                    "out_pin": "out",
+                    "in_node": "Set Animation Time_847_388",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "022ee80f-ea25-4f09-abd3-81acb0dd2fb0",
+                    "out_node": "on_tick_624_771",
+                    "out_pin": "out",
+                    "in_node": "If_894_768",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "022ee80f-ea25-4f09-abd3-81acb0dd2fb0",
+                    "out_node": "Get Variable_681_902",
+                    "out_pin": "value",
+                    "in_node": "If_894_768",
+                    "in_pin": "A"
+                },
+                {
+                    "rect_id": "022ee80f-ea25-4f09-abd3-81acb0dd2fb0",
+                    "out_node": "If_894_768",
+                    "out_pin": "false",
+                    "in_node": "If_1195_791",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "022ee80f-ea25-4f09-abd3-81acb0dd2fb0",
+                    "out_node": "Get Animation Time_1016_912",
+                    "out_pin": "time",
+                    "in_node": "If_1195_791",
+                    "in_pin": "A"
+                },
+                {
+                    "rect_id": "022ee80f-ea25-4f09-abd3-81acb0dd2fb0",
+                    "out_node": "If_1195_791",
+                    "out_pin": "true",
+                    "in_node": "Pause Animation_1434_789",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "022ee80f-ea25-4f09-abd3-81acb0dd2fb0",
+                    "out_node": "Play Animation_805_586",
+                    "out_pin": "out",
+                    "in_node": "Set Animation Time_1033_589",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "022ee80f-ea25-4f09-abd3-81acb0dd2fb0",
+                    "out_node": "Set Animation Time_1033_589",
+                    "out_pin": "out",
+                    "in_node": "Set Variable_1299_597",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "022ee80f-ea25-4f09-abd3-81acb0dd2fb0",
+                    "out_node": "on_enter_348_585",
+                    "out_pin": "out",
+                    "in_node": "Once_548_589",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "022ee80f-ea25-4f09-abd3-81acb0dd2fb0",
+                    "out_node": "Once_548_589",
+                    "out_pin": "out",
+                    "in_node": "Play Animation_805_586",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "022ee80f-ea25-4f09-abd3-81acb0dd2fb0",
+                    "out_node": "Set Variable_1299_597",
+                    "out_pin": "out",
+                    "in_node": "Play Sound_1535_628",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "022ee80f-ea25-4f09-abd3-81acb0dd2fb0",
+                    "out_node": "Set Animation Time_847_388",
+                    "out_pin": "out",
+                    "in_node": "Set Variable_1089_384",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "022ee80f-ea25-4f09-abd3-81acb0dd2fb0",
+                    "out_node": "Set Variable_1089_384",
+                    "out_pin": "out",
+                    "in_node": "Delay_1332_420",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "022ee80f-ea25-4f09-abd3-81acb0dd2fb0",
+                    "out_node": "Delay_1332_420",
+                    "out_pin": "done",
+                    "in_node": "Play Animation_1555_416",
+                    "in_pin": "in"
+                }
+            ]
+        },
+        {
+            "rect_id": "79187d67-e359-4e35-89d1-5a9db3a40b17",
+            "nodes": [
+                {
+                    "rect_id": "79187d67-e359-4e35-89d1-5a9db3a40b17",
+                    "node_id": "on_enter_275_341",
+                    "label": "On Enter",
+                    "pos": [
+                        275,
+                        341
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "79187d67-e359-4e35-89d1-5a9db3a40b17",
+                    "node_id": "If_574_335",
+                    "label": "If",
+                    "pos": [
+                        574,
+                        335
+                    ],
+                    "properties": {
+                        "A": "0",
+                        "B": "Night sky",
+                        "operator": "!="
+                    }
+                },
+                {
+                    "rect_id": "79187d67-e359-4e35-89d1-5a9db3a40b17",
+                    "node_id": "Get Current Background_273_465",
+                    "label": "Get Current Background",
+                    "pos": [
+                        273,
+                        465
+                    ],
+                    "properties": {
+                        "background_name": "Dark Blue"
+                    }
+                },
+                {
+                    "rect_id": "79187d67-e359-4e35-89d1-5a9db3a40b17",
+                    "node_id": "Set Current Background_789_336",
+                    "label": "Set Current Background",
+                    "pos": [
+                        789,
+                        336
+                    ],
+                    "properties": {
+                        "background_name": "Night sky",
+                        "set_background_name": "Night sky",
+                        "duration": 1.0
+                    }
+                }
+            ],
+            "connections": [
+                {
+                    "rect_id": "79187d67-e359-4e35-89d1-5a9db3a40b17",
+                    "out_node": "on_enter_275_341",
+                    "out_pin": "out",
+                    "in_node": "If_574_335",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "79187d67-e359-4e35-89d1-5a9db3a40b17",
+                    "out_node": "Get Current Background_273_465",
+                    "out_pin": "background_name",
+                    "in_node": "If_574_335",
+                    "in_pin": "A"
+                },
+                {
+                    "rect_id": "79187d67-e359-4e35-89d1-5a9db3a40b17",
+                    "out_node": "If_574_335",
+                    "out_pin": "true",
+                    "in_node": "Set Current Background_789_336",
+                    "in_pin": "in"
+                }
+            ]
+        },
+        {
+            "rect_id": "f69ca2e4-19e8-4c94-92c5-c2bedc1a3ed4",
+            "nodes": [
+                {
+                    "rect_id": "f69ca2e4-19e8-4c94-92c5-c2bedc1a3ed4",
+                    "node_id": "If_457_296",
+                    "label": "If",
+                    "pos": [
+                        457,
+                        296
+                    ],
+                    "properties": {
+                        "A": "0",
+                        "B": "Dark Blue",
+                        "operator": "!="
+                    }
+                },
+                {
+                    "rect_id": "f69ca2e4-19e8-4c94-92c5-c2bedc1a3ed4",
+                    "node_id": "on_enter_175_286",
+                    "label": "On Enter",
+                    "pos": [
+                        175,
+                        286
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "f69ca2e4-19e8-4c94-92c5-c2bedc1a3ed4",
+                    "node_id": "Get Current Background_224_407",
+                    "label": "Get Current Background",
+                    "pos": [
+                        224,
+                        407
+                    ],
+                    "properties": {
+                        "background_name": "Dark Blue"
+                    }
+                },
+                {
+                    "rect_id": "f69ca2e4-19e8-4c94-92c5-c2bedc1a3ed4",
+                    "node_id": "Set Current Background_719_290",
+                    "label": "Set Current Background",
+                    "pos": [
+                        719,
+                        290
+                    ],
+                    "properties": {
+                        "background_name": "Dark Blue",
+                        "set_background_name": "Dark Blue",
+                        "duration": 1.0
+                    }
+                }
+            ],
+            "connections": [
+                {
+                    "rect_id": "f69ca2e4-19e8-4c94-92c5-c2bedc1a3ed4",
+                    "out_node": "on_enter_175_286",
+                    "out_pin": "out",
+                    "in_node": "If_457_296",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "f69ca2e4-19e8-4c94-92c5-c2bedc1a3ed4",
+                    "out_node": "Get Current Background_224_407",
+                    "out_pin": "background_name",
+                    "in_node": "If_457_296",
+                    "in_pin": "A"
+                },
+                {
+                    "rect_id": "f69ca2e4-19e8-4c94-92c5-c2bedc1a3ed4",
+                    "out_node": "If_457_296",
+                    "out_pin": "true",
+                    "in_node": "Set Current Background_719_290",
+                    "in_pin": "in"
+                }
+            ]
+        },
+        {
+            "rect_id": "721d9d9a-9d7b-464b-b2e1-07e9c4ee56e7",
+            "nodes": [
+                {
+                    "rect_id": "721d9d9a-9d7b-464b-b2e1-07e9c4ee56e7",
+                    "node_id": "on_enter_153_332",
+                    "label": "On Enter",
+                    "pos": [
+                        153,
+                        332
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "721d9d9a-9d7b-464b-b2e1-07e9c4ee56e7",
+                    "node_id": "Respawn Player_455_347",
+                    "label": "Respawn Player",
+                    "pos": [
+                        455,
+                        347
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "721d9d9a-9d7b-464b-b2e1-07e9c4ee56e7",
+                    "node_id": "Damage Player_684_376",
+                    "label": "Damage",
+                    "pos": [
+                        684,
+                        376
+                    ],
+                    "properties": {
+                        "amount": "10"
+                    }
+                }
+            ],
+            "connections": [
+                {
+                    "rect_id": "721d9d9a-9d7b-464b-b2e1-07e9c4ee56e7",
+                    "out_node": "on_enter_153_332",
+                    "out_pin": "out",
+                    "in_node": "Respawn Player_455_347",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "721d9d9a-9d7b-464b-b2e1-07e9c4ee56e7",
+                    "out_node": "Respawn Player_455_347",
+                    "out_pin": "out",
+                    "in_node": "Damage Player_684_376",
+                    "in_pin": "in"
+                }
+            ]
+        },
+        {
+            "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+            "nodes": [
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "node_id": "on_overlap_709_452",
+                    "label": "On Overlap",
+                    "pos": [
+                        709,
+                        452
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "node_id": "If_955_485",
+                    "label": "If",
+                    "pos": [
+                        955,
+                        485
+                    ],
+                    "properties": {
+                        "A": "0",
+                        "B": "2.21",
+                        "operator": "<"
+                    }
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "node_id": "Get Animation Time_724_649",
+                    "label": "Get Animation Time",
+                    "pos": [
+                        724,
+                        649
+                    ],
+                    "properties": {
+                        "time": 2.95,
+                        "choice": "laser1"
+                    }
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "node_id": "Damage Player_2904_381",
+                    "label": "Damage",
+                    "pos": [
+                        2904,
+                        381
+                    ],
+                    "properties": {
+                        "amount": "10"
+                    }
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "node_id": "If_1202_484",
+                    "label": "If",
+                    "pos": [
+                        1202,
+                        484
+                    ],
+                    "properties": {
+                        "A": "0",
+                        "B": "0.15",
+                        "operator": ">"
+                    }
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "node_id": "Get Animation Time_1064_730",
+                    "label": "Get Animation Time",
+                    "pos": [
+                        1064,
+                        730
+                    ],
+                    "properties": {
+                        "time": 1.58,
+                        "choice": "laser1"
+                    }
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "node_id": "Set Input Active_1920_385",
+                    "label": "Set Input Active",
+                    "pos": [
+                        1920,
+                        385
+                    ],
+                    "properties": {
+                        "active": false
+                    }
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "node_id": "Set Animation_2176_385",
+                    "label": "Set Animation",
+                    "pos": [
+                        2176,
+                        385
+                    ],
+                    "properties": {
+                        "choice": "die",
+                        "isCancelable": false
+                    }
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "node_id": "Delay_2692_384",
+                    "label": "Delay",
+                    "pos": [
+                        2692,
+                        384
+                    ],
+                    "properties": {
+                        "duration": "0.5"
+                    }
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "node_id": "Respawn Player_3118_366",
+                    "label": "Respawn Player",
+                    "pos": [
+                        3118,
+                        366
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "node_id": "Set Input Active_3338_369",
+                    "label": "Set Input Active",
+                    "pos": [
+                        3338,
+                        369
+                    ],
+                    "properties": {
+                        "active": true
+                    }
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "node_id": "Emit Sound From_1045_219",
+                    "label": "Emit Sound From",
+                    "pos": [
+                        1045,
+                        219
+                    ],
+                    "properties": {
+                        "volume": 1.0,
+                        "radius": 200.0,
+                        "smooth": 0.1,
+                        "__sound_ui__": 0,
+                        "__loc_ui__": 0,
+                        "choice": "laser_fire_lp.wav",
+                        "loc": "laser"
+                    }
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "node_id": "on_start_736_277",
+                    "label": "On Start",
+                    "pos": [
+                        736,
+                        277
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "node_id": "on_tick_716_-129",
+                    "label": "On Tick",
+                    "pos": [
+                        716,
+                        -129
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "node_id": "If_1076_-48",
+                    "label": "If",
+                    "pos": [
+                        1076,
+                        -48
+                    ],
+                    "properties": {
+                        "A": "0",
+                        "B": "0",
+                        "operator": "=="
+                    }
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "node_id": "Get Animation Time_797_82",
+                    "label": "Get Animation Time",
+                    "pos": [
+                        797,
+                        82
+                    ],
+                    "properties": {
+                        "time": 0.36,
+                        "choice": "laser1"
+                    }
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "node_id": "Emit Sound From_1390_-223",
+                    "label": "Emit Sound From",
+                    "pos": [
+                        1390,
+                        -223
+                    ],
+                    "properties": {
+                        "volume": 1.0,
+                        "radius": 600.0,
+                        "smooth": 0.1,
+                        "__sound_ui__": 0,
+                        "__loc_ui__": 0,
+                        "choice": "laser_fire_lp.wav",
+                        "loc": "laser"
+                    }
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "node_id": "If_1668_10",
+                    "label": "If",
+                    "pos": [
+                        1668,
+                        10
+                    ],
+                    "properties": {
+                        "A": "0",
+                        "B": "2.21",
+                        "operator": ">"
+                    }
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "node_id": "Get Animation Time_1663_132",
+                    "label": "Get Animation Time",
+                    "pos": [
+                        1663,
+                        132
+                    ],
+                    "properties": {
+                        "time": 0.36,
+                        "choice": "laser1"
+                    }
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "node_id": "Stop Emission From_1904_16",
+                    "label": "StopEmission",
+                    "pos": [
+                        1904,
+                        16
+                    ],
+                    "properties": {
+                        "__loc_ui__": 0,
+                        "loc": "laser"
+                    }
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "node_id": "Play Sound_2481_385",
+                    "label": "Play Sound",
+                    "pos": [
+                        2481,
+                        385
+                    ],
+                    "properties": {
+                        "choice": "zap.mp3"
+                    }
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "node_id": "Set Variable_1276_251",
+                    "label": "Set Variable",
+                    "pos": [
+                        1276,
+                        251
+                    ],
+                    "properties": {
+                        "value": "False",
+                        "var_name": "dead"
+                    }
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "node_id": "Set Variable_3589_374",
+                    "label": "Set Variable",
+                    "pos": [
+                        3589,
+                        374
+                    ],
+                    "properties": {
+                        "value": "False",
+                        "var_name": "dead"
+                    }
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "node_id": "Set Variable_1688_394",
+                    "label": "Set Variable",
+                    "pos": [
+                        1688,
+                        394
+                    ],
+                    "properties": {
+                        "value": "True",
+                        "var_name": "dead"
+                    }
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "node_id": "If_1469_449",
+                    "label": "If",
+                    "pos": [
+                        1469,
+                        449
+                    ],
+                    "properties": {
+                        "A": "0",
+                        "B": "False",
+                        "operator": "=="
+                    }
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "node_id": "Get Variable_1453_673",
+                    "label": "Get Variable",
+                    "pos": [
+                        1453,
+                        673
+                    ],
+                    "properties": {
+                        "value": "True",
+                        "var_name": "dead"
+                    }
+                }
+            ],
+            "connections": [
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "out_node": "on_overlap_709_452",
+                    "out_pin": "out",
+                    "in_node": "If_955_485",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "out_node": "Get Animation Time_724_649",
+                    "out_pin": "time",
+                    "in_node": "If_955_485",
+                    "in_pin": "A"
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "out_node": "If_955_485",
+                    "out_pin": "true",
+                    "in_node": "If_1202_484",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "out_node": "Get Animation Time_1064_730",
+                    "out_pin": "time",
+                    "in_node": "If_1202_484",
+                    "in_pin": "A"
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "out_node": "Set Input Active_1920_385",
+                    "out_pin": "out",
+                    "in_node": "Set Animation_2176_385",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "out_node": "Delay_2692_384",
+                    "out_pin": "done",
+                    "in_node": "Damage Player_2904_381",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "out_node": "Damage Player_2904_381",
+                    "out_pin": "out",
+                    "in_node": "Respawn Player_3118_366",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "out_node": "Respawn Player_3118_366",
+                    "out_pin": "out",
+                    "in_node": "Set Input Active_3338_369",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "out_node": "on_start_736_277",
+                    "out_pin": "out",
+                    "in_node": "Emit Sound From_1045_219",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "out_node": "Get Animation Time_797_82",
+                    "out_pin": "time",
+                    "in_node": "If_1076_-48",
+                    "in_pin": "A"
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "out_node": "If_1076_-48",
+                    "out_pin": "true",
+                    "in_node": "Emit Sound From_1390_-223",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "out_node": "If_1076_-48",
+                    "out_pin": "false",
+                    "in_node": "If_1668_10",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "out_node": "Get Animation Time_1663_132",
+                    "out_pin": "time",
+                    "in_node": "If_1668_10",
+                    "in_pin": "A"
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "out_node": "If_1668_10",
+                    "out_pin": "true",
+                    "in_node": "Stop Emission From_1904_16",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "out_node": "Set Animation_2176_385",
+                    "out_pin": "out",
+                    "in_node": "Play Sound_2481_385",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "out_node": "Play Sound_2481_385",
+                    "out_pin": "out",
+                    "in_node": "Delay_2692_384",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "out_node": "Emit Sound From_1045_219",
+                    "out_pin": "out",
+                    "in_node": "Set Variable_1276_251",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "out_node": "on_tick_716_-129",
+                    "out_pin": "out",
+                    "in_node": "If_1076_-48",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "out_node": "Set Input Active_3338_369",
+                    "out_pin": "out",
+                    "in_node": "Set Variable_3589_374",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "out_node": "Set Variable_1688_394",
+                    "out_pin": "out",
+                    "in_node": "Set Input Active_1920_385",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "out_node": "If_1202_484",
+                    "out_pin": "true",
+                    "in_node": "If_1469_449",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "out_node": "If_1469_449",
+                    "out_pin": "true",
+                    "in_node": "Set Variable_1688_394",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "eb7cfe8d-3cfd-49f1-a0a7-61e4e79358d2",
+                    "out_node": "Get Variable_1453_673",
+                    "out_pin": "value",
+                    "in_node": "If_1469_449",
+                    "in_pin": "A"
+                }
+            ]
+        },
+        {
+            "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+            "nodes": [
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "node_id": "Hide Light_803_287",
+                    "label": "Hide Light",
+                    "pos": [
+                        803,
+                        287
+                    ],
+                    "properties": {
+                        "choice": "Light3"
+                    }
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "node_id": "Set Variable_1062_281",
+                    "label": "Set Variable",
+                    "pos": [
+                        1062,
+                        281
+                    ],
+                    "properties": {
+                        "value": "False",
+                        "var_name": "rune"
+                    }
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "node_id": "Set Animation Time_1316_308",
+                    "label": "Set Animation Time",
+                    "pos": [
+                        1316,
+                        308
+                    ],
+                    "properties": {
+                        "time": "0",
+                        "choice": "ruine2"
+                    }
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "node_id": "on_start_546_293",
+                    "label": "On Start",
+                    "pos": [
+                        546,
+                        293
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "node_id": "on_enter_553_491",
+                    "label": "On Enter",
+                    "pos": [
+                        553,
+                        491
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "node_id": "Set Animation Time_1095_488",
+                    "label": "Set Animation Time",
+                    "pos": [
+                        1095,
+                        488
+                    ],
+                    "properties": {
+                        "time": "0",
+                        "choice": "ruine2"
+                    }
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "node_id": "Play Animation_1353_498",
+                    "label": "Play Animation",
+                    "pos": [
+                        1353,
+                        498
+                    ],
+                    "properties": {
+                        "choice": "ruine2"
+                    }
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "node_id": "If_1641_493",
+                    "label": "If",
+                    "pos": [
+                        1641,
+                        493
+                    ],
+                    "properties": {
+                        "A": "0",
+                        "B": "True",
+                        "operator": "=="
+                    }
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "node_id": "Get Variable_1448_669",
+                    "label": "Get Variable",
+                    "pos": [
+                        1448,
+                        669
+                    ],
+                    "properties": {
+                        "value": "False",
+                        "var_name": "rune"
+                    }
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "node_id": "Set Bubble Text_1890_482",
+                    "label": "Set Bubble Text",
+                    "pos": [
+                        1890,
+                        482
+                    ],
+                    "properties": {
+                        "choice": "BubbleText2",
+                        "text": "Touchez \u2018E\u2019 pour \u00e9veiller la rune oubli\u00e9e...",
+                        "font_size": 22,
+                        "speed": 50.0,
+                        "duration": -1.0,
+                        "text_color": [
+                            151,
+                            162,
+                            255
+                        ]
+                    }
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "node_id": "on_exit_558_689",
+                    "label": "On Exit",
+                    "pos": [
+                        558,
+                        689
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "node_id": "Play Animation_789_718",
+                    "label": "Play Animation",
+                    "pos": [
+                        789,
+                        718
+                    ],
+                    "properties": {
+                        "choice": "ruine2"
+                    }
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "node_id": "Set Animation Time_1034_751",
+                    "label": "Set Animation Time",
+                    "pos": [
+                        1034,
+                        751
+                    ],
+                    "properties": {
+                        "time": 0.8,
+                        "choice": "ruine2"
+                    }
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "node_id": "Set Bubble Text_1282_745",
+                    "label": "Set Bubble Text",
+                    "pos": [
+                        1282,
+                        745
+                    ],
+                    "properties": {
+                        "choice": "BubbleText2",
+                        "text": "",
+                        "font_size": 14,
+                        "speed": 0.0,
+                        "duration": -1.0,
+                        "text_color": [
+                            255,
+                            255,
+                            255
+                        ]
+                    }
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "node_id": "on_tick_557_921",
+                    "label": "On Tick",
+                    "pos": [
+                        557,
+                        921
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "node_id": "If_850_922",
+                    "label": "If",
+                    "pos": [
+                        850,
+                        922
+                    ],
+                    "properties": {
+                        "A": "0",
+                        "B": "True",
+                        "operator": "=="
+                    }
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "node_id": "Is Player Colliding With_850_1050",
+                    "label": "Is Player Colliding With",
+                    "pos": [
+                        850,
+                        1050
+                    ],
+                    "properties": {
+                        "choice": "Ruine2",
+                        "colliding": false
+                    }
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "node_id": "Sequence_1232_994",
+                    "label": "Sequence",
+                    "pos": [
+                        1232,
+                        994
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "node_id": "If_1615_928",
+                    "label": "If",
+                    "pos": [
+                        1615,
+                        928
+                    ],
+                    "properties": {
+                        "A": "0",
+                        "B": "0.8",
+                        "operator": ">"
+                    }
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "node_id": "Get Animation Time_1626_1071",
+                    "label": "Get Animation Time",
+                    "pos": [
+                        1626,
+                        1071
+                    ],
+                    "properties": {
+                        "time": 0.81,
+                        "choice": "ruine2"
+                    }
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "node_id": "Pause Animation_1835_958",
+                    "label": "Pause Animation",
+                    "pos": [
+                        1835,
+                        958
+                    ],
+                    "properties": {
+                        "choice": "ruine2"
+                    }
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "node_id": "If_1622_1213",
+                    "label": "If",
+                    "pos": [
+                        1622,
+                        1213
+                    ],
+                    "properties": {
+                        "A": "0",
+                        "B": "True",
+                        "operator": "=="
+                    }
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "node_id": "Is Key Pressed_1280_1256",
+                    "label": "Is Key Pressed",
+                    "pos": [
+                        1280,
+                        1256
+                    ],
+                    "properties": {
+                        "pressed": false,
+                        "key_code": 101,
+                        "key_name": "e"
+                    }
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "node_id": "Once_1854_1209",
+                    "label": "Once",
+                    "pos": [
+                        1854,
+                        1209
+                    ],
+                    "properties": {
+                        "triggered": false
+                    }
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "node_id": "Show Light_2072_1204",
+                    "label": "Show Light",
+                    "pos": [
+                        2072,
+                        1204
+                    ],
+                    "properties": {
+                        "choice": "Light3"
+                    }
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "node_id": "Set Bubble Text_2295_1198",
+                    "label": "Set Bubble Text",
+                    "pos": [
+                        2295,
+                        1198
+                    ],
+                    "properties": {
+                        "choice": "BubbleText2",
+                        "text": "Le vent r\u00e9pond \u00e0 votre appel...",
+                        "font_size": 22,
+                        "speed": 50.0,
+                        "duration": -1.0,
+                        "text_color": [
+                            151,
+                            162,
+                            255
+                        ]
+                    }
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "node_id": "Set Variable_2537_1221",
+                    "label": "Set Variable",
+                    "pos": [
+                        2537,
+                        1221
+                    ],
+                    "properties": {
+                        "value": "True",
+                        "var_name": "rune"
+                    }
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "node_id": "Screen Shake_2791_1219",
+                    "label": "Screen Shake",
+                    "pos": [
+                        2791,
+                        1219
+                    ],
+                    "properties": {
+                        "intensity": 10.0,
+                        "duration": 30.0
+                    }
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "node_id": "Play Sound_2997_1227",
+                    "label": "Play Sound",
+                    "pos": [
+                        2997,
+                        1227
+                    ],
+                    "properties": {
+                        "choice": "stone-push.mp3"
+                    }
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "node_id": "Play Sound_3194_1226",
+                    "label": "Play Sound",
+                    "pos": [
+                        3194,
+                        1226
+                    ],
+                    "properties": {
+                        "choice": "mystic.mp3"
+                    }
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "node_id": "Set SpawnPoint_3417_1254",
+                    "label": "Set SpawnPoint",
+                    "pos": [
+                        3417,
+                        1254
+                    ],
+                    "properties": {
+                        "choice": "sp_laser"
+                    }
+                }
+            ],
+            "connections": [
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "out_node": "Hide Light_803_287",
+                    "out_pin": "out",
+                    "in_node": "Set Variable_1062_281",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "out_node": "Set Variable_1062_281",
+                    "out_pin": "out",
+                    "in_node": "Set Animation Time_1316_308",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "out_node": "on_start_546_293",
+                    "out_pin": "out",
+                    "in_node": "Hide Light_803_287",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "out_node": "Set Animation Time_1095_488",
+                    "out_pin": "out",
+                    "in_node": "Play Animation_1353_498",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "out_node": "Play Animation_1353_498",
+                    "out_pin": "out",
+                    "in_node": "If_1641_493",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "out_node": "Get Variable_1448_669",
+                    "out_pin": "value",
+                    "in_node": "If_1641_493",
+                    "in_pin": "A"
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "out_node": "on_enter_553_491",
+                    "out_pin": "out",
+                    "in_node": "Set Animation Time_1095_488",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "out_node": "on_exit_558_689",
+                    "out_pin": "out",
+                    "in_node": "Play Animation_789_718",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "out_node": "Play Animation_789_718",
+                    "out_pin": "out",
+                    "in_node": "Set Animation Time_1034_751",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "out_node": "Set Animation Time_1034_751",
+                    "out_pin": "out",
+                    "in_node": "Set Bubble Text_1282_745",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "out_node": "on_tick_557_921",
+                    "out_pin": "out",
+                    "in_node": "If_850_922",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "out_node": "Is Player Colliding With_850_1050",
+                    "out_pin": "colliding",
+                    "in_node": "If_850_922",
+                    "in_pin": "A"
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "out_node": "If_850_922",
+                    "out_pin": "true",
+                    "in_node": "Sequence_1232_994",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "out_node": "Sequence_1232_994",
+                    "out_pin": "out0",
+                    "in_node": "If_1615_928",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "out_node": "Get Animation Time_1626_1071",
+                    "out_pin": "time",
+                    "in_node": "If_1615_928",
+                    "in_pin": "A"
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "out_node": "If_1615_928",
+                    "out_pin": "true",
+                    "in_node": "Pause Animation_1835_958",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "out_node": "Sequence_1232_994",
+                    "out_pin": "out1",
+                    "in_node": "If_1622_1213",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "out_node": "Is Key Pressed_1280_1256",
+                    "out_pin": "pressed",
+                    "in_node": "If_1622_1213",
+                    "in_pin": "A"
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "out_node": "If_1622_1213",
+                    "out_pin": "true",
+                    "in_node": "Once_1854_1209",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "out_node": "Once_1854_1209",
+                    "out_pin": "out",
+                    "in_node": "Show Light_2072_1204",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "out_node": "Show Light_2072_1204",
+                    "out_pin": "out",
+                    "in_node": "Set Bubble Text_2295_1198",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "out_node": "Set Bubble Text_2295_1198",
+                    "out_pin": "out",
+                    "in_node": "Set Variable_2537_1221",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "out_node": "Set Variable_2537_1221",
+                    "out_pin": "out",
+                    "in_node": "Screen Shake_2791_1219",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "out_node": "Screen Shake_2791_1219",
+                    "out_pin": "out",
+                    "in_node": "Play Sound_2997_1227",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "out_node": "Play Sound_2997_1227",
+                    "out_pin": "out",
+                    "in_node": "Play Sound_3194_1226",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "out_node": "Play Sound_3194_1226",
+                    "out_pin": "out",
+                    "in_node": "Set SpawnPoint_3417_1254",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "9aedc0ff-7ba2-4e4f-bfcd-c5c0358e125e",
+                    "out_node": "If_1641_493",
+                    "out_pin": "false",
+                    "in_node": "Set Bubble Text_1890_482",
+                    "in_pin": "in"
+                }
+            ]
+        },
+        {
+            "rect_id": "2b52c2b2-5896-4c59-8177-8b7fc6389517",
+            "nodes": [],
+            "connections": []
+        },
+        {
+            "rect_id": "f6b61895-dc38-4719-a95f-22e0aaf5e0b4",
+            "nodes": [
+                {
+                    "rect_id": "f6b61895-dc38-4719-a95f-22e0aaf5e0b4",
+                    "node_id": "on_enter_325_415",
+                    "label": "On Enter",
+                    "pos": [
+                        325,
+                        415
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "f6b61895-dc38-4719-a95f-22e0aaf5e0b4",
+                    "node_id": "Play Animation_913_438",
+                    "label": "Play Animation",
+                    "pos": [
+                        913,
+                        438
+                    ],
+                    "properties": {
+                        "choice": "Poison"
+                    }
+                },
+                {
+                    "rect_id": "f6b61895-dc38-4719-a95f-22e0aaf5e0b4",
+                    "node_id": "Set Input Active_542_428",
+                    "label": "Set Input Active",
+                    "pos": [
+                        542,
+                        428
+                    ],
+                    "properties": {
+                        "active": false
+                    }
+                },
+                {
+                    "rect_id": "f6b61895-dc38-4719-a95f-22e0aaf5e0b4",
+                    "node_id": "Delay_1508_450",
+                    "label": "Delay",
+                    "pos": [
+                        1508,
+                        450
+                    ],
+                    "properties": {
+                        "duration": "0.5"
+                    }
+                },
+                {
+                    "rect_id": "f6b61895-dc38-4719-a95f-22e0aaf5e0b4",
+                    "node_id": "Respawn Player_1742_446",
+                    "label": "Respawn Player",
+                    "pos": [
+                        1742,
+                        446
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "f6b61895-dc38-4719-a95f-22e0aaf5e0b4",
+                    "node_id": "Damage Player_1984_449",
+                    "label": "Damage",
+                    "pos": [
+                        1984,
+                        449
+                    ],
+                    "properties": {
+                        "amount": "10"
+                    }
+                },
+                {
+                    "rect_id": "f6b61895-dc38-4719-a95f-22e0aaf5e0b4",
+                    "node_id": "Set Animation_1131_452",
+                    "label": "Set Animation",
+                    "pos": [
+                        1131,
+                        452
+                    ],
+                    "properties": {
+                        "choice": "die",
+                        "isCancelable": false
+                    }
+                },
+                {
+                    "rect_id": "f6b61895-dc38-4719-a95f-22e0aaf5e0b4",
+                    "node_id": "Set Input Active_2163_479",
+                    "label": "Set Input Active",
+                    "pos": [
+                        2163,
+                        479
+                    ],
+                    "properties": {
+                        "active": true
+                    }
+                },
+                {
+                    "rect_id": "f6b61895-dc38-4719-a95f-22e0aaf5e0b4",
+                    "node_id": "on_start_526_232",
+                    "label": "On Start",
+                    "pos": [
+                        526,
+                        232
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "f6b61895-dc38-4719-a95f-22e0aaf5e0b4",
+                    "node_id": "Set Animation Time_763_227",
+                    "label": "Set Animation Time",
+                    "pos": [
+                        763,
+                        227
+                    ],
+                    "properties": {
+                        "time": "0",
+                        "choice": "Poison"
+                    }
+                },
+                {
+                    "rect_id": "f6b61895-dc38-4719-a95f-22e0aaf5e0b4",
+                    "node_id": "Set z index_1309_453",
+                    "label": "Set z index",
+                    "pos": [
+                        1309,
+                        453
+                    ],
+                    "properties": {
+                        "index": "2"
+                    }
+                },
+                {
+                    "rect_id": "f6b61895-dc38-4719-a95f-22e0aaf5e0b4",
+                    "node_id": "Set z index_2418_500",
+                    "label": "Set z index",
+                    "pos": [
+                        2418,
+                        500
+                    ],
+                    "properties": {
+                        "index": "8"
+                    }
+                },
+                {
+                    "rect_id": "f6b61895-dc38-4719-a95f-22e0aaf5e0b4",
+                    "node_id": "Play Sound_726_432",
+                    "label": "Play Sound",
+                    "pos": [
+                        726,
+                        432
+                    ],
+                    "properties": {
+                        "choice": "gas-release.mp3"
+                    }
+                }
+            ],
+            "connections": [
+                {
+                    "rect_id": "f6b61895-dc38-4719-a95f-22e0aaf5e0b4",
+                    "out_node": "on_enter_325_415",
+                    "out_pin": "out",
+                    "in_node": "Set Input Active_542_428",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "f6b61895-dc38-4719-a95f-22e0aaf5e0b4",
+                    "out_node": "Delay_1508_450",
+                    "out_pin": "done",
+                    "in_node": "Respawn Player_1742_446",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "f6b61895-dc38-4719-a95f-22e0aaf5e0b4",
+                    "out_node": "Respawn Player_1742_446",
+                    "out_pin": "out",
+                    "in_node": "Damage Player_1984_449",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "f6b61895-dc38-4719-a95f-22e0aaf5e0b4",
+                    "out_node": "Play Animation_913_438",
+                    "out_pin": "out",
+                    "in_node": "Set Animation_1131_452",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "f6b61895-dc38-4719-a95f-22e0aaf5e0b4",
+                    "out_node": "Damage Player_1984_449",
+                    "out_pin": "out",
+                    "in_node": "Set Input Active_2163_479",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "f6b61895-dc38-4719-a95f-22e0aaf5e0b4",
+                    "out_node": "on_start_526_232",
+                    "out_pin": "out",
+                    "in_node": "Set Animation Time_763_227",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "f6b61895-dc38-4719-a95f-22e0aaf5e0b4",
+                    "out_node": "Set Animation_1131_452",
+                    "out_pin": "out",
+                    "in_node": "Set z index_1309_453",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "f6b61895-dc38-4719-a95f-22e0aaf5e0b4",
+                    "out_node": "Set z index_1309_453",
+                    "out_pin": "out",
+                    "in_node": "Delay_1508_450",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "f6b61895-dc38-4719-a95f-22e0aaf5e0b4",
+                    "out_node": "Set Input Active_2163_479",
+                    "out_pin": "out",
+                    "in_node": "Set z index_2418_500",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "f6b61895-dc38-4719-a95f-22e0aaf5e0b4",
+                    "out_node": "Set Input Active_542_428",
+                    "out_pin": "out",
+                    "in_node": "Play Sound_726_432",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "f6b61895-dc38-4719-a95f-22e0aaf5e0b4",
+                    "out_node": "Play Sound_726_432",
+                    "out_pin": "out",
+                    "in_node": "Play Animation_913_438",
+                    "in_pin": "in"
+                }
+            ]
+        },
+        {
+            "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+            "nodes": [
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "node_id": "on_tick_397_201",
+                    "label": "On Tick",
+                    "pos": [
+                        397,
+                        201
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "node_id": "If_704_207",
+                    "label": "If",
+                    "pos": [
+                        704,
+                        207
+                    ],
+                    "properties": {
+                        "A": "0",
+                        "B": "0",
+                        "operator": "=="
+                    }
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "node_id": "Get Animation Time_433_378",
+                    "label": "Get Animation Time",
+                    "pos": [
+                        433,
+                        378
+                    ],
+                    "properties": {
+                        "time": 0.18,
+                        "choice": "laser2"
+                    }
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "node_id": "Emit Sound From_1055_2",
+                    "label": "Emit Sound From",
+                    "pos": [
+                        1055,
+                        2
+                    ],
+                    "properties": {
+                        "volume": 1.0,
+                        "radius": 600.0,
+                        "smooth": 0.1,
+                        "__sound_ui__": 0,
+                        "__loc_ui__": 0,
+                        "choice": "laser_fire_lp.wav",
+                        "loc": "laser2"
+                    }
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "node_id": "If_1050_277",
+                    "label": "If",
+                    "pos": [
+                        1050,
+                        277
+                    ],
+                    "properties": {
+                        "A": "0",
+                        "B": "1.0",
+                        "operator": ">"
+                    }
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "node_id": "Get Animation Time_1050_407",
+                    "label": "Get Animation Time",
+                    "pos": [
+                        1050,
+                        407
+                    ],
+                    "properties": {
+                        "time": 0.18,
+                        "choice": "laser2"
+                    }
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "node_id": "Stop Emission From_1286_271",
+                    "label": "StopEmission",
+                    "pos": [
+                        1286,
+                        271
+                    ],
+                    "properties": {
+                        "__loc_ui__": 0,
+                        "loc": "laser2"
+                    }
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "node_id": "on_start_360_543",
+                    "label": "On Start",
+                    "pos": [
+                        360,
+                        543
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "node_id": "Set Variable_590_579",
+                    "label": "Set Variable",
+                    "pos": [
+                        590,
+                        579
+                    ],
+                    "properties": {
+                        "value": "False",
+                        "var_name": "dead"
+                    }
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "node_id": "on_overlap_351_728",
+                    "label": "On Overlap",
+                    "pos": [
+                        351,
+                        728
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "node_id": "If_618_755",
+                    "label": "If",
+                    "pos": [
+                        618,
+                        755
+                    ],
+                    "properties": {
+                        "A": "0",
+                        "B": "1",
+                        "operator": "<"
+                    }
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "node_id": "Get Animation Time_355_860",
+                    "label": "Get Animation Time",
+                    "pos": [
+                        355,
+                        860
+                    ],
+                    "properties": {
+                        "time": 1.74,
+                        "choice": "laser2"
+                    }
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "node_id": "If_886_755",
+                    "label": "If",
+                    "pos": [
+                        886,
+                        755
+                    ],
+                    "properties": {
+                        "A": "0",
+                        "B": "0.15",
+                        "operator": ">"
+                    }
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "node_id": "Get Animation Time_746_924",
+                    "label": "Get Animation Time",
+                    "pos": [
+                        746,
+                        924
+                    ],
+                    "properties": {
+                        "time": 0.2,
+                        "choice": "laser2"
+                    }
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "node_id": "If_1226_731",
+                    "label": "If",
+                    "pos": [
+                        1226,
+                        731
+                    ],
+                    "properties": {
+                        "A": "0",
+                        "B": "False",
+                        "operator": "=="
+                    }
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "node_id": "Get Variable_1072_927",
+                    "label": "Get Variable",
+                    "pos": [
+                        1072,
+                        927
+                    ],
+                    "properties": {
+                        "value": "True",
+                        "var_name": "dead"
+                    }
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "node_id": "Set Variable_1508_717",
+                    "label": "Set Variable",
+                    "pos": [
+                        1508,
+                        717
+                    ],
+                    "properties": {
+                        "value": "True",
+                        "var_name": "dead"
+                    }
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "node_id": "Set Input Active_1725_717",
+                    "label": "Set Input Active",
+                    "pos": [
+                        1725,
+                        717
+                    ],
+                    "properties": {
+                        "active": false
+                    }
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "node_id": "Set Animation_1935_721",
+                    "label": "Set Animation",
+                    "pos": [
+                        1935,
+                        721
+                    ],
+                    "properties": {
+                        "choice": "die",
+                        "isCancelable": false
+                    }
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "node_id": "Play Sound_2152_717",
+                    "label": "Play Sound",
+                    "pos": [
+                        2152,
+                        717
+                    ],
+                    "properties": {
+                        "choice": "zap.mp3"
+                    }
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "node_id": "Delay_2356_713",
+                    "label": "Delay",
+                    "pos": [
+                        2356,
+                        713
+                    ],
+                    "properties": {
+                        "duration": "0.5"
+                    }
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "node_id": "Respawn Player_2589_710",
+                    "label": "Respawn Player",
+                    "pos": [
+                        2589,
+                        710
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "node_id": "Damage Player_2811_708",
+                    "label": "Damage",
+                    "pos": [
+                        2811,
+                        708
+                    ],
+                    "properties": {
+                        "amount": "10"
+                    }
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "node_id": "Set Input Active_3017_713",
+                    "label": "Set Input Active",
+                    "pos": [
+                        3017,
+                        713
+                    ],
+                    "properties": {
+                        "active": true
+                    }
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "node_id": "Set Variable_3235_722",
+                    "label": "Set Variable",
+                    "pos": [
+                        3235,
+                        722
+                    ],
+                    "properties": {
+                        "value": "False",
+                        "var_name": "dead"
+                    }
+                }
+            ],
+            "connections": [
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "out_node": "on_tick_397_201",
+                    "out_pin": "out",
+                    "in_node": "If_704_207",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "out_node": "Get Animation Time_433_378",
+                    "out_pin": "time",
+                    "in_node": "If_704_207",
+                    "in_pin": "A"
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "out_node": "If_704_207",
+                    "out_pin": "true",
+                    "in_node": "Emit Sound From_1055_2",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "out_node": "If_704_207",
+                    "out_pin": "false",
+                    "in_node": "If_1050_277",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "out_node": "Get Animation Time_1050_407",
+                    "out_pin": "time",
+                    "in_node": "If_1050_277",
+                    "in_pin": "A"
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "out_node": "If_1050_277",
+                    "out_pin": "true",
+                    "in_node": "Stop Emission From_1286_271",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "out_node": "on_start_360_543",
+                    "out_pin": "out",
+                    "in_node": "Set Variable_590_579",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "out_node": "on_overlap_351_728",
+                    "out_pin": "out",
+                    "in_node": "If_618_755",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "out_node": "Get Animation Time_355_860",
+                    "out_pin": "time",
+                    "in_node": "If_618_755",
+                    "in_pin": "A"
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "out_node": "If_618_755",
+                    "out_pin": "true",
+                    "in_node": "If_886_755",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "out_node": "Get Animation Time_746_924",
+                    "out_pin": "time",
+                    "in_node": "If_886_755",
+                    "in_pin": "A"
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "out_node": "If_886_755",
+                    "out_pin": "true",
+                    "in_node": "If_1226_731",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "out_node": "Get Variable_1072_927",
+                    "out_pin": "value",
+                    "in_node": "If_1226_731",
+                    "in_pin": "A"
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "out_node": "If_1226_731",
+                    "out_pin": "true",
+                    "in_node": "Set Variable_1508_717",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "out_node": "Set Variable_1508_717",
+                    "out_pin": "out",
+                    "in_node": "Set Input Active_1725_717",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "out_node": "Set Input Active_1725_717",
+                    "out_pin": "out",
+                    "in_node": "Set Animation_1935_721",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "out_node": "Set Animation_1935_721",
+                    "out_pin": "out",
+                    "in_node": "Play Sound_2152_717",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "out_node": "Play Sound_2152_717",
+                    "out_pin": "out",
+                    "in_node": "Delay_2356_713",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "out_node": "Delay_2356_713",
+                    "out_pin": "done",
+                    "in_node": "Respawn Player_2589_710",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "out_node": "Respawn Player_2589_710",
+                    "out_pin": "out",
+                    "in_node": "Damage Player_2811_708",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "out_node": "Damage Player_2811_708",
+                    "out_pin": "out",
+                    "in_node": "Set Input Active_3017_713",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "c5c23eb3-f55e-40ea-a50f-b8f51a976b03",
+                    "out_node": "Set Input Active_3017_713",
+                    "out_pin": "out",
+                    "in_node": "Set Variable_3235_722",
+                    "in_pin": "in"
+                }
+            ]
+        },
+        {
+            "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+            "nodes": [
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "node_id": "on_tick_152_152",
+                    "label": "On Tick",
+                    "pos": [
+                        152,
+                        152
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "node_id": "If_459_158",
+                    "label": "If",
+                    "pos": [
+                        459,
+                        158
+                    ],
+                    "properties": {
+                        "A": "0",
+                        "B": "0",
+                        "operator": "=="
+                    }
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "node_id": "Get Animation Time_188_329",
+                    "label": "Get Animation Time",
+                    "pos": [
+                        188,
+                        329
+                    ],
+                    "properties": {
+                        "time": 1.02,
+                        "choice": "laser3"
+                    }
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "node_id": "If_805_228",
+                    "label": "If",
+                    "pos": [
+                        805,
+                        228
+                    ],
+                    "properties": {
+                        "A": "0",
+                        "B": "1.7",
+                        "operator": ">"
+                    }
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "node_id": "Get Animation Time_805_358",
+                    "label": "Get Animation Time",
+                    "pos": [
+                        805,
+                        358
+                    ],
+                    "properties": {
+                        "time": 1.02,
+                        "choice": "laser3"
+                    }
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "node_id": "on_start_115_494",
+                    "label": "On Start",
+                    "pos": [
+                        115,
+                        494
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "node_id": "Set Variable_345_530",
+                    "label": "Set Variable",
+                    "pos": [
+                        345,
+                        530
+                    ],
+                    "properties": {
+                        "value": "False",
+                        "var_name": "dead"
+                    }
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "node_id": "on_overlap_106_679",
+                    "label": "On Overlap",
+                    "pos": [
+                        106,
+                        679
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "node_id": "If_373_706",
+                    "label": "If",
+                    "pos": [
+                        373,
+                        706
+                    ],
+                    "properties": {
+                        "A": "0",
+                        "B": "1.7",
+                        "operator": "<"
+                    }
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "node_id": "Get Animation Time_110_811",
+                    "label": "Get Animation Time",
+                    "pos": [
+                        110,
+                        811
+                    ],
+                    "properties": {
+                        "time": 2.49,
+                        "choice": "laser3"
+                    }
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "node_id": "If_641_706",
+                    "label": "If",
+                    "pos": [
+                        641,
+                        706
+                    ],
+                    "properties": {
+                        "A": "0",
+                        "B": "0.15",
+                        "operator": ">"
+                    }
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "node_id": "Get Animation Time_501_875",
+                    "label": "Get Animation Time",
+                    "pos": [
+                        501,
+                        875
+                    ],
+                    "properties": {
+                        "time": 0.0,
+                        "choice": "laser3"
+                    }
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "node_id": "If_981_682",
+                    "label": "If",
+                    "pos": [
+                        981,
+                        682
+                    ],
+                    "properties": {
+                        "A": "0",
+                        "B": "False",
+                        "operator": "=="
+                    }
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "node_id": "Get Variable_827_878",
+                    "label": "Get Variable",
+                    "pos": [
+                        827,
+                        878
+                    ],
+                    "properties": {
+                        "value": "True",
+                        "var_name": "dead"
+                    }
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "node_id": "Set Variable_1263_668",
+                    "label": "Set Variable",
+                    "pos": [
+                        1263,
+                        668
+                    ],
+                    "properties": {
+                        "value": "True",
+                        "var_name": "dead"
+                    }
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "node_id": "Set Input Active_1480_668",
+                    "label": "Set Input Active",
+                    "pos": [
+                        1480,
+                        668
+                    ],
+                    "properties": {
+                        "active": false
+                    }
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "node_id": "Set Animation_1690_672",
+                    "label": "Set Animation",
+                    "pos": [
+                        1690,
+                        672
+                    ],
+                    "properties": {
+                        "choice": "die",
+                        "isCancelable": false
+                    }
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "node_id": "Play Sound_1907_668",
+                    "label": "Play Sound",
+                    "pos": [
+                        1907,
+                        668
+                    ],
+                    "properties": {
+                        "choice": "zap.mp3"
+                    }
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "node_id": "Delay_2116_664",
+                    "label": "Delay",
+                    "pos": [
+                        2116,
+                        664
+                    ],
+                    "properties": {
+                        "duration": "0.5"
+                    }
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "node_id": "Respawn Player_2349_661",
+                    "label": "Respawn Player",
+                    "pos": [
+                        2349,
+                        661
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "node_id": "Damage Player_2571_659",
+                    "label": "Damage",
+                    "pos": [
+                        2571,
+                        659
+                    ],
+                    "properties": {
+                        "amount": "10"
+                    }
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "node_id": "Set Input Active_2777_664",
+                    "label": "Set Input Active",
+                    "pos": [
+                        2777,
+                        664
+                    ],
+                    "properties": {
+                        "active": true
+                    }
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "node_id": "Emit Sound From_837_-89",
+                    "label": "Emit Sound From",
+                    "pos": [
+                        837,
+                        -89
+                    ],
+                    "properties": {
+                        "volume": 1.0,
+                        "radius": 600.0,
+                        "smooth": 0.1,
+                        "__sound_ui__": 0,
+                        "__loc_ui__": 0,
+                        "choice": "laser_fire_lp.wav",
+                        "loc": "laser3"
+                    }
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "node_id": "Stop Emission From_1061_225",
+                    "label": "StopEmission",
+                    "pos": [
+                        1061,
+                        225
+                    ],
+                    "properties": {
+                        "__loc_ui__": 0,
+                        "loc": "laser3"
+                    }
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "node_id": "Set Variable_3020_663",
+                    "label": "Set Variable",
+                    "pos": [
+                        3020,
+                        663
+                    ],
+                    "properties": {
+                        "value": "False",
+                        "var_name": "dead"
+                    }
+                }
+            ],
+            "connections": [
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "out_node": "on_tick_152_152",
+                    "out_pin": "out",
+                    "in_node": "If_459_158",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "out_node": "Get Animation Time_188_329",
+                    "out_pin": "time",
+                    "in_node": "If_459_158",
+                    "in_pin": "A"
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "out_node": "If_459_158",
+                    "out_pin": "false",
+                    "in_node": "If_805_228",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "out_node": "Get Animation Time_805_358",
+                    "out_pin": "time",
+                    "in_node": "If_805_228",
+                    "in_pin": "A"
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "out_node": "on_start_115_494",
+                    "out_pin": "out",
+                    "in_node": "Set Variable_345_530",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "out_node": "on_overlap_106_679",
+                    "out_pin": "out",
+                    "in_node": "If_373_706",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "out_node": "Get Animation Time_110_811",
+                    "out_pin": "time",
+                    "in_node": "If_373_706",
+                    "in_pin": "A"
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "out_node": "If_373_706",
+                    "out_pin": "true",
+                    "in_node": "If_641_706",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "out_node": "Get Animation Time_501_875",
+                    "out_pin": "time",
+                    "in_node": "If_641_706",
+                    "in_pin": "A"
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "out_node": "If_641_706",
+                    "out_pin": "true",
+                    "in_node": "If_981_682",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "out_node": "Get Variable_827_878",
+                    "out_pin": "value",
+                    "in_node": "If_981_682",
+                    "in_pin": "A"
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "out_node": "If_981_682",
+                    "out_pin": "true",
+                    "in_node": "Set Variable_1263_668",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "out_node": "Set Variable_1263_668",
+                    "out_pin": "out",
+                    "in_node": "Set Input Active_1480_668",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "out_node": "Set Input Active_1480_668",
+                    "out_pin": "out",
+                    "in_node": "Set Animation_1690_672",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "out_node": "Set Animation_1690_672",
+                    "out_pin": "out",
+                    "in_node": "Play Sound_1907_668",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "out_node": "Delay_2116_664",
+                    "out_pin": "done",
+                    "in_node": "Respawn Player_2349_661",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "out_node": "Respawn Player_2349_661",
+                    "out_pin": "out",
+                    "in_node": "Damage Player_2571_659",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "out_node": "Damage Player_2571_659",
+                    "out_pin": "out",
+                    "in_node": "Set Input Active_2777_664",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "out_node": "Play Sound_1907_668",
+                    "out_pin": "out",
+                    "in_node": "Delay_2116_664",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "out_node": "If_459_158",
+                    "out_pin": "true",
+                    "in_node": "Emit Sound From_837_-89",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "out_node": "If_805_228",
+                    "out_pin": "true",
+                    "in_node": "Stop Emission From_1061_225",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "4bab7c3f-4f7c-4416-9ea1-8fe3ff66b5b5",
+                    "out_node": "Set Input Active_2777_664",
+                    "out_pin": "out",
+                    "in_node": "Set Variable_3020_663",
+                    "in_pin": "in"
+                }
+            ]
+        },
+        {
+            "rect_id": "2103c283-6586-405c-b878-43709a77517b",
+            "nodes": [
+                {
+                    "rect_id": "2103c283-6586-405c-b878-43709a77517b",
+                    "node_id": "on_start_669_348",
+                    "label": "On Start",
+                    "pos": [
+                        669,
+                        348
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "2103c283-6586-405c-b878-43709a77517b",
+                    "node_id": "Emit Sound From_904_355",
+                    "label": "Emit Sound From",
+                    "pos": [
+                        904,
+                        355
+                    ],
+                    "properties": {
+                        "volume": 1.0,
+                        "radius": 800.0,
+                        "smooth": 0.1,
+                        "__sound_ui__": 0,
+                        "__loc_ui__": 0,
+                        "choice": "portal.wav",
+                        "loc": "Portal"
+                    }
+                },
+                {
+                    "rect_id": "2103c283-6586-405c-b878-43709a77517b",
+                    "node_id": "on_enter_682_642",
+                    "label": "On Enter",
+                    "pos": [
+                        682,
+                        642
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "2103c283-6586-405c-b878-43709a77517b",
+                    "node_id": "Teleport_1804_693",
+                    "label": "Teleport",
+                    "pos": [
+                        1804,
+                        693
+                    ],
+                    "properties": {
+                        "choice": "point_1"
+                    }
+                },
+                {
+                    "rect_id": "2103c283-6586-405c-b878-43709a77517b",
+                    "node_id": "Set Input Active_941_674",
+                    "label": "Set Input Active",
+                    "pos": [
+                        941,
+                        674
+                    ],
+                    "properties": {
+                        "active": false
+                    }
+                },
+                {
+                    "rect_id": "2103c283-6586-405c-b878-43709a77517b",
+                    "node_id": "Screen Shake_1171_656",
+                    "label": "Screen Shake",
+                    "pos": [
+                        1171,
+                        656
+                    ],
+                    "properties": {
+                        "intensity": 50.0,
+                        "duration": 200.0
+                    }
+                },
+                {
+                    "rect_id": "2103c283-6586-405c-b878-43709a77517b",
+                    "node_id": "Play Sound_1372_678",
+                    "label": "Play Sound",
+                    "pos": [
+                        1372,
+                        678
+                    ],
+                    "properties": {
+                        "choice": "teleport.wav"
+                    }
+                },
+                {
+                    "rect_id": "2103c283-6586-405c-b878-43709a77517b",
+                    "node_id": "Delay_1568_698",
+                    "label": "Delay",
+                    "pos": [
+                        1568,
+                        698
+                    ],
+                    "properties": {
+                        "duration": "3"
+                    }
+                },
+                {
+                    "rect_id": "2103c283-6586-405c-b878-43709a77517b",
+                    "node_id": "Set Input Active_2036_697",
+                    "label": "Set Input Active",
+                    "pos": [
+                        2036,
+                        697
+                    ],
+                    "properties": {
+                        "active": true
+                    }
+                }
+            ],
+            "connections": [
+                {
+                    "rect_id": "2103c283-6586-405c-b878-43709a77517b",
+                    "out_node": "on_start_669_348",
+                    "out_pin": "out",
+                    "in_node": "Emit Sound From_904_355",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "2103c283-6586-405c-b878-43709a77517b",
+                    "out_node": "on_enter_682_642",
+                    "out_pin": "out",
+                    "in_node": "Set Input Active_941_674",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "2103c283-6586-405c-b878-43709a77517b",
+                    "out_node": "Set Input Active_941_674",
+                    "out_pin": "out",
+                    "in_node": "Screen Shake_1171_656",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "2103c283-6586-405c-b878-43709a77517b",
+                    "out_node": "Screen Shake_1171_656",
+                    "out_pin": "out",
+                    "in_node": "Play Sound_1372_678",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "2103c283-6586-405c-b878-43709a77517b",
+                    "out_node": "Play Sound_1372_678",
+                    "out_pin": "out",
+                    "in_node": "Delay_1568_698",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "2103c283-6586-405c-b878-43709a77517b",
+                    "out_node": "Delay_1568_698",
+                    "out_pin": "done",
+                    "in_node": "Teleport_1804_693",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "2103c283-6586-405c-b878-43709a77517b",
+                    "out_node": "Teleport_1804_693",
+                    "out_pin": "out",
+                    "in_node": "Set Input Active_2036_697",
+                    "in_pin": "in"
+                }
+            ]
+        },
+        {
+            "rect_id": "d27de8a3-a437-41db-892f-a9f6bb717b22",
+            "nodes": [
+                {
+                    "rect_id": "d27de8a3-a437-41db-892f-a9f6bb717b22",
+                    "node_id": "on_enter_238_281",
+                    "label": "On Enter",
+                    "pos": [
+                        238,
+                        281
+                    ],
+                    "properties": {}
+                },
+                {
+                    "rect_id": "d27de8a3-a437-41db-892f-a9f6bb717b22",
+                    "node_id": "If_496_314",
+                    "label": "If",
+                    "pos": [
+                        496,
+                        314
+                    ],
+                    "properties": {
+                        "A": "0",
+                        "B": "Dark Blue",
+                        "operator": "!="
+                    }
+                },
+                {
+                    "rect_id": "d27de8a3-a437-41db-892f-a9f6bb717b22",
+                    "node_id": "Get Current Background_288_464",
+                    "label": "Get Current Background",
+                    "pos": [
+                        288,
+                        464
+                    ],
+                    "properties": {
+                        "background_name": "Night sky"
+                    }
+                },
+                {
+                    "rect_id": "d27de8a3-a437-41db-892f-a9f6bb717b22",
+                    "node_id": "Set Current Background_737_347",
+                    "label": "Set Current Background",
+                    "pos": [
+                        737,
+                        347
+                    ],
+                    "properties": {
+                        "set_background_name": "Dark Blue",
+                        "duration": 0.1
+                    }
+                }
+            ],
+            "connections": [
+                {
+                    "rect_id": "d27de8a3-a437-41db-892f-a9f6bb717b22",
+                    "out_node": "on_enter_238_281",
+                    "out_pin": "out",
+                    "in_node": "If_496_314",
+                    "in_pin": "in"
+                },
+                {
+                    "rect_id": "d27de8a3-a437-41db-892f-a9f6bb717b22",
+                    "out_node": "Get Current Background_288_464",
+                    "out_pin": "background_name",
+                    "in_node": "If_496_314",
+                    "in_pin": "A"
+                },
+                {
+                    "rect_id": "d27de8a3-a437-41db-892f-a9f6bb717b22",
+                    "out_node": "If_496_314",
+                    "out_pin": "true",
+                    "in_node": "Set Current Background_737_347",
+                    "in_pin": "in"
+                }
+            ]
+        }
+    ]
+}

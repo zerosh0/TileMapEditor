@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/7.1.0/fuse.min.js" integrity="sha512-H1bWCnc4dDJwdioqpOCkU76ZxEdvBvOy9R9Dd9EqftlzQg92owjX5IVdiOw00llAyQFUZJNPrzDnWZ/lZtf25A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <title>Documentation TileMapEditor</title>
+    <link rel="icon" href="/assets/images/search.ico" />
+</head>
+<body>
+  <header>
+    <nav>
+      <a class="nav-left" href="https://github.com/zerosh0/TileMapEditor" target="_blank">
+        <img src="../assets/images/github.svg" alt="GitHub" id="github"/>
+        <h1 id="title">TileMapEditor</h1>
+      </a>
+  <div id="search-container">
+    <input id="search" placeholder="Rechercher…" autocomplete="off" />
+    <div id="search-results"></div>
+  </div>
+    </nav>
+  </header>
+    <button id="mobile-menu-btn" aria-label="Ouvrir le menu" class="mobile-menu-btn">
+    &#9776;
+    </button>
+
+  <img id="illustration" src="../assets/images/illustration.svg" alt="Illustration" />
+
+  <div class="layout">
+
+
+<aside class="sidebar-left">
+  <nav>
+    <ul class="menu">
+      <li>
+        <a href="../index.html">Accueil</a>
+      </li>
+
+      <li>
+        <a href="getting-started.html">Prise en main</a>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="interface.html">Interface</a>
+        </div>
+        <ul class="submenu">
+          <li><a href="interface.html#viewport">Viewport</a></li>
+          <li><a href="interface.html#tilepalette">Tile Palette</a></li>
+          <li><a href="interface.html#layers">Layers</a></li>
+          <li><a href="interface.html#tools">Outils</a></li>
+        </ul>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="animations.html#">Animations</a>
+        </div>
+        <ul class="submenu">
+          <li><a href="animations.html#intro">Présentation</a></li>
+          <li><a href="animations.html#animation-editor">Éditeur d'animation</a></li>
+          <li><a href="animations.html#timeline">Timeline</a></li>
+          <li><a href="animations.html#playmode-integration">Intégration au mode Play</a></li>
+        </ul>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="editor_nodal.html#">Éditeur Nodal</a>
+        </div>
+        <ul class="submenu">
+          <li><a href="editor_nodal.html#overview">Présentation</a></li>
+          <li><a href="editor_nodal.html#node-types">Types de nœuds</a></li>
+          <li><a href="editor_nodal.html#errors">Erreurs & validation</a></li>
+          <li><a href="editor_nodal.html#custom-nodes">Nodes personnalisés</a></li>
+        </ul>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="settings.html" >Paramètres</a>
+        </div>
+        <ul class="submenu">
+        <li><a href="settings.html#world-settings">World Settings</a></li>
+        <li><a href="settings.html#player-profile">Player Profile</a></li>
+        <li><a href="settings.html#advanced">Paramètres Avancés</a></li>
+        </ul>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="#" class="active">Stockage & Données</a>
+        </div>
+        <ul class="submenu">
+          <li><a href="#level">Niveau</a></li>
+          <li><a href="#tilemaps">TileMaps</a></li>
+          <li><a href="#animations">Animations</a></li>
+          <li><a href="#nodes">Nodes</a></li>
+          <li><a href="#parameters">Paramètres</a></li>
+        </ul>
+      </li>
+
+        <li>
+        <a href="references.html">Bibliothèque</a>
+      </li>
+
+    </ul>
+  </nav>
+</aside>
+
+
+
+
+
+<main class="content">
+  <div class="inner">
+    <article>
+
+      <h1 id="level">Niveau</h1>
+      <p>
+        Un niveau est stocké en JSON, décrivant l'ensemble des calques, collisions, points de localisation, lumières, état de l'éditeur et chemin vers le LevelGraph.
+      </p>
+      <pre><code class="language-json">
+// Extrait d'un fichier level.json
+{
+  "layers": [
+    {
+      "opacity": 1.0,
+      "tiles": [
+        {
+          "TileMap": "dungeon",
+          "x": 18, "y": 19,
+          "Originalx": 1, "Originaly": 1,
+          "rotation": 0,
+          "flipHorizontal": false,
+          "flipVertical": false
+        },
+        /* … autres tuiles … */
+      ]
+    },
+    /* layers 1 à 8 vides ou partiellement remplies */
+  ],
+  "currentLayer": 0,
+  "currentTool": "LocationPoint",
+  "viewport": {
+    "panningOffset": [-456.0, -508.5],
+    "zoom": 2.5
+  },
+  /* … autres sections … */
+}
+      </code></pre>
+      <h2 id="coords">📐 Coordonnées & dimensions</h2>
+      <ul>
+        <li><code>x, y</code> : position de la tuile dans le monde (grille)</li>
+        <li><code>Originalx, Originaly</code> : indices de la tuile dans la source TileMap</li>
+        <li><code>rotation</code> : angle en degrés (0, 90, 180, 270)</li>
+        <li><code>flipHorizontal</code> / <code>flipVertical</code> : retournement</li>
+      </ul>
+      <h2 id="tilemaps">TileMaps</h2>
+      <p>
+        La section <code>tilePalette</code> décrit les tilesets chargés :
+      </p>
+      <pre><code class="language-json">
+"tilePalette": {
+  "currentTileMapIndex": 0,
+  "tileMaps": [
+    {
+      "name": "dungeon",
+      "filepath": "C:\\…\\Dungeon Tile Set.png",
+      "tileSize": 16,
+      "colorKey": null,
+      "zoom": 1.0,
+      "panningOffset": [0, 0]
+    }
+  ]
+}
+      </code></pre>
+      <div class="alert alert-info">
+        <div class="alert-body">
+          <strong>Info :</strong> Les chemins de TileMap sont enregistrés en absolu ; si vous déplacez vos dossiers, éditez manuellement ou remplacez-les par des chemins relatifs.
+        </div>
+      </div>
+
+      <h2 id="animations">Animations</h2>
+      <p>
+        La section <code>animations</code> liste chaque animation avec son nom, durée, vitesse, boucle, état de lecture et ses keyframes :
+      </p>
+      <pre><code class="language-json">
+"animations": [
+  {
+    "name": "animation_1",
+    "end": 2.0,
+    "speed": 1.0,
+    "loop": false,
+    "play": false,
+    "keyframes": []
+  },
+  {
+    "name": "test",
+    "end": 1.5,
+    "speed": 2.0,
+    "loop": true,
+    "play": true,
+    "keyframes": [
+      {
+        "tile_map": "dungeon",
+        "x": 24, "y": 20,
+        "layer": 0,
+        "time": 0.402,
+        "Originalx": 3, "Originaly": 5,
+        "rotation": 0, "flipH": false, "flipV": false
+      },
+      /* … autres keyframes … */
+    ]
+  }
+]
+      </code></pre>
+      <h3 id="anim-keyframes">🔑 Keyframes de suppression</h3>
+      <p>
+        Quand vous supprimez une tuile animée, un keyframe de suppression est généré :  
+      </p>
+      <pre><code class="language-json">
+{
+    "tile_map": "",
+    "x": 24,
+    "y": 20,
+    "layer": 0,
+    "time": 1.17,
+    "Originalx": 0,
+    "Originaly": 0,
+    "rotation": 0,
+    "flipH": false,
+    "flipV": false
+}
+      </code></pre>
+      <div class="alert alert-info">
+        <div class="alert-body">
+          <strong>Info :</strong> Un keyframe dont <code>tile_map</code> est vide indique une suppression de tuile à cet instant.
+        </div>
+      </div>
+
+      <h2 id="lights">💡 Lumières</h2>
+      <p>
+        Les sources lumineuses sont enregistrées dans la section <code>lights</code> du JSON :
+      </p>
+      <pre><code class="language-json">
+"lights": [
+  {
+    "x": 376.4,
+    "y": 367.4,
+    "radius": 59.79,
+    "color": [255,180,80],
+    "blink": false
+  }
+  /* … autres lights … */
+]
+      </code></pre>
+      <ul>
+        <li><code>x, y</code> : position dans le monde (coordonnées du centre)</li>
+        <li><code>radius</code> : rayon d'éclairage</li>
+        <li><code>color</code> : couleur RGB</li>
+        <li><code>blink</code> : clignotement activé ou non</li>
+      </ul>
+      <div class="alert alert-warning">
+        <div class="alert-body">
+          <strong>Attention :</strong> Si <code>globalIllumination</code> est à 1.0, les lights ne sont pas actives – baissez la valeur dans <code>settings.globalIllumination</code>.
+        </div>
+      </div>
+      <h2 id="nodes">LevelGraph (Nodes)</h2>
+      <p>
+        Le chemin vers le fichier <code>.lvg</code> du graphe nodal est indiqué en fin de JSON :
+      </p>
+      <pre><code class="language-json">
+"levelGraph": "C:\\…\\test_graph.lvg"
+      </code></pre>
+      <div class="alert alert-info">
+        <div class="alert-body">
+          <strong>Info :</strong> Au chargement, l'éditeur essaie d'abord ce chemin absolu, puis un chemin relatif depuis le dossier du level si l'absolu échoue.
+        </div>
+      </div>
+      <h1>🗃️ Format des fichiers LevelGraph (.lvg)</h1>
+
+      <p>
+        Le fichier <code>.lvg</code> stocke l'ensemble des graphes nodaux d'un niveau. Chaque graphe correspond à un rectangle de collision dans l'éditeur et contient des nœuds connectés entre eux pour définir des logiques de gameplay.
+      </p>
+
+      <div class="alert alert-info">
+        <div class="alert-body">
+          Lors de la sauvegarde d'un niveau, un fichier <code>.lvg</code> est automatiquement généré dans le même dossier que le niveau <code>.json</code>. Le chemin absolu de ce fichier est référencé dans le champ <code>levelGraph</code> du fichier JSON principal.
+        </div>
+      </div>
+
+      <h2>🔌 Structure des données</h2>
+
+      <pre><code class="language-json">{
+  "graphs": [
+    {
+      "rect_id": "UUID_du_Rectangle",
+      "nodes": [...],
+      "connections": [...]
+    }
+  ]
+}</code></pre>
+
+      <ul>
+        <li><strong><code>rect_id</code></strong> — Identifiant unique du rectangle de collision associé.</li>
+        <li><strong><code>nodes</code></strong> — Liste des nœuds placés dans ce graphe, avec leur position et paramètres.</li>
+        <li><strong><code>connections</code></strong> — Connexions entre les nœuds via leurs pins (exec ou data).</li>
+      </ul>
+
+      <h2 id="example">📄 Exemple complet</h2>
+
+      <p>Voici un exemple de graphe associé à un rectangle de collision :</p>
+
+      <pre><code class="language-json">{
+  "rect_id": "2bfc28a5-7d5a-4fa4-8d41-81fc045b16f2",
+  "nodes": [
+    {
+      "node_id": "on_enter_197_226",
+      "label": "On Enter",
+      "pos": [197, 226],
+      "properties": {}
+    },
+    {
+      "node_id": "Set SpawnPoint_670_244",
+      "label": "Set SpawnPoint",
+      "pos": [670, 244],
+      "properties": {
+        "choice": "point_0"
+      }
+    },
+    {
+      "node_id": "Sequence_437_261",
+      "label": "Sequence",
+      "pos": [437, 261],
+      "properties": {}
+    },
+    {
+      "node_id": "Teleport_923_339",
+      "label": "Teleport",
+      "pos": [923, 339],
+      "properties": {
+        "choice": "point_0"
+      }
+    },
+    {
+      "node_id": "Print Console_675_408",
+      "label": "Print Console",
+      "pos": [675, 408],
+      "properties": {
+        "value": "Hello World"
+      }
+    },
+    {
+      "node_id": "Get Player Health_543_498",
+      "label": "Get Player Health",
+      "pos": [543, 498],
+      "properties": {
+        "health": 200
+      }
+    }
+  ],
+  "connections": [
+    {
+      "out_node": "on_enter_197_226",
+      "out_pin": "out",
+      "in_node": "Sequence_437_261",
+      "in_pin": "in"
+    },
+    {
+      "out_node": "Sequence_437_261",
+      "out_pin": "out0",
+      "in_node": "Set SpawnPoint_670_244",
+      "in_pin": "in"
+    },
+    {
+      "out_node": "Sequence_437_261",
+      "out_pin": "out1",
+      "in_node": "Teleport_923_339",
+      "in_pin": "in"
+    },
+    {
+      "out_node": "Sequence_437_261",
+      "out_pin": "out2",
+      "in_node": "Print Console_675_408",
+      "in_pin": "in"
+    },
+    {
+      "out_node": "Get Player Health_543_498",
+      "out_pin": "health",
+      "in_node": "Print Console_675_408",
+      "in_pin": "value"
+    }
+  ]
+}</code></pre>
+
+      <h3>🧠 Analyse du graphe</h3>
+      <ul>
+        <li><code>On Enter</code> — Événement déclenché quand le joueur entre dans la collision.</li>
+        <li><code>Sequence</code> — Exécute plusieurs branches dans l'ordre : spawnpoint → téléportation → console.</li>
+        <li><code>Set SpawnPoint</code> — Définit le point d'apparition.</li>
+        <li><code>Teleport</code> — Téléporte le joueur à un point nommé <code>point_0</code>.</li>
+        <li><code>Print Console</code> — Affiche dans la console le texte "Hello World" et y ajoute aussi la vie du joueur via le nœud <code>Get Player Health</code>.</li>
+      </ul>
+
+      <h3>🧩 Autre exemple de graphe (collision secondaire)</h3>
+
+      <pre><code class="language-json">{
+  "rect_id": "f4685698-3196-480a-b141-cdff2d4d86c7",
+  "nodes": [
+    {
+      "node_id": "on_start_320_284",
+      "label": "On Start",
+      "pos": [320, 284],
+      "properties": {}
+    },
+    {
+      "node_id": "Set MaxHealth_550_354",
+      "label": "Set MaxHealth",
+      "pos": [550, 354],
+      "properties": {
+        "health": "20"
+      }
+    }
+  ],
+  "connections": [
+    {
+      "out_node": "on_start_320_284",
+      "out_pin": "out",
+      "in_node": "Set MaxHealth_550_354",
+      "in_pin": "in"
+    }
+  ]
+}</code></pre>
+
+      <p>
+        Ce graphe initialise la santé du joueur à 20 au début du mode <strong>Play</strong>.
+      </p>
+
+      <div class="alert alert-warning">
+        <div class="alert-body">
+          <strong>Remarque :</strong> Un même événement (par ex. <code>On Start</code>) ne peut apparaître qu'une seule fois dans un même graphe.
+        </div>
+      </div>
+
+
+      <h2 id="parameters">Paramètres</h2>
+      <p>
+        La section <code>settings</code> stocke les préférences de l'éditeur pour ce niveau :
+      </p>
+      <pre><code class="language-json">
+"settings": {
+  "backgroundIndex": 21,
+  "globalIllumination": 0.0,
+  "start_mode": 0,
+  "showLights": true,
+  "showCollisions": true,
+  "showLocationPoints": true,
+  "playerSpawnPoint": null,
+  "keyframeOverlay": true
+}
+      </code></pre>
+      <div class="alert alert-warning">
+        <div class="alert-body">
+          <strong>Attention :</strong> Certaines options (ex. <code>playerSpawnPoint</code>) peuvent être <code>null</code> si non définies ; vérifiez leur existence avant utilisation.
+        </div>
+      </div>
+  <h2 id="next-steps">Envie d'en savoir plus ?</h2>
+  <p>
+    Consultez les pages suivantes pour explorer les fonctionnalités clés de l'éditeur :
+  </p>
+  <ul>
+    <li>
+      🔧 <strong><a href="interface.html">Interface</a></strong> — Comprendre les outils de dessin, la gestion des layers et le fonctionnement du viewport.
+    </li>
+    <li>
+      🎞️ <strong><a href="animations.html">Animations</a></strong> — Créez, éditez et déclenchez des animations dans vos niveaux à l'aide de la timeline visuelle.
+    </li>
+<img src="../assets/images/sleep2.gif" alt="Éditeur Nodal en action" style="max-width:600px; margin-top:1em;" />
+
+    </article>
+  </div>
+</main>
+
+<aside class="sidebar-right" style="height: 145px;">
+  <div class="toc">
+    <strong>Sur cette page</strong>
+    <ul>
+      <li><a href="#level">Niveau</a></li>
+      <li><a href="#tilemaps">TileMaps</a></li>
+      <li><a href="#animations">Animations</a></li>
+      <li><a href="#nodes">nodes</a></li>
+      <li><a href="#parameters">Paramètres</a></li>
+    </ul>
+  </div>
+</aside>
+
+
+
+
+
+
+  </div>
+
+</body>
+    <script src="../assets/js/script.js"></script>
+</html>

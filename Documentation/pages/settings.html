@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/7.1.0/fuse.min.js" integrity="sha512-H1bWCnc4dDJwdioqpOCkU76ZxEdvBvOy9R9Dd9EqftlzQg92owjX5IVdiOw00llAyQFUZJNPrzDnWZ/lZtf25A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <title>Documentation TileMapEditor</title>
+    <link rel="icon" href="/assets/images/search.ico" />
+</head>
+<body>
+  <header>
+    <nav>
+      <a class="nav-left" href="https://github.com/zerosh0/TileMapEditor" target="_blank">
+        <img src="../assets/images/github.svg" alt="GitHub" id="github"/>
+        <h1 id="title">TileMapEditor</h1>
+      </a>
+  <div id="search-container">
+    <input id="search" placeholder="Rechercher…" autocomplete="off" />
+    <div id="search-results"></div>
+  </div>
+    </nav>
+  </header>
+    <button id="mobile-menu-btn" aria-label="Ouvrir le menu" class="mobile-menu-btn">
+    &#9776;
+    </button>
+
+  <img id="illustration" src="../assets/images/illustration.svg" alt="Illustration" />
+
+  <div class="layout">
+
+<aside class="sidebar-left">
+  <nav>
+    <ul class="menu">
+      <li>
+        <a href="../index.html">Accueil</a>
+      </li>
+
+      <li>
+        <a href="getting-started.html">Prise en main</a>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="interface.html">Interface</a>
+        </div>
+        <ul class="submenu">
+          <li><a href="interface.html#viewport">Viewport</a></li>
+          <li><a href="interface.html#tilepalette">Tile Palette</a></li>
+          <li><a href="interface.html#layers">Layers</a></li>
+          <li><a href="interface.html#tools">Outils</a></li>
+        </ul>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="animations.html#">Animations</a>
+        </div>
+        <ul class="submenu">
+          <li><a href="animations.html#intro">Présentation</a></li>
+          <li><a href="animations.html#animation-editor">Éditeur d'animation</a></li>
+          <li><a href="animations.html#timeline">Timeline</a></li>
+          <li><a href="animations.html#playmode-integration">Intégration au mode Play</a></li>
+        </ul>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="editor_nodal.html#">Éditeur Nodal</a>
+        </div>
+        <ul class="submenu">
+          <li><a href="editor_nodal.html#overview">Présentation</a></li>
+          <li><a href="editor_nodal.html#node-types">Types de nœuds</a></li>
+          <li><a href="editor_nodal.html#errors">Erreurs & validation</a></li>
+          <li><a href="editor_nodal.html#custom-nodes">Nodes personnalisés</a></li>
+        </ul>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="#" class="active">Paramètres</a>
+        </div>
+        <ul class="submenu">
+        <li><a href="#world-settings">World Settings</a></li>
+        <li><a href="#player-profile">Player Profile</a></li>
+        <li><a href="#advanced">Paramètres Avancés</a></li>
+        </ul>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="data-format.html">Stockage & Données</a>
+        </div>
+        <ul class="submenu">
+          <li><a href="data-format.html#level">Niveau</a></li>
+          <li><a href="data-format.html#tilemaps">TileMaps</a></li>
+          <li><a href="data-format.html#animations">Animations</a></li>
+          <li><a href="data-format.html#nodes">Nodes</a></li>
+          <li><a href="data-format.html#parameters">Paramètres</a></li>
+        </ul>
+      </li>
+
+        <li>
+        <a href="references.html">Bibliothèque</a>
+      </li>
+
+    </ul>
+  </nav>
+</aside>
+
+
+
+
+<main class="content">
+  <div class="inner">
+    <article>
+      <h1 id="settings">Paramètres</h1>
+
+      <h2 id="world-settings">🌍 World Settings</h2>
+<picture>
+  <source srcset="../assets/image_webp/world_s.webp" type="image/webp" />
+  <img src="../assets/images/world_s.png" alt="World Settings" style="margin-top: 1rem;" loading="lazy" />
+</picture>
+
+      <p>Cette section permet de configurer l'apparence globale du monde :</p>
+      <ul>
+        <li><strong>Global Illumination</strong> : Ajustable via un slider. Plus la valeur est élevée, plus le niveau est sombre.</li>
+        <li><strong>Parallaxe</strong> : Choisissez un fond animé (parallax) ou une couleur unie.</li>
+      </ul>
+
+      <p>Les parallax sont définis dans <code>Assets/backgrounds.json</code>. Voici un exemple de configuration :</p>
+      <pre><code class="language-json">{
+  "name": "Apocalyptic",
+  "type": "image",
+  "bg_color": [50, 40, 40],
+  "layers": [
+    { "path": "Assets/images/Parallax/Apocalyptic/1.png", "parallax": 0.05 },
+    ...
+  ]
+}</code></pre>
+
+      <div class="alert alert-info">
+        <div class="alert-body">
+          <strong>💡 Ajouter votre propre parallax :</strong><br>
+          - Créez un dossier dans <code>Assets/images/Parallax/</code><br>
+          - Placez-y vos images<br>
+          - Ajoutez une entrée dans <code>backgrounds.json</code> avec leurs chemins et coefficients de parallaxe<br>
+          - Redémarrez l'éditeur pour les voir dans la liste
+        </div>
+      </div>
+<pre><code class="language-json">{
+  "name": "Solid Gray",
+  "type": "color",
+  "color": [200, 200, 200]
+}</code></pre>
+
+<div class="alert alert-info">
+  <div class="alert-body">
+    <strong>🎨 Utiliser une couleur unie comme fond :</strong><br>
+    - Définissez <code>"type": "color"</code><br>
+    - Renseignez la couleur RGB avec la clé <code>"color"</code><br>
+    - Exemple : <code>[200, 200, 200]</code> pour un gris clair<br>
+    - Cette option permet d'avoir un fond statique sans effet de parallaxe
+  </div>
+</div>
+
+      <h2 id="player-profile">👤 Player Profile</h2>
+<picture>
+  <source srcset="../assets/image_webp/player_s.webp" type="image/webp" />
+  <img src="../assets/images/player_s.png" alt="Player Settings" style="margin-top: 1rem;" loading="lazy" />
+</picture>
+      <p>Définit les caractéristiques du joueur pour le mode Play :</p>
+      <ul>
+        <li><strong>Vitesse</strong> (<code>Speed</code>)</li>
+        <li><strong>Gravité</strong> (<code>Gravity</code>)</li>
+        <li><strong>Force de saut</strong> (<code>Jump Force</code>)</li>
+        <li><strong>Can Fly</strong> : Activer pour permettre au joueur de voler (utile pour le debug)</li>
+        <li><strong>Spawn Point</strong> : Vous devez avoir sélectionné un <em>Location Point</em> puis cliquer sur <code>Set Spawn Point</code>. Le point affichera alors des drapeaux croisés.</li>
+      </ul>
+
+      <div class="alert alert-error">
+        <div class="alert-body">
+          <strong>Attention :</strong><br>
+          Le mode Play ne peut pas être lancé sans point de spawn défini.
+        </div>
+      </div>
+
+      <h2 id="advanced">⚙️ Paramètres Avancés</h2>
+<picture>
+  <source srcset="../assets/image_webp/advanced_s.webp" type="image/webp" />
+  <img src="../assets/images/advanced_s.png" alt="Advanced Settings" style="margin-top: 1rem;" loading="lazy" />
+</picture>
+      <p>Cette section permet d'afficher ou masquer certains éléments :</p>
+      <ul>
+        <li><strong>Display Lights</strong> : Affiche les sources de lumière</li>
+        <li><strong>Show Collisions</strong> : Affiche les zones de collision</li>
+        <li><strong>Show Location Points</strong> : Affiche les points de localisation</li>
+        <li><strong>Display Grid</strong> : Affiche la grille d'édition</li>
+        <li><strong>Display FPS</strong> : Affiche les performances de rendu</li>
+        <li><strong>Keyframe Overlay</strong> : Affiche un surlignage jaune sur les tuiles avec animation</li>
+      </ul>
+
+      <h3 id="startmode">🧰 Start Mode</h3>
+      <p>Détermine le niveau chargé au démarrage :</p>
+      <ul>
+        <li><code>Open NewExample</code> : charge un nouveau niveau exemple</li>
+        <li><code>Open OldExample</code> : charge l'ancien exemple</li>
+        <li><code>Empty Project</code> : démarrage avec un projet vide</li>
+        <li><code>Open Last Level</code> : recharge automatiquement le dernier niveau utilisé <strong>(⚠️ à éviter en cas de crash)</strong></li>
+      </ul>
+      <div class="alert alert-warning">
+  <div class="alert-body">
+    <strong>⚠️ En cas de problème :</strong><br>
+    Si l'éditeur refuse de démarrer ou plante à cause de paramètres corrompus (comme un <code>Open Last Level</code> sur un fichier manquant), vous pouvez :
+    <ul>
+      <li style="color: #92400e;">Supprimer le fichier <strong>Assets/ui/settings_ui</strong> pour réinitialiser les paramètres</li>
+      <li  style="color: #92400e;">Ou bien l'ouvrir manuellement avec un éditeur de texte pour corriger les valeurs</li>
+    </ul>
+  </div>
+</div>
+  <h2 id="next-steps">Envie d'en savoir plus ?</h2>
+  <p>
+    Consultez les pages suivantes pour explorer les fonctionnalités clés de l'éditeur :
+  </p>
+  <ul>
+    <li>
+      🔧 <strong><a href="interface.html">Interface</a></strong> — Comprendre les outils de dessin, la gestion des layers et le fonctionnement du viewport.
+    </li>
+    <li>
+      🎮 <strong><a href="playmode.html">Mode Play</a></strong> — Tester votre niveau avec un personnage jouable et déclencher des événements de gameplay.
+    </li>
+    <li>
+      🧠 <strong><a href="editor_nodal.html">Éditeur Nodal</a></strong> — Prototyper des logiques interactives avec un système de nœuds visuels.
+    </li>
+  </ul>
+<picture>
+  <source srcset="../assets/image_webp/sleep.webp" type="image/webp" />
+  <img src="../assets/images/sleep.gif" alt="sleep" style="max-width:600px;" loading="lazy" />
+</picture>
+    </article>
+  </div>
+</main>
+
+<!-- Table des matières droite -->
+<aside class="sidebar-right" style="height: 120px;">
+  <div class="toc">
+    <strong>Sur cette page</strong>
+    <ul>
+      <li><a href="#world-settings">World Settings</a></li>
+      <li><a href="#player-profile">Player Profile</a></li>
+      <li><a href="#advanced">Paramètres Avancés</a></li>
+      <li><a href="#startmode">Start Mode</a></li>
+    </ul>
+  </div>
+</aside>
+
+
+  </div>
+
+</body>
+    <script src="../assets/js/script.js"></script>
+</html>

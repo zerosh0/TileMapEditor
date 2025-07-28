@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/7.1.0/fuse.min.js" integrity="sha512-H1bWCnc4dDJwdioqpOCkU76ZxEdvBvOy9R9Dd9EqftlzQg92owjX5IVdiOw00llAyQFUZJNPrzDnWZ/lZtf25A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <title>Documentation TileMapEditor</title>
+</head><link rel="icon" href="/assets/images/search.ico" />
+<body>
+  <header>
+    <nav>
+      <a class="nav-left" href="https://github.com/zerosh0/TileMapEditor" target="_blank">
+        <img src="../assets/images/github.svg" alt="GitHub" id="github"/>
+        <h1 id="title">TileMapEditor</h1>
+      </a>
+  <div id="search-container">
+    <input id="search" placeholder="Rechercher…" autocomplete="off" />
+    <div id="search-results"></div>
+  </div>
+    </nav>
+  </header>
+    <button id="mobile-menu-btn" aria-label="Ouvrir le menu" class="mobile-menu-btn">
+    &#9776;
+    </button>
+
+  <img id="illustration" src="../assets/images/illustration.svg" alt="Illustration" />
+
+  <div class="layout">
+
+<aside class="sidebar-left">
+  <nav>
+    <ul class="menu">
+      <li>
+        <a href="../index.html">Accueil</a>
+      </li>
+
+      <li>
+        <a href="getting-started.html">Prise en main</a>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="#" class="active">Interface</a>
+        </div>
+        <ul class="submenu">
+          <li><a href="#viewport">Viewport</a></li>
+          <li><a href="#tilepalette">Tile Palette</a></li>
+          <li><a href="#layers">Layers</a></li>
+          <li><a href="#tools">Outils</a></li>
+        </ul>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="animations.html#">Animations</a>
+        </div>
+        <ul class="submenu">
+          <li><a href="animations.html#intro">Présentation</a></li>
+          <li><a href="animations.html#animation-editor">Éditeur d'animation</a></li>
+          <li><a href="animations.html#timeline">Timeline</a></li>
+          <li><a href="animations.html#playmode-integration">Intégration au mode Play</a></li>
+        </ul>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="editor_nodal.html#">Éditeur Nodal</a>
+        </div>
+        <ul class="submenu">
+          <li><a href="editor_nodal.html#overview">Présentation</a></li>
+          <li><a href="editor_nodal.html#node-types">Types de nœuds</a></li>
+          <li><a href="editor_nodal.html#errors">Erreurs & validation</a></li>
+          <li><a href="editor_nodal.html#custom-nodes">Nodes personnalisés</a></li>
+        </ul>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="settings.html" >Paramètres</a>
+        </div>
+        <ul class="submenu">
+        <li><a href="settings.html#world-settings">World Settings</a></li>
+        <li><a href="settings.html#player-profile">Player Profile</a></li>
+        <li><a href="settings.html#advanced">Paramètres Avancés</a></li>
+        </ul>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="data-format.html">Stockage & Données</a>
+        </div>
+        <ul class="submenu">
+          <li><a href="data-format.html#level">Niveau</a></li>
+          <li><a href="data-format.html#tilemaps">TileMaps</a></li>
+          <li><a href="data-format.html#animations">Animations</a></li>
+          <li><a href="data-format.html#nodes">Nodes</a></li>
+          <li><a href="data-format.html#parameters">Paramètres</a></li>
+        </ul>
+      </li>
+
+        <li>
+        <a href="references.html">Bibliothèque</a>
+      </li>
+
+    </ul>
+  </nav>
+</aside>
+
+
+
+
+<!-- Main content area -->
+<main class="content">
+  <div class="inner">
+    <article>
+      <h1 id="viewport">Viewport</h1>
+      <p>
+        Le viewport est la zone principale où vous dessinez et naviguez dans votre carte.
+        Vous pouvez :
+      </p>
+      <ul>
+        <li><kbd>Clic droit + glisser</kbd> : déplacer la vue</li>
+        <li><kbd>Molette</kbd> : zoom avant/arrière</li>
+        <li><kbd>Shift + Clic gauche</kbd> : sélectionner une zone</li>
+        <li><kbd>H</kbd> : afficher/masquer la grille</li>
+      </ul>
+  <picture>
+    <source srcset="../assets/image_webp/viewport.webp" type="image/webp">
+    <img src="../assets/images/viewport.gif" alt="Vue du viewport" style="max-width: 100%;" loading="lazy" />
+  </picture>
+
+
+      <h1 id="tilepalette">Tile Palette</h1>
+<p> La <strong>Tile Palette</strong> est l'espace dédié à la sélection des tuiles. Elle affiche les différentes TileMaps chargées, découpées automatiquement en tuiles, que vous pouvez choisir pour les placer dans votre niveau. </p> <ul> <li><kbd>Clic gauche</kbd> : sélectionner une tuile</li> <li><kbd>Clic droit + glisser</kbd> : sélectionner une zone de tuiles</li><li><kbd>Molette</kbd> : zoom / dé-zoom dans la palette</li> <li><kbd>Ctrl + Molette</kbd> : agrandir ou réduire la taille d'affichage des tuiles (le canvas, pas le zoom)</li> <li><kbd>Flèche gauche/droite</kbd> : changer de TileMap active</li> </ul> <p> Ce système permet d'adapter visuellement la palette à votre confort de travail sans modifier la résolution des tuiles utilisées dans le niveau. </p>
+<picture>
+  <source srcset="../assets/image_webp/tilepalette.webp" type="image/webp">
+  <img src="../assets/images/tilepalette.gif" alt="Vue de la Tile Palette" style="max-width: 100%;" loading="lazy" />
+</picture>
+
+<div class="alert alert-info">
+  <div class="alert-body"><strong>Remarque :</strong>
+  Pour que le raccourci <kbd>Ctrl</kbd> fonctionne correctement (notamment pour zoomer la palette), assurez-vous que la fenêtre de l'éditeur a bien le focus.  
+  <br>👉 Si cela ne fonctionne pas, cliquez une fois n'importe où dans la fenêtre pour l'activer.</div>
+</div>
+<h1 id="import-tilemap">📥 Importer une TileMap</h1>
+<p>
+  Pour ajouter une nouvelle <strong>TileMap</strong> dans l'éditeur, suivez les étapes suivantes :
+</p>
+
+<ol>
+  <li>Allez dans <strong>File &gt; Open</strong>.</li>
+  <li>Sélectionnez une image depuis votre disque (format PNG, JPG...).</li>
+  <li>Choisissez un nom unique pour cette TileMap.</li>
+  <li>Définissez la taille des tuiles (par exemple : <code>16 x 16</code>, <code>32 x 32</code>, etc.).</li>
+  <li>Un aperçu de la découpe s'affiche automatiquement pour vérification.</li>
+  <li>(Optionnel) Activez la <code>Color Key</code> si vous souhaitez rendre un fond transparent (utile pour certaines images).</li>
+  <li>Validez pour ajouter la TileMap dans la palette.</li>
+</ol>
+
+<div class="alert alert-info">
+  <div class="alert-body">
+    Une fois ajoutée, votre TileMap apparaîtra dans l'onglet <strong>Tile Palette</strong>.  
+    Utilisez les <kbd>flèches gauche/droite</kbd> pour naviguer entre les différentes TileMaps chargées.
+  </div>
+</div>
+
+<picture>
+  <source srcset="../assets/image_webp/tilemap.webp" type="image/webp">
+  <img src="../assets/images/tilemap.png" alt="Importation d'une TileMap" style="max-width: 100%; border: 1px solid #ccc; border-radius: 8px; margin-top: 10px;" loading="lazy" />
+</picture>
+
+
+      <h1 id="layers">Layers</h1>
+      <p>
+        Les layers (couches) vous permettent de superposer plusieurs plans de tuiles :
+      </p>
+      <ul>
+        <li>0 (arrière-plan) à 8 (premier plan)</li>
+        <li><kbd>Flèches ↑/↓</kbd> : changer de layer</li>
+        <li><kbd>Slider dans la zone éditing</kbd> : Changer l'opacité pour voir à travers les couches</li>
+      </ul>
+      <div class="alert alert-info"><div class="alert-body">
+  <strong>Info :</strong> En mode Play, le joueur est affiché par défaut au-dessus du layer <code class="inline">8</code>, c'est-à-dire au tout premier plan.  
+  Toutefois, cette position peut être modifiée via le nœud <code class="inline">Set Z Index</code> dans l'éditeur nodal, afin de le placer derrière certains éléments si nécessaire.
+</div></div>
+
+<section id="tools-section">
+  <h1 id="tools">Outils</h1>
+  <p>
+    La barre d'outils vous permet d'interagir avec votre carte via différents modes : peinture, effacement, collision, points, lumière, etc.  
+    Sélectionnez un élément (tile, collision, point, light) par clic droit, puis modifiez ses propriétés dans le panneau <code>Editing</code> (en haut à gauche).
+  </p>
+<picture>
+  <source srcset="../assets/image_webp/tools/main.webp" type="image/webp">
+  <img src="../assets/images/tools/main.gif" alt="tools" class="tool-img" loading="lazy" />
+</picture>
+
+    <div class="alert alert-error">
+        <div class="alert-body">
+      <strong>Suppression :</strong><br>
+      Pour supprimer un élément sélectionné (collision, point, light), appuyez sur <kbd>Suppr</kbd>.
+      </div>
+    </div>
+  <!-- Brush -->
+  <div class="tool">
+    <h2>🖌️ Pinceau</h2>
+    <p>Peindre des tuiles une à une ou par glissé.</p>
+    <ul>
+      <li><strong>Zone</strong> : Viewport</li>
+      <li><strong>Raccourci</strong> : clic gauche / glisser</li>
+    </ul>
+<picture>
+  <source srcset="../assets/image_webp/tools/brush.webp" type="image/webp">
+  <img src="../assets/images/tools/brush.png" alt="Pinceau" class="tool-img" loading="lazy" />
+</picture>
+
+    <div class="alert alert-info">
+      <div class="alert-body"><strong>Astuce :</strong><br>
+      Tous les outils et les entités supportent <kbd>Ctrl+Z</kbd> / <kbd>Ctrl+Y</kbd> pour annuler ou rétablir.</div>
+    </div>
+  </div>
+
+  <!-- Eraser -->
+  <div class="tool">
+        <h2>🧽 Gomme</h2>
+    <p>Supprimer des tuiles ou une sélection entière.</p>
+    <ul>
+      <li><strong>Zone</strong> : Viewport</li>
+      <li><strong>Sélection</strong> possible</li>
+    </ul>
+<picture>
+  <source srcset="../assets/image_webp/tools/eraser.webp" type="image/webp">
+  <img src="../assets/images/tools/eraser.png" alt="Gomme" class="tool-img" loading="lazy" />
+</picture>
+
+  </div>
+
+  <!-- Fill -->
+  <div class="tool">
+    <h2>🪄 Remplissage</h2>
+    <p>Inonder une zone avec la tuile sélectionnée (flood fill).</p>
+    <ul>
+      <li><strong>Zone</strong> : Viewport</li>
+    </ul>
+<picture>
+  <source srcset="../assets/image_webp/tools/fill.webp" type="image/webp">
+  <img src="../assets/images/tools/fill.gif" alt="Remplissage" class="tool-img" loading="lazy" />
+</picture>
+
+
+  </div>
+
+  <!-- Random -->
+  <div class="tool">
+    <h2>🎲 Random</h2>
+    <p>Planter des tuiles aléatoires à partir de votre sélection.</p>
+    <ul>
+      <li><strong>Zone</strong> : Palette + Viewport</li>
+    </ul>
+<picture>
+  <source srcset="../assets/image_webp/tools/random.webp" type="image/webp">
+  <img src="../assets/images/tools/random.gif" alt="Random" class="tool-img" loading="lazy" />
+</picture>
+
+  </div>
+
+  <!-- Flip/Rotate -->
+  <div class="tool-group">
+    <div class="tool">
+        <h2>↔️ Flip</h2>
+      <p>Retourner la sélection horizontalement ou verticalement.</p>
+      <div class="alert alert-warning"><div class="alert-body">
+  <strong>Limite :</strong>
+  Le flip ne peut s'appliquer qu'à une seule tuile à la fois, et uniquement <strong>avant</strong> sa pose dans le viewport.</div>
+</div>
+
+<picture>
+  <source srcset="../assets/image_webp/tools/flip.webp" type="image/webp">
+  <img src="../assets/images/tools/flip.png" alt="Flip" class="tool-img" loading="lazy" />
+</picture>
+
+
+    </div>
+    <div class="tool">
+        <h2>🔄 Rotation</h2>
+      <p>Pivoter la sélection (avant de la poser) par incréments de 90°.</p>
+<picture>
+  <source srcset="../assets/image_webp/tools/rotate.webp" type="image/webp">
+  <img src="../assets/images/tools/rotate.png" alt="Rotation" class="tool-img" loading="lazy" />
+</picture>
+
+
+    </div>
+  </div>
+
+  <!-- Collision -->
+  <div class="tool">
+        <h2>📐 Collision</h2>
+    <p>Créer et configurer des zones de collision rectangulaires.</p>
+    <ul>
+      <li><kbd>Shift + Clic gauche</kbd> pour sélectionner la zone</li>
+      <li>Propriétés : <code>Type</code>, <code>Nom</code>, <code>Couleur</code></li>
+    </ul>
+<picture>
+  <source srcset="../assets/image_webp/tools/collisions.webp" type="image/webp">
+  <img src="../assets/images/tools/collisions.gif" alt="Collision" class="tool-img" loading="lazy" />
+</picture>
+
+    <div class="alert alert-info"><div class="alert-body">
+  <strong>Info :</strong>
+  Une collision dont le type est <code class="inline">collision</code> sera prise en compte dans le mode Play : le joueur ne pourra pas la traverser.  
+  Tout autre type est considéré comme non bloquant, ce qui signifie que le joueur pourra la traverser librement.</div>
+</div>
+
+  </div>
+
+  <!-- Location Point -->
+  <div class="tool">
+    <h2>📌 Points de repère</h2>
+    <p>Ajouter un marqueur de localisation (spawn, trigger, balise, etc.).</p>
+    <ul>
+      <li>Propriétés : <code>Type</code>, <code>Nom</code>, <code>Couleur</code></li>
+      <li>Pour le définir comme spawn : sélectionnez-le puis <code>Settings  > Player Profile  > Set Spawn Point</code></li>
+    </ul>
+<picture>
+  <source srcset="../assets/image_webp/tools/location_point.webp" type="image/webp">
+  <img src="../assets/images/tools/location_point.png" alt="Location Point" class="tool-img" loading="lazy" />
+</picture>
+
+
+  </div>
+
+  <!-- Light -->
+  <div class="tool">
+    <h2>💡 Light</h2>
+    <p>Placer une source lumineuse en forme de disque.</p>
+    <ul>
+      <li>Paramètres : <code>Rayon</code>, <code>Couleur</code>, <code>Blink</code></li>
+      <li>Visible si <code>Global Illumination</code> < 100% (<code>Settings  > World Settings</code>)</li>
+    </ul>
+<picture>
+  <source srcset="../assets/image_webp/tools/lights.webp" type="image/webp">
+  <img src="../assets/images/tools/lights.gif" alt="Light" class="tool-img" loading="lazy" />
+</picture>
+
+  </div>
+
+  <!-- Editing Panel Notes -->
+  <div class="alerts">
+    <div class="alert alert-warning">
+      <div class="alert-body"><strong>Références :</strong><br>
+      Dans le panneau <code>Editing</code>, activez/désactivez l'affichage de toutes les collisions, lights et points d'un coup.
+      </div>
+    </div>
+  </div>
+  
+</section>
+<h2 id="prochaine">Prochaines étapes</h2>
+
+<p>
+  Vous êtes prêt à aller plus loin ? Explorez les fonctionnalités de l'éditeur à travers les sections suivantes :
+</p>
+
+<ul>
+  <li><strong><a href="animations.html">🎞️ Animations</a></strong> — Apprenez à utiliser la timeline, créer des keyframes et gérer les tiles animées.</li>
+  <li><strong><a href="playmode.html">🎮 Mode Play</a></strong> — Testez votre niveau avec un personnage contrôlable et configurez les paramètres de simulation.</li>
+  <li><strong><a href="nodal.html">🧠 Éditeur Nodal</a></strong> — Créez des logiques personnalisées avec un système de nœuds visuels.</li>
+</ul>
+<picture>
+  <source srcset="../assets/image_webp/sleep2.webp" type="image/webp">
+  <img src="../assets/images/sleep2.gif" alt="sleep" style="max-width: 600px;" loading="lazy" />
+</picture>
+
+    </article>
+  </div>
+</main>
+
+<!-- Right Sidebar : table des matières locale -->
+<aside class="sidebar-right" style="height: 120px;">
+  <div class="toc">
+    <strong>Sur cette page</strong>
+    <ul>
+      <li><a href="#viewport">Viewport</a></li>
+      <li><a href="#tilepalette">Tile Palette</a></li>
+      <li><a href="#layers">Layers</a></li>
+      <li><a href="#tools">Outils</a></li>
+    </ul>
+  </div>
+</aside>
+</div>
+    <script src="../assets/js/script.js"></script>
+</body>
+</html>

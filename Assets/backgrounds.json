@@ -236,9 +236,36 @@
     ]
   },
   {
+    "name": "PineForest",
+    "type": "image",
+    "bg_color": [153, 215, 178],
+    "layers": [
+      { "path": "Assets/images/Parallax/PineForest/MorningLayer5.png", "parallax": 0.1 },
+      { "path": "Assets/images/Parallax/PineForest/MorningLayer4.png", "parallax": 0.5 },
+      { "path": "Assets/images/Parallax/PineForest/MorningLayer3.png", "parallax": 0.8 },
+      { "path": "Assets/images/Parallax/PineForest/MorningLayer2.png", "parallax": 0.6 },
+      { "path": "Assets/images/Parallax/PineForest/MorningLayer1.png", "parallax": 0.9 }
+    ]  
+  },
+  {
+    "name": "Mushroom",
+    "type": "image",
+    "bg_color": [50, 40, 40],
+    "layers": [
+      { "path": "Assets/images/Parallax/Mushroom/BG_3.png", "parallax": 0.1 },
+      { "path": "Assets/images/Parallax/Mushroom/BG_2.png", "parallax": 0.15 },
+      { "path": "Assets/images/Parallax/Mushroom/BG_1.png", "parallax": 0.18 }
+    ]  
+  },
+  {
     "name": "Solid Gray",
     "type": "color",
     "color": [200, 200, 200]
+  },
+  {
+    "name": "Dark Blue",
+    "type": "color",
+    "color": [25, 29, 49]
   }
   ],
   "default": "Solid Gray"

@@ -1,0 +1,1260 @@
+[
+  {
+    "name": "FlipFlop",
+    "category": "Logic",
+    "source": "editor/blueprint_editor/blueprints/b_logic.py",
+    "description": "Cette bascule alterne à chaque exécution entre deux sorties 'A' et 'B', mémorise le dernier état et permet de contrôler finement le flux d'exécution dans vos graphes logiques.",
+    "pins": [
+      { "name": "A", "type": "exec", "direction": "output", "label": "A" },
+      { "name": "B", "type": "exec", "direction": "output", "label": "B" }
+    ],
+    "properties": ["state (0 ou 1)", "last (\"A\" ou \"B\")"],
+    "code": "@register_node(\"FlipFlop\", category=\"Logic\")\nclass FlipFlopNode(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, \"FlipFlop\", editor, properties)\n        self.outputs.clear()\n        self.outputs.append(Pin(self, \"A\", \"exec\", True, \"A\"))\n        self.outputs.append(Pin(self, \"B\", \"exec\", True, \"B\"))\n        self.properties.setdefault(\"state\", 0)\n        self.properties.setdefault(\"last\", \"A\")\n        self.height = 80\n\n    def execute(self, context):\n        current = int(self.properties[\"state\"])\n        out_state = \"A\" if current == 0 else \"B\"\n        self.properties[\"last\"] = out_state\n        self.properties[\"state\"] = 1 - current\n        pin = next(p for p in self.outputs if p.name == out_state)\n        return pin.connection.node if pin.connection else None\n\n    def draw(self, surf, selected=False):\n        super().draw(surf, selected)\n        ox, oy = self.editor.offset\n        nx, ny = self.x - ox, self.y - oy\n        font = pygame.font.Font(None, 18)\n        txt = f\"Last: {self.properties.get('last', 'A')}\"\n        surf.blit(font.render(txt, True, (220,220,220)), (nx + 10, ny + 30))"
+  },
+  {
+    "name": "Once",
+    "category": "Logic",
+    "source": "editor/blueprint_editor/blueprints/b_logic.py",
+    "description": "Nœud 'une seule fois' : il transmet l'exécution la première fois qu'il est invoqué, puis devient inactif pour empêcher toute ré-exécution ultérieure.",
+    "pins": [
+      { "name": "in", "type": "exec", "direction": "input", "label": "In" },
+      { "name": "out", "type": "exec", "direction": "output", "label": "Out" }
+    ],
+    "properties": ["triggered (bool)"],
+    "code": "@register_node(\"Once\", category=\"Logic\")\nclass OnceNode(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, \"Once\", editor, properties)\n        self.inputs.clear()\n        self.outputs.clear()\n        self.inputs.append(Pin(self, \"in\", \"exec\", False, \"In\"))\n        self.outputs.append(Pin(self, \"out\", \"exec\", True, \"Out\"))\n        triggered = self.properties.get(\"triggered\", False)\n        self.properties[\"triggered\"] = bool(triggered)\n        self.height = 70\n\n    def execute(self, context):\n        if not self.properties[\"triggered\"]:\n            self.properties[\"triggered\"] = True\n            out = next(p for p in self.outputs if p.name == \"out\")\n            return out.connection.node if out and out.connection else None\n        return None\n\n    def draw(self, surf, selected=False):\n        super().draw(surf, selected)\n        font = pygame.font.Font(None, 18)\n        status = \"Done\" if self.properties[\"triggered\"] else \"Ready\"\n        txt_surf = font.render(status, True, (220, 220, 220))\n        ox, oy = self.editor.offset\n        x = self.x - ox + (self.WIDTH - txt_surf.get_width()) // 2\n        y = self.y - oy + self.HEADER_HEIGHT + 10\n        surf.blit(txt_surf, (x, y))"
+  },
+  {
+  "name": "If",
+  "category": "Logic",
+  "source": "editor/blueprint_editor/blueprints/b_logic.py",
+  "description": "Ce nœud conditionnel compare deux entrées (A et B) selon un opérateur logique choisi (==, !=, <, >, <=, >=). Il redirige ensuite le flux d'exécution vers la sortie 'True' ou 'False' selon le résultat de la comparaison.",
+  "pins": [
+    { "name": "A", "type": "data", "direction": "input", "label": "A" },
+    { "name": "B", "type": "data", "direction": "input", "label": "B" },
+    { "name": "true", "type": "exec", "direction": "output", "label": "True" },
+    { "name": "false", "type": "exec", "direction": "output", "label": "False" }
+  ],
+  "properties": [
+    "A (valeur littérale si non connectée)",
+    "B (valeur littérale si non connectée)",
+    "operator (==, !=, <, >, <=, >=)"
+  ],
+  "code": "@register_node(\"If\", category=\"Logic\")\nclass IfNode(Node):\n    OPERATORS = [\"==\", \"!=\", \"<\", \">\", \"<=\", \">=\"]\n\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, \"If\", editor, properties)\n        self.outputs.clear()\n        self.outputs.append(Pin(self, \"true\",  \"exec\", True, \"True\"))\n        self.outputs.append(Pin(self, \"false\", \"exec\", True, \"False\"))\n        self.add_data_pin(\"A\", False, \"0\", \"A\")\n        self.add_data_pin(\"B\", False, \"0\", \"B\")\n        self.op_btn = DropdownButton(\n            self,\n            pygame.Rect(0, 0, 60, 20),\n            self.OPERATORS,\n            callback=self._on_op_select\n        )\n        if self.properties.get('operator'):\n            self.op_btn.selected=self.properties['operator']\n        else:\n            self.properties['operator']=\"==\"\n        self.ui_elements.append(self.op_btn)\n        self.A_field = InputField(\n            rect=(0,0,50,18),\n            text=str(self.properties[\"A\"]),\n            placeholder=\"A\",\n            on_change=lambda t: self._on_change(\"A\", t)\n        )\n        self.B_field = InputField(\n            rect=(0,0,50,18),\n            text=str(self.properties[\"B\"]),\n            placeholder=\"B\",\n            on_change=lambda t: self._on_change(\"B\", t)\n        )\n        self.height = 120\n\n    def _on_op_select(self, choice: str):\n        self.properties[\"operator\"] = choice\n\n    def _on_change(self, key, txt):\n        self.properties[key] = txt\n\n    def _get_value(self, pin_name: str, context):\n        pin = next(p for p in self.inputs if p.name == pin_name)\n        if pin.connection:\n            getter = pin.connection.node\n            getter.execute(context)\n            return getter.properties[pin.connection.name]\n        else:\n            raw = self.properties[pin_name]\n            try:\n                return float(raw)\n            except ValueError:\n                return str(raw)\n\n    def handle_event(self, e: pygame.event.Event):\n        super().handle_event(e)\n        for field, pin_name in [(self.A_field, \"A\"), (self.B_field, \"B\")]:\n            pin = next(p for p in self.inputs if p.name == pin_name)\n            if not pin.connection:\n                field.handle_event(e)\n\n    def execute(self, context):\n        a = self._get_value(\"A\", context)\n        b = self._get_value(\"B\", context)\n        if isinstance(a, bool) and isinstance(b, str):\n            b = b.lower() == 'true'\n        elif isinstance(b, bool) and isinstance(a, str):\n            a = a.lower() == 'true'\n        op = self.properties[\"operator\"]\n        if   op == \"==\" : res = (a == b)\n        elif op == \"!=\" : res = (a != b)\n        elif op == \"<\"  : res = (a < b)\n        elif op == \">\"  : res = (a > b)\n        elif op == \"<=\" : res = (a <= b)\n        elif op == \">=\" : res = (a >= b)\n        else            : res = False\n        out = next(p for p in self.outputs if p.name == (\"true\" if res else \"false\"))\n        return out.connection.node if out.connection else None\n\n    def draw(self, surf, selected=False):\n        operator=self.properties[\"operator\"]\n        self.title=f\"If               A {operator} B\"\n        super().draw(surf, selected,draw_ui=False)\n        ox, oy = self.editor.offset\n        nx, ny = self.x - ox, self.y - oy\n        MARGIN = 8\n        for field, pin_name in [(self.A_field, \"A\"), (self.B_field, \"B\")]:\n            pin = next(p for p in self.inputs if p.name == pin_name)\n            if pin.connection:\n                continue\n            px, py = pin.pos\n            field.rect.topleft = (px + MARGIN, py - field.rect.h // 2)\n            field.draw(surf)\n        self.op_btn.update_position(self.x, self.y)\n        self.op_btn.rect.topleft = (nx + Node.WIDTH//2 - 30, ny + 30)\n        self.op_btn.draw(surf)"
+},
+{
+  "name": "Random",
+  "category": "Logic",
+  "source": "editor/blueprint_editor/blueprints/b_logic.py",
+  "description": "Ce nœud redirige l'exécution de manière aléatoire vers une des sorties ajoutées dynamiquement. Chaque sortie est une branche possible. Il permet de simuler des décisions aléatoires ou du comportement imprévisible dans les graphes logiques.",
+  "pins": [
+    {
+      "name": "outX",
+      "type": "exec",
+      "direction": "output",
+      "label": "X (numérique, ex: 0, 1, 2...)",
+      "dynamic": true
+    }
+  ],
+  "properties": [],
+  "code": "@register_node(\"Random\", category=\"Logic\")\nclass RandomNode(Node):\n    SPACING_Y = 24\n\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, \"Random\", editor, properties)\n        self.outputs.clear()\n        self._next_idx = 0\n        self.add_btn = Button(\n            rect=(0, 0, 20, 20),\n            text=\"+\",\n            action=self._add_exec_pin,\n            border_radius=3\n        )\n        self.ui_elements.append(self.add_btn)\n        self.height = 80\n\n    def draw(self, surf, selected=False):\n        super().draw(surf, selected)\n        ox, oy = self.editor.offset\n        nx, ny = self.x-ox, self.y-oy\n        self.add_btn.rect.topleft = (nx + self.WIDTH//2 - 10, ny + 40)\n        self.add_btn.draw(surf)\n        font = pygame.font.Font(None, 20)\n        for pin in self.outputs:\n            px, py = pin.pos\n            lbl = font.render(pin.label, True, (200,200,200))\n            lbl_x = px - Pin.RADIUS - 4 - lbl.get_width()\n            lbl_y = py - lbl.get_height()//2\n            surf.blit(lbl, (lbl_x, lbl_y))\n\n    def _add_exec_pin(self):\n        name  = f\"out{self._next_idx}\"\n        label = str(self._next_idx)\n        pin = Pin(self, name, pin_type=\"exec\", is_output=True, label=label)\n        self.outputs.append(pin)\n        self._next_idx += 1\n        needed = 40 + len(self.outputs) * self.SPACING_Y\n        if needed > self.height:\n            self.height = needed\n\n    def get_pin_pos(self, pin: Pin):\n        if pin.pin_type == \"exec\" and pin.is_output and pin in self.outputs:\n            ox, oy = self.editor.offset\n            x = self.x - ox + self.WIDTH\n            idx = self.outputs.index(pin)\n            y = self.y - oy + self.HEADER_HEIGHT + 16 + idx * self.SPACING_Y\n            return int(x), int(y)\n        return super().get_pin_pos(pin)\n\n    def execute(self, context):\n        if not self.outputs:\n            return None\n        choice = random.choice(self.outputs)\n        return choice.connection.node if choice.connection else None\n\n    def handle_event(self, e: pygame.event.Event):\n        super().handle_event(e)\n        if e.type == pygame.MOUSEBUTTONDOWN and e.button == 1:\n            mx, my = pygame.mouse.get_pos()\n            for pin in self.outputs:\n                px, py = pin.pos\n                if (mx - px)**2 + (my - py)**2 <= Pin.RADIUS**2:\n                    if pin.connection:\n                        pin.disconnect()\n                        self.editor.connections = [\n                            (o,i) for (o,i) in self.editor.connections\n                            if o is not pin\n                        ]\n                    else:\n                        self.editor.start_connection(pin)\n                    return"
+},
+{
+  "name": "For",
+  "category": "Logic",
+  "source": "editor/blueprint_editor/blueprints/b_logic.py",
+  "description": "Ce nœud exécute une boucle de 0 à N-1, en redirigeant l'exécution via la sortie 'Loop' à chaque itération. Une fois la boucle terminée, il envoie le flux vers la sortie 'Next'. La variable d'index courant est accessible via le pin 'i'.",
+  "pins": [
+    { "name": "count", "type": "data", "direction": "input", "label": "count" },
+    { "name": "i", "type": "data", "direction": "output", "label": "i" },
+    { "name": "loop", "type": "exec", "direction": "output", "label": "Loop" },
+    { "name": "next", "type": "exec", "direction": "output", "label": "Next" }
+  ],
+  "properties": [
+    "count (nombre d'itérations si non connecté)",
+    "index (position actuelle dans la boucle, exposée via 'i')"
+  ],
+  "code": "@register_node(\"For\", category=\"Logic\")\nclass ForNode(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, \"For\", editor, properties)\n        self.outputs.clear()\n        self.outputs.append(Pin(self, \"loop\", \"exec\", True,  \"Loop\"))\n        self.outputs.append(Pin(self, \"next\", \"exec\", True,  \"Next\"))\n\n        self.add_data_pin(\"count\", False, \"0\", \"\")\n        self.count_field = InputField(\n            rect=(0,0,60,18),\n            text=str(self.properties[\"count\"]),\n            placeholder=\"Count\",\n            on_change=lambda t: self._on_count_change(t)\n        )\n        self.ui_elements.append(self.count_field)\n        self.add_data_pin(\"index\", True,  \"0\", \"i\")\n        self.height = 100\n\n    def _on_count_change(self, txt):\n        try: self.properties[\"count\"] = int(txt)\n        except: pass\n\n    def _get_count(self, context):\n        pin = next(p for p in self.inputs if p.name==\"count\")\n        if pin.connection:\n            getter = pin.connection.node\n            getter.execute(context)\n            return int(getter.properties[pin.connection.name])\n        try:\n            return int(self.properties[\"count\"])\n        except:\n            return 0\n\n    def execute(self, context):\n        out = next(p for p in self.outputs if p.name==\"next\")\n        return out.connection.node if out.connection else None\n\n    def draw(self, surf, selected=False):\n        super().draw(surf, selected,draw_ui=False)\n        ox, oy = self.editor.offset\n        nx, ny = self.x - ox, self.y - oy\n\n        pin = next(p for p in self.inputs if p.name==\"count\")\n        if not pin.connection:\n            self.count_field.rect.topleft = (nx + 10, ny + 30)\n            self.count_field.draw(surf)\n\n        font = pygame.font.Font(None, 18)\n        idx = self.properties.get(\"index\", 0)\n        surf.blit(font.render(f\"i = {idx}\", True, (220,220,220)),\n                  (nx + 10, ny + 60))"
+},
+{
+  "name": "Sequence",
+  "category": "Logic",
+  "source": "editor/blueprint_editor/blueprints/b_logic.py",
+  "description": "Ce nœud permet de déclencher plusieurs branches d'exécution dans l'ordre. Chaque pin de sortie correspond à une étape qui sera exécutée séquentiellement lors de l'activation du nœud. Les sorties peuvent être ajoutées dynamiquement.",
+  "pins": [
+    {
+      "name": "outX",
+      "type": "exec",
+      "direction": "output",
+      "label": "X (ex: 0, 1, 2...)",
+      "dynamic": true
+    }
+  ],
+  "properties": [],
+  "code": "@register_node(\"Sequence\", category=\"Logic\")\nclass SequenceNode(Node):\n    SPACING_Y = 24\n\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, \"Sequence\", editor, properties)\n        self.outputs.clear()\n        self._next_idx = 0\n        self.add_btn = Button(\n            rect=(0,0,20,20),\n            text=\"+\",\n            action=self._add_exec_pin,\n            border_radius=3\n        )\n        self.ui_elements.append(self.add_btn)\n        self.height = 80\n\n    def _add_exec_pin(self):\n        name  = f\"out{self._next_idx}\"\n        label = str(self._next_idx)\n        pin = Pin(self, name, pin_type=\"exec\", is_output=True, label=label)\n        self.outputs.append(pin)\n        self._next_idx += 1\n        needed = 40 + len(self.outputs) * self.SPACING_Y\n        if needed > self.height:\n            self.height = needed\n\n    def get_pin_pos(self, pin: Pin):\n        if pin.pin_type==\"exec\" and pin.is_output and pin in self.outputs:\n            ox, oy = self.editor.offset\n            x = self.x - ox + self.WIDTH\n            idx = self.outputs.index(pin)\n            y = self.y - oy + self.HEADER_HEIGHT + 16 + idx*self.SPACING_Y\n            return int(x), int(y)\n        return super().get_pin_pos(pin)\n\n    def execute(self, context):\n        for pin in self.outputs:\n            if pin.connection:\n                start = pin.connection.node\n                self.editor.run_logic_from_event(start)\n        return None\n\n    def handle_event(self, e):\n        super().handle_event(e)\n        if e.type==pygame.MOUSEBUTTONDOWN and e.button==1:\n            mx, my = pygame.mouse.get_pos()\n            for pin in self.outputs:\n                px, py = pin.pos\n                if (mx-px)**2 + (my-py)**2 <= Pin.RADIUS**2:\n                    if pin.connection:\n                        pin.disconnect()\n                        self.editor.connections = [\n                            (o,i) for (o,i) in self.editor.connections\n                            if o is not pin\n                        ]\n                    else:\n                        self.editor.start_connection(pin)\n                    return\n\n    def draw(self, surf, selected=False):\n        super().draw(surf, selected)\n        ox, oy = self.editor.offset\n        nx, ny = self.x-ox, self.y-oy\n        self.add_btn.rect.topleft = (nx + self.WIDTH//2 - 10, ny + 40)\n        self.add_btn.draw(surf)\n        font = pygame.font.Font(None, 20)\n        for pin in self.outputs:\n            px, py = pin.pos\n            lbl = font.render(pin.label, True, (200,200,200))\n            lbl_x = px - Pin.RADIUS - 4 - lbl.get_width()\n            lbl_y = py - lbl.get_height()//2\n            surf.blit(lbl, (lbl_x, lbl_y))"
+},
+{
+  "name": "Set Variable",
+  "category": "Logic",
+  "source": "editor/blueprint_editor/blueprints/b_logic.py",
+  "description": "Ce nœud permet d'enregistrer une valeur dans une variable globale nommée, accessible ailleurs dans le graphe. La valeur peut être connectée depuis un autre nœud ou saisie manuellement si non connectée.",
+  "pins": [
+    { "name": "value", "type": "data", "direction": "input", "label": "Value" }
+  ],
+  "properties": [
+    "var_name (nom de la variable)",
+    "value (valeur à stocker si non connectée)"
+  ],
+  "code": "@register_node(\"Set Variable\", category=\"Logic\")\nclass SetVariableNode(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, \"Set Variable\", editor, properties)\n\n        self.add_data_pin(\"value\", False, \"0\", \"Value\")\n        self.inputs[-1].offset_y=10\n        var_name = self.properties.get(\"var_name\", \"\")\n        self.name_field = InputField(\n            rect=(0, 0, 70, 18),\n            text=var_name,\n            placeholder=\"var name\",\n            on_change=lambda t: self._on_name_change(t)\n        )\n        self.ui_elements.append(self.name_field)\n\n        val = self.properties.get(\"value\", \"0\")\n        self.value_field = InputField(\n            rect=(0, 0, 70, 18),\n            text=str(val),\n            placeholder=\"Value\",\n            on_change=lambda t: self._on_value_change(t)\n        )\n\n        self.height = 100\n\n    def _on_name_change(self, txt):\n        self.properties[\"var_name\"] = txt\n\n    def _on_value_change(self, txt):\n        self.properties[\"value\"] = txt\n\n    def _get_input_value(self, context):\n        pin = next(p for p in self.inputs if p.name == \"value\")\n        if pin.connection:\n            getter = pin.connection.node\n            getter.execute(context)\n            return getter.properties[pin.connection.name]\n        else:\n            raw = self.properties[\"value\"]\n            try:\n                return float(raw)\n            except ValueError:\n                return raw\n\n    def handle_event(self, e: pygame.event.Event):\n        super().handle_event(e)\n        pin = next(p for p in self.inputs if p.name == \"value\")\n        if not pin.connection:\n            self.value_field.handle_event(e)\n\n    def execute(self, context):\n        name = self.properties.get(\"var_name\", \"\")\n        if name:\n            self.editor.variable_store[name] = self._get_input_value(context)\n        out = next((p for p in self.outputs if p.pin_type == 'exec'), None)\n        return out.connection.node if out and out.connection else None\n\n    def draw(self, surf, selected=False):\n        self.title = \"Set Var\"\n        super().draw(surf, selected, draw_ui=False)\n        ox, oy = self.editor.offset\n        nx, ny = self.x - ox, self.y - oy\n\n        self.name_field.rect.topleft = (nx + 10, ny + 30)\n        self.name_field.draw(surf)\n        pin = next(p for p in self.inputs if p.name == \"value\")\n        if not pin.connection:\n            px, py = pin.pos\n            self.value_field.rect.topleft = (px + 8, py - self.value_field.rect.h // 2)\n            self.value_field.draw(surf)"
+},
+{
+  "name": "Get Variable",
+  "category": "Logic",
+  "source": "editor/blueprint_editor/blueprints/b_logic.py",
+  "description": "Ce nœud lit une variable globale par son nom et expose sa valeur via un pin de sortie. La variable doit avoir été définie préalablement avec un 'Set Variable'.",
+  "pins": [
+    { "name": "value", "type": "data", "direction": "output", "label": "Value" }
+  ],
+  "properties": [
+    "var_name (nom de la variable à lire)",
+    "value (valeur lue depuis le store global)"
+  ],
+  "code": "@register_node(\"Get Variable\", category=\"Logic\")\nclass GetVariableNode(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, \"Get Variable\", editor, properties)\n        self.inputs.clear()\n        self.outputs.clear()\n        self.add_data_pin(\"value\", True, \"0\", \"Value\")\n        var_name = self.properties.get(\"var_name\", \"\")\n        self.name_field = InputField(\n            rect=(0, 0, 70, 18),\n            text=var_name,\n            placeholder=\"var name\",\n            on_change=lambda t: self._on_name_change(t)\n        )\n        self.ui_elements.append(self.name_field)\n        self.height = 60\n\n    def _on_name_change(self, txt):\n        self.properties[\"var_name\"] = txt\n\n    def execute(self, context):\n        name = self.properties.get(\"var_name\", \"\")\n        val = self.editor.variable_store.get(name, None)\n        self.properties[\"value\"] = val\n        return None\n\n    def draw(self, surf, selected=False):\n        self.title = f\"Get Var\"\n        super().draw(surf, selected, draw_ui=False)\n        ox, oy = self.editor.offset\n        nx, ny = self.x - ox, self.y - oy\n        self.name_field.rect.topleft = (nx + 10, ny + 30)\n        self.name_field.draw(surf)"
+},
+{
+  "name": "Play Animation",
+  "category": "Animation",
+  "source": "editor/blueprint_editor/blueprints/b_animations.py",
+  "description": "Ce nœud déclenche la lecture d'une animation à partir de 0s, présente dans le projet. L'animation est sélectionnée via un menu déroulant dynamique basé sur la liste des animations disponibles dans l'éditeur de niveau.",
+  "pins": [],
+  "properties": [
+    "choice (nom de l'animation sélectionnée)"
+  ],
+  "code": "@register_node(\"Play Animation\", category=\"Animation\")\nclass PlayAnimation(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Play Animation', editor, properties)\n        self.editor=editor\n        self.btn = DropdownButton(self, pygame.Rect(10, 30, 120, 24),\n                             list(self.editor.LevelEditor.animations.animations.keys()), callback=self._on_select)\n        if self.properties.get('choice'):\n            self.btn.selected=self.properties['choice']\n        self.ui_elements.append(self.btn)\n\n    def _on_select(self, opt: str):\n        self.properties['choice'] = opt\n\n    def updateDropDownField(self):\n        self.btn.options=list(self.editor.LevelEditor.animations.animations.keys())\n        if not self.btn.selected in self.btn.options and self.btn.options:\n            self.btn.selected=self.btn.options[0]\n\n    def draw(self, surf, selected=False):\n        self.updateDropDownField()\n        super().draw(surf, selected)\n        for el in self.ui_elements:\n            el.update_position(self.x, self.y)\n            el.draw(surf)\n\n    def execute(self, context):\n        for pin in self.inputs:\n            if pin.pin_type == 'data' and pin.connection:\n                src = pin.connection\n                getter_node  = src.node\n                getter_node.execute(context)\n                self.properties[pin.name] = src.node.properties[src.name]\n        anim=self.editor.LevelEditor.animations.animations[self.btn.selected]\n        anim.timeline.current=0.0\n        anim.play(anim.timeline.loop)\n\n        out = next((p for p in self.outputs if p.pin_type == 'exec'), None)\n        return out.connection.node if out and out.connection else None"
+},
+{
+  "name": "Get Animation Speed",
+  "category": "Animation",
+  "source": "editor/blueprint_editor/blueprints/b_animations.py",
+  "description": "Récupère la vitesse actuelle d'une animation sélectionnée. Elle est affichée en temps réel et exposée via une data-pin `speed`.",
+  "pins": [
+    {
+      "name": "speed",
+      "type": "data",
+      "direction": "output",
+      "default": "0"
+    }
+  ],
+  "properties": [
+    "choice (nom de l'animation sélectionnée)",
+    "speed (valeur actuelle récupérée)"
+  ],
+  "code": "@register_node(\"Get Animation Speed\", category=\"Animation\")\nclass GetAnimationSpeed(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, \"Get Animation Speed\", editor, properties)\n        self.inputs.clear()\n        self.outputs.clear()\n        self.add_data_pin(\"speed\", True, \"0\", \"\")\n        self.btn = DropdownButton(\n            self,\n            pygame.Rect(10, 30, 120, 24),\n            list(self.editor.LevelEditor.animations.animations.keys()),\n            callback=self._on_select\n        )\n        if self.properties.get('choice'):\n            self.btn.selected=self.properties['choice']\n        self.ui_elements.append(self.btn)\n\n    def _on_select(self, opt: str):\n        self.properties[\"choice\"] = opt\n\n    def updateDropDownField(self):\n        opts = list(self.editor.LevelEditor.animations.animations.keys())\n        self.btn.options = opts\n        if self.btn.selected not in opts and opts:\n            self.btn.selected = opts[0]\n            self.properties[\"choice\"] = opts[0]\n\n    def execute(self, context):\n        anims = self.editor.LevelEditor.animations.animations\n        choice = self.properties.get(\"choice\", \"\")\n        if choice in anims:\n            s = anims[choice].speed\n        else:\n            s = 0.0\n        self.properties[\"speed\"] = round(s, 2)\n        return None\n\n    def draw(self, surf, selected=False):\n        self.updateDropDownField()\n        self.execute({})\n        super().draw(surf, selected)\n        font = pygame.font.Font(None, 18)\n        ox, oy = self.editor.offset\n        txt = f\"{float(self.properties['speed']):.2f}\"\n        surf.blit(font.render(txt, True, (220,220,220)),\n                  (self.x - ox + 10, self.y - oy + 65))\n        for el in self.ui_elements:\n            el.update_position(self.x, self.y)\n            el.draw(surf)"
+},
+{
+  "name": "Set Animation Speed",
+  "category": "Animation",
+  "source": "editor/blueprint_editor/blueprints/b_animations.py",
+  "description": "Définit dynamiquement la vitesse d'une animation sélectionnée. La valeur peut provenir d'un champ inline ou d'une data-pin d'entrée `speed`.",
+  "pins": [
+    {
+      "name": "speed",
+      "type": "data",
+      "direction": "input",
+      "default": "0"
+    }
+  ],
+  "properties": [
+    "choice (nom de l'animation ciblée)",
+    "speed (vitesse définie manuellement ou par pin)"
+  ],
+  "code": "@register_node(\"Set Animation Speed\", category=\"Animation\")\nclass SetAnimationSpeed(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, \"Set Animation Speed\", editor, properties)\n        self.add_data_pin(\"speed\", False, \"0\", \"speed\",offset_y=20)\n        self.btn = DropdownButton(\n            self,\n            pygame.Rect(10, 30, 120, 24),\n            list(self.editor.LevelEditor.animations.animations.keys()),\n            callback=self._on_select\n        )\n        if self.properties.get('choice'):\n            self.btn.selected=self.properties['choice']\n        else:\n            self.properties['choice']=list(self.editor.LevelEditor.animations.animations.keys())[0]\n        self.ui_elements.append(self.btn)\n        self.height = 110\n        self.speed_field = InputField(\n            rect=(0,0,60,18),\n            text=str(self.properties[\"speed\"]),\n            placeholder=\"Speed\",\n            on_change=lambda t: self._on_speed_change(t)\n        )\n\n    def _on_select(self, opt: str):\n        self.properties[\"choice\"] = opt\n\n    def _on_speed_change(self, txt: str):\n        try:\n            self.properties[\"speed\"] = float(txt)\n        except ValueError:\n            pass\n\n    def updateDropDownField(self):\n        opts = list(self.editor.LevelEditor.animations.animations.keys())\n        self.btn.options = opts\n        if self.btn.selected not in opts and opts:\n            self.btn.selected = opts[0]\n            self.properties[\"choice\"] = opts[0]\n\n    def _get_speed(self, context):\n        pin = next(p for p in self.inputs if p.name==\"speed\")\n        if pin.connection:\n            getter = pin.connection.node\n            getter.execute(context)\n            return float(getter.properties[pin.connection.name])\n        return float(self.properties.get(\"speed\", 0.0))\n\n    def execute(self, context):\n        choice = self.properties.get(\"choice\", \"\")\n        s = self._get_speed(context)\n        anims = self.editor.LevelEditor.animations.animations\n        if choice in anims:\n            anims[choice].speed = s\n        out = next(p for p in self.outputs if p.pin_type==\"exec\")\n        return out.connection.node if out.connection else None\n\n    def handle_event(self, e):\n        super().handle_event(e)\n        pin = next(p for p in self.inputs if p.name==\"speed\")\n        if not pin.connection:\n            self.speed_field.handle_event(e)\n\n    def draw(self, surf, selected=False):\n        self.updateDropDownField()\n        super().draw(surf, selected)\n        pin = next(p for p in self.inputs if p.name==\"speed\")\n        if not pin.connection:\n            px, py = pin.pos\n            self.speed_field.rect.topleft = (px + 8, py - self.speed_field.rect.h//2)\n            self.speed_field.draw(surf)\n        for el in self.ui_elements:\n            if isinstance(el, DropdownButton):\n                el.update_position(self.x, self.y)\n                el.draw(surf)"
+},
+{
+  "name": "Get Animation Time",
+  "category": "Animation",
+  "source": "editor/blueprint_editor/blueprints/b_animations.py",
+  "description": "Retourne le temps actuel (position temporelle) d'une animation dans sa timeline. Résultat exposé via une data-pin `time`.",
+  "pins": [
+    {
+      "name": "time",
+      "type": "data",
+      "direction": "output",
+      "default": "0"
+    }
+  ],
+  "properties": [
+    "choice (nom de l'animation sélectionnée)",
+    "time (temps actuel extrait)"
+  ],
+  "code": "@register_node(\"Get Animation Time\", category=\"Animation\")\nclass GetAnimationTime(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, \"Get Animation Time\", editor, properties)\n        self.inputs.clear()\n        self.outputs.clear()\n        self.add_data_pin(\"time\", True, \"0\", \"\")\n        self.btn = DropdownButton(\n            self,\n            pygame.Rect(10, 30, 120, 24),\n            list(self.editor.LevelEditor.animations.animations.keys()),\n            callback=self._on_select\n        )\n        if self.properties.get('choice'):\n            self.btn.selected=self.properties['choice']\n        else:\n            self.properties[\"choice\"] = list(self.editor.LevelEditor.animations.animations.keys())[0]\n        self.ui_elements.append(self.btn)\n\n    def _on_select(self, opt: str):\n        self.properties[\"choice\"] = opt\n\n    def updateDropDownField(self):\n        opts = list(self.editor.LevelEditor.animations.animations.keys())\n        self.btn.options = opts\n        if self.btn.selected not in opts and opts:\n            self.btn.selected = opts[0]\n            self.properties[\"choice\"] = opts[0]\n\n    def execute(self, context):\n        anims = self.editor.LevelEditor.animations.animations\n        choice = self.properties.get(\"choice\", \"\")\n        if choice in anims:\n            t = round(anims[choice].timeline.current, 2)\n        else:\n            t = 0.0\n        self.properties[\"time\"] = t\n        return None\n\n    def draw(self, surf, selected=False):\n        self.updateDropDownField()\n        self.execute({})\n        super().draw(surf, selected, draw_ui=False)\n        font = pygame.font.Font(None, 18)\n        ox, oy = self.editor.offset\n        txt = f\"{float(self.properties['time'])}\"\n        surf.blit(font.render(txt, True, (220,220,220)),\n                  (self.x - ox + 10, self.y - oy + 65))\n        for el in self.ui_elements:\n            el.update_position(self.x, self.y)\n            el.draw(surf)"
+},
+{
+  "name": "Set Animation Time",
+  "category": "Animation",
+  "source": "editor/blueprint_editor/blueprints/b_animations.py",
+  "description": "Définit la position temporelle d'une animation. Peut utiliser une data-pin d'entrée `time` ou une valeur saisie directement.",
+  "pins": [
+    {
+      "name": "time",
+      "type": "data",
+      "direction": "input",
+      "default": "0"
+    }
+  ],
+  "properties": [
+    "choice (nom de l'animation ciblée)",
+    "time (valeur temporelle assignée)"
+  ],
+  "code": "@register_node(\"Set Animation Time\", category=\"Animation\")\nclass SetAnimationTime(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, \"Set Animation Time\", editor, properties)\n        self.add_data_pin(\"time\", False, \"0\", \"Time\", offset_y=20)\n        self.btn = DropdownButton(\n            self,\n            pygame.Rect(10, 30, 120, 24),\n            list(self.editor.LevelEditor.animations.animations.keys()),\n            callback=self._on_select\n        )\n        if self.properties.get('choice'):\n            self.btn.selected = self.properties['choice']\n        else:\n            self.properties['choice'] = list(self.editor.LevelEditor.animations.animations.keys())[0]\n        self.ui_elements.append(self.btn)\n        self.height = 110\n        self.time_field = InputField(\n            rect=(0, 0, 60, 18),\n            text=str(self.properties[\"time\"]),\n            placeholder=\"Time\",\n            on_change=lambda t: self._on_time_change(t)\n        )\n        self.ui_elements.append(self.time_field)\n\n    def _on_select(self, opt: str):\n        self.properties[\"choice\"] = opt\n\n    def _on_time_change(self, txt: str):\n        try:\n            self.properties[\"time\"] = float(txt)\n        except ValueError:\n            pass\n\n    def updateDropDownField(self):\n        opts = list(self.editor.LevelEditor.animations.animations.keys())\n        self.btn.options = opts\n        if self.btn.selected not in opts and opts:\n            self.btn.selected = opts[0]\n            self.properties[\"choice\"] = opts[0]\n\n    def _get_time(self, context):\n        pin = next(p for p in self.inputs if p.name == \"time\")\n        if pin.connection:\n            getter = pin.connection.node\n            getter.execute(context)\n            return float(getter.properties[pin.connection.name])\n        return float(self.properties.get(\"time\", 0.0))\n\n    def execute(self, context):\n        choice = self.properties.get(\"choice\", \"\")\n        t = self._get_time(context)\n        anims = self.editor.LevelEditor.animations.animations\n        if choice in anims:\n            anim = anims[choice]\n            anim.timeline.current = t\n        out = next(p for p in self.outputs if p.pin_type == \"exec\")\n        return out.connection.node if out.connection else None\n\n    def draw(self, surf, selected=False):\n        self.updateDropDownField()\n        super().draw(surf, selected, draw_ui=False)\n        pin = next(p for p in self.inputs if p.name == \"time\")\n        ox, oy = self.editor.offset\n        if not pin.connection:\n            px, py = pin.pos\n            self.time_field.rect.topleft = (px + 8, py - self.time_field.rect.h // 2)\n            self.time_field.draw(surf)\n        for el in self.ui_elements:\n            if isinstance(el, DropdownButton):\n                el.update_position(self.x, self.y)\n                el.draw(surf)"
+},
+{
+  "name": "Stop Animation",
+  "category": "Animation",
+  "source": "editor/blueprint_editor/blueprints/b_animations.py",
+  "description": "Stoppe complètement l'animation sélectionnée, en réinitialisant son état si nécessaire.",
+  "pins": [],
+  "properties": [
+    "choice (nom de l'animation à stopper)"
+  ],
+  "code": "@register_node(\"Stop Animation\", category=\"Animation\")\nclass StopAnimation(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Stop Animation', editor, properties)\n        self.editor = editor\n        self.btn = DropdownButton(self, pygame.Rect(10, 30, 120, 24),\n            list(self.editor.LevelEditor.animations.animations.keys()), callback=self._on_select)\n        if self.properties.get('choice'):\n            self.btn.selected = self.properties['choice']\n        else:\n            self.properties['choice'] = list(self.editor.LevelEditor.animations.animations.keys())[0]\n        self.ui_elements.append(self.btn)\n\n    def _on_select(self, opt: str):\n        self.properties['choice'] = opt\n\n    def updateDropDownField(self):\n        self.btn.options = list(self.editor.LevelEditor.animations.animations.keys())\n        if not self.btn.selected in self.btn.options and self.btn.options:\n            self.btn.selected = self.btn.options[0]\n\n    def draw(self, surf, selected=False):\n        self.updateDropDownField()\n        super().draw(surf, selected, draw_ui=False)\n        for el in self.ui_elements:\n            el.update_position(self.x, self.y)\n            el.draw(surf)\n\n    def execute(self, context):\n        for pin in self.inputs:\n            if pin.pin_type == 'data' and pin.connection:\n                src = pin.connection\n                getter_node = src.node\n                getter_node.execute(context)\n                self.properties[pin.name] = src.node.properties[src.name]\n        anim = self.editor.LevelEditor.animations.animations[self.btn.selected]\n        anim.stop()\n        out = next((p for p in self.outputs if p.pin_type == 'exec'), None)\n        return out.connection.node if out and out.connection else None"
+},
+{
+  "name": "Pause Animation",
+  "category": "Animation",
+  "source": "editor/blueprint_editor/blueprints/b_animations.py",
+  "description": "Met en pause l'animation sélectionnée, en conservant sa position temporelle actuelle.",
+  "pins": [],
+  "properties": [
+    "choice (nom de l'animation à mettre en pause)"
+  ],
+  "code": "@register_node(\"Pause Animation\", category=\"Animation\")\nclass PauseAnimation(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Pause Animation', editor, properties)\n        self.editor = editor\n        self.btn = DropdownButton(self, pygame.Rect(10, 30, 120, 24),\n            list(self.editor.LevelEditor.animations.animations.keys()), callback=self._on_select)\n        if self.properties.get('choice'):\n            self.btn.selected = self.properties['choice']\n        else:\n            self.properties['choice'] = list(self.editor.LevelEditor.animations.animations.keys())[0]\n        self.ui_elements.append(self.btn)\n\n    def _on_select(self, opt: str):\n        self.properties['choice'] = opt\n\n    def updateDropDownField(self):\n        self.btn.options = list(self.editor.LevelEditor.animations.animations.keys())\n        if not self.btn.selected in self.btn.options and self.btn.options:\n            self.btn.selected = self.btn.options[0]\n\n    def draw(self, surf, selected=False):\n        self.updateDropDownField()\n        super().draw(surf, selected, draw_ui=False)\n        for el in self.ui_elements:\n            el.update_position(self.x, self.y)\n            el.draw(surf)\n\n    def execute(self, context):\n        for pin in self.inputs:\n            if pin.pin_type == 'data' and pin.connection:\n                src = pin.connection\n                getter_node = src.node\n                getter_node.execute(context)\n                self.properties[pin.name] = src.node.properties[src.name]\n        anim = self.editor.LevelEditor.animations.animations[self.btn.selected]\n        anim.pause()\n        out = next((p for p in self.outputs if p.pin_type == 'exec'), None)\n        return out.connection.node if out and out.connection else None"
+},
+{
+  "name": "Loop Animation",
+  "category": "Animation",
+  "source": "editor/blueprint_editor/blueprints/b_animations.py",
+  "description": "Active la boucle (loop) sur la timeline de l'animation sélectionnée.",
+  "pins": [],
+  "properties": [
+    "choice (nom de l'animation à mettre en boucle)"
+  ],
+  "code": "@register_node(\"Loop Animation\", category=\"Animation\")\nclass LoopAnimation(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Loop Animation', editor, properties)\n        self.editor=editor\n        self.btn = DropdownButton(self, pygame.Rect(10, 30, 120, 24),\n                             list(self.editor.LevelEditor.animations.animations.keys()), callback=self._on_select)\n        if self.properties.get('choice'):\n            self.btn.selected=self.properties['choice']\n        else:\n            self.properties['choice']=list(self.editor.LevelEditor.animations.animations.keys())[0]\n        self.ui_elements.append(self.btn)\n\n    def _on_select(self, opt: str):\n        self.properties['choice'] = opt\n\n    def updateDropDownField(self):\n        self.btn.options=list(self.editor.LevelEditor.animations.animations.keys())\n        if not self.btn.selected in self.btn.options and self.btn.options:\n            self.btn.selected=self.btn.options[0]\n\n    def draw(self, surf, selected=False):\n        self.updateDropDownField()\n        super().draw(surf, selected,draw_ui=False)\n        for el in self.ui_elements:\n            el.update_position(self.x, self.y)\n            el.draw(surf)\n\n    def execute(self, context):\n        for pin in self.inputs:\n            if pin.pin_type == 'data' and pin.connection:\n                src = pin.connection\n                getter_node  = src.node\n                getter_node.execute(context)\n                self.properties[pin.name] = src.node.properties[src.name]\n        anim=self.editor.LevelEditor.animations.animations[self.btn.selected]\n        anim.timeline.loop=True\n\n        out = next((p for p in self.outputs if p.pin_type == 'exec'), None)\n        return out.connection.node if out and out.connection else None"
+},
+{
+  "name": "Unloop Animation",
+  "category": "Animation",
+  "source": "editor/blueprint_editor/blueprints/b_animations.py",
+  "description": "Désactive la boucle (loop) sur la timeline de l'animation sélectionnée.",
+  "pins": [],
+  "properties": [
+    "choice (nom de l'animation dont on désactive la boucle)"
+  ],
+  "code": "@register_node(\"Unloop Animation\", category=\"Animation\")\nclass UnLoopAnimation(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Unloop Animation', editor, properties)\n        self.editor=editor\n        self.btn = DropdownButton(self, pygame.Rect(10, 30, 120, 24),\n                             list(self.editor.LevelEditor.animations.animations.keys()), callback=self._on_select)\n        if self.properties.get('choice'):\n            self.btn.selected=self.properties['choice']\n        else:\n            self.properties['choice']=list(self.editor.LevelEditor.animations.animations.keys())[0]\n        self.ui_elements.append(self.btn)\n\n    def _on_select(self, opt: str):\n        self.properties['choice'] = opt\n\n    def updateDropDownField(self):\n        self.btn.options=list(self.editor.LevelEditor.animations.animations.keys())\n        if not self.btn.selected in self.btn.options and self.btn.options:\n            self.btn.selected=self.btn.options[0]\n\n    def draw(self, surf, selected=False):\n        self.updateDropDownField()\n        super().draw(surf, selected,draw_ui=False)\n        for el in self.ui_elements:\n            el.update_position(self.x, self.y)\n            el.draw(surf)\n\n    def execute(self, context):\n        for pin in self.inputs:\n            if pin.pin_type == 'data' and pin.connection:\n                src = pin.connection\n                getter_node  = src.node\n                getter_node.execute(context)\n                self.properties[pin.name] = src.node.properties[src.name]\n        anim=self.editor.LevelEditor.animations.animations[self.btn.selected]\n        anim.timeline.loop=False\n\n        out = next((p for p in self.outputs if p.pin_type == 'exec'), None)\n        return out.connection.node if out and out.connection else None"
+},
+{
+  "name": "Play Sound",
+  "category": "Audio",
+  "source": "editor/blueprint_editor/blueprints/b_audio.py",
+  "description": "Joue un fichier son sélectionné dans un dropdown.",
+  "pins": [],
+  "properties": [
+    "choice (nom du fichier son sélectionné)"
+  ],
+  "code": "@register_node(\"Play Sound\", category=\"Audio\")\nclass PlaySoundNode(Node):\n    SOUND_DIR = os.path.join(\"editor\", \"game_engine\", \"Assets\", \"sounds_effects\")\n    _sound_cache = {}\n\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, \"Play Sound\", editor, properties)\n        self.editor = editor\n        if self.editor.LevelEditor.dataManager.settings.path is None or not \"/Exemples/new_exemple.json\" in self.editor.LevelEditor.dataManager.settings.path:\n            self.SOUND_DIR = os.path.join(\"Ressources\", \"audio_files\")\n        try:\n            files = [\n                f for f in os.listdir(self.SOUND_DIR)\n                if os.path.splitext(f)[1].lower() in (\".wav\", \".mp3\", \".ogg\")\n            ]\n        except FileNotFoundError:\n            files = []\n\n        if not files:\n            self.valid = False\n            self.editor.LevelEditor.nm.notify(\n                'warning',\n                'Play Sound',\n                \"Aucun fichier son trouvé dans sounds_effects/\",\n                1.5\n            )\n            self.height = 70\n            return\n\n        self.valid = True\n        self.btn = DropdownButton(\n            self,\n            pygame.Rect(0, 40, 140, 24),\n            files,\n            callback=self._on_select\n        )\n        choice = self.properties.get(\"choice\")\n        if choice in files:\n            self.btn.selected = choice\n        else:\n            self.btn.selected = files[0]\n            self.properties[\"choice\"] = files[0]\n\n        self.ui_elements.append(self.btn)\n        self.height = 80\n\n    def _on_select(self, opt: str):\n        if not getattr(self, \"valid\", False):\n            return\n        self.properties[\"choice\"] = opt\n\n    def updateDropDownField(self):\n        if not getattr(self, \"valid\", False):\n            return\n        try:\n            files = [\n                f for f in os.listdir(self.SOUND_DIR)\n                if os.path.splitext(f)[1].lower() in (\".wav\", \".mp3\", \".ogg\")\n            ]\n        except FileNotFoundError:\n            files = []\n        self.btn.options = files\n        if files and self.btn.selected not in files:\n            self.btn.selected = files[0]\n            self.properties[\"choice\"] = files[0]\n\n    def draw(self, surf, selected=False):\n        ox, oy = self.editor.offset\n        if not getattr(self, \"valid\", False):\n            w, h = self.WIDTH, self.height\n            x, y = self.x - ox, self.y - oy\n            rect = pygame.Rect(x, y, w, h)\n            pygame.draw.rect(surf, (60, 20, 20), rect, border_radius=4)\n            pygame.draw.rect(surf, (200, 50, 50), rect, 2, border_radius=4)\n            hdr = pygame.Rect(x, y, w, self.HEADER_HEIGHT)\n            pygame.draw.rect(surf, (150, 0, 0), hdr, border_top_left_radius=4, border_top_right_radius=4)\n\n            font_t = pygame.font.Font(None, 18)\n            surf.blit(font_t.render(\"Play Sound [Error]\", True, (255,200,200)), (x+6, y+4))\n\n            font_m = pygame.font.Font(None, 14)\n            msg = \"Aucun son disponible\"\n            surf.blit(font_m.render(msg, True, (255,180,180)), (x+6, y+self.HEADER_HEIGHT+10))\n            msg2 = \"(supprimer cette node)\"\n            surf.blit(font_m.render(msg2, True, (255,180,180)), (x+6, y+self.HEADER_HEIGHT+26))\n            return\n\n        self.updateDropDownField()\n        super().draw(surf, selected)\n        for el in self.ui_elements:\n            el.update_position(self.x, self.y)\n            el.draw(surf)\n\n    def execute(self, context):\n        if not getattr(self, \"valid\", False):\n            return None\n\n        fname = self.properties.get(\"choice\")\n        if fname:\n            full_path = os.path.join(self.SOUND_DIR, fname)\n            cache = PlaySoundNode._sound_cache\n            if fname not in cache:\n                cache[fname] = pygame.mixer.Sound(full_path)\n            cache[fname].play()\n\n        out = next((p for p in self.outputs if p.pin_type==\"exec\"), None)\n        return out.connection.node if out and out.connection else None"
+},
+{
+  "name": "Set Volume",
+  "category": "Audio",
+  "source": "editor/blueprint_editor/blueprints/b_audio.py",
+  "description": "Règle le volume global de la musique entre 0.0 et 1.0.",
+  "pins": [
+    {
+      "name": "volume",
+      "type": "data",
+      "direction": "input",
+      "default": "1.0"
+    }
+  ],
+  "properties": [
+    "volume (float, valeur actuelle du volume)"
+  ],
+  "code": "@register_node(\"Set Volume\", category=\"Audio\")\nclass SetVolumeNode(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, \"Set Volume\", editor, properties)\n        self.add_data_pin(\"volume\", False, self.properties.get(\"volume\", 1.0), \"Vol\")\n        self.volume_field = InputField(\n            rect=(10, 30, 60, 18),\n            text=str(self.properties.get(\"volume\", 1.0)),\n            placeholder=\"0.0-1.0\",\n            on_change=lambda t: self._on_volume_change(t)\n        )\n        self.ui_elements.append(self.volume_field)\n        self.height = 80\n\n    def _on_volume_change(self, txt):\n        try:\n            v = float(txt)\n            v = max(0.0, min(1.0, v))\n            self.properties[\"volume\"] = v\n        except ValueError:\n            pass\n\n    def execute(self, context):\n        pin = next((p for p in self.inputs if p.name==\"volume\"), None)\n        if pin and pin.connection:\n            getter = pin.connection.node\n            getter.execute(context)\n            try:\n                self.properties[\"volume\"] = float(getter.properties[pin.name])\n            except:\n                pass\n\n        vol = self.properties.get(\"volume\", 1.0)\n        if not pygame.mixer.get_init():\n            pygame.mixer.init()\n        pygame.mixer.music.set_volume(vol)\n        pygame.mixer.set_num_channels(pygame.mixer.get_num_channels())\n        out = next((p for p in self.outputs if p.pin_type==\"exec\"), None)\n        return out.connection.node if out and out.connection else None\n\n    def draw(self, surf, selected=False):\n        super().draw(surf, selected)\n        ox, oy = self.editor.offset\n        x = self.x - ox + 10\n        y = self.y - oy + 30\n        self.volume_field.rect.topleft = (x, y)\n        self.volume_field.draw(surf)\n        vol = self.properties.get(\"volume\", 1.0)\n        font = pygame.font.Font(None, 18)\n        txt = font.render(f\"{vol:.2f}\", True, (220, 220, 220))\n        surf.blit(txt, (self.x - ox + 80, self.y - oy + 32))"
+},
+{
+  "name": "Stop All Sounds",
+  "category": "Audio",
+  "source": "editor/blueprint_editor/blueprints/b_audio.py",
+  "description": "Arrête tous les sons et la musique en cours.",
+  "pins": [],
+  "properties": [],
+  "code": "@register_node(\"Stop All Sounds\", category=\"Audio\")\nclass StopAllSoundsNode(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, \"Stop All Sounds\", editor, properties)\n        self.height = 60\n\n    def execute(self, context):\n        if not pygame.mixer.get_init():\n            pygame.mixer.init()\n        pygame.mixer.stop()\n        pygame.mixer.music.stop()\n        out = next((p for p in self.outputs if p.pin_type==\"exec\"), None)\n        return out.connection.node if out and out.connection else None\n\n    def draw(self, surf, selected=False):\n        super().draw(surf, selected)\n        font = pygame.font.Font(None, 16)\n        ox, oy = self.editor.offset\n        txt = font.render(\"all stopped\", True, (200,200,200))\n        surf.blit(txt, (self.x - ox + 10, self.y - oy + 30))"
+},
+{
+  "name": "Emit Sound From",
+  "category": "Audio",
+  "source": "editor/blueprint_editor/blueprints/b_audio.py",
+  "description": "Émet un son spatialisé à partir d'une localisation et avec paramètres personnalisés.",
+  "pins": [
+
+    {
+      "name": "volume",
+      "type": "data",
+      "direction": "input",
+      "default": "1.0"
+    },
+    {
+      "name": "radius",
+      "type": "data",
+      "direction": "input",
+      "default": "200.0"
+    },
+    {
+      "name": "smooth",
+      "type": "data",
+      "direction": "input",
+      "default": "0.1"
+    },
+    {
+      "name": "__sound_ui__",
+      "type": "data",
+      "direction": "input",
+      "default": "0"
+    },
+    {
+      "name": "__loc_ui__",
+      "type": "data",
+      "direction": "input",
+      "default": "0"
+    }
+  ],
+  "properties": [
+    "choice (nom du fichier son sélectionné)",
+    "loc (nom du point de localisation sélectionné)",
+    "volume (float)",
+    "radius (float)",
+    "smooth (float)"
+  ],
+  "code": "@register_node(\"Emit Sound From\", category=\"Audio\")\nclass SpatialSoundNode(Node):\n    SOUND_DIR = os.path.join(\"editor\", \"game_engine\", \"Assets\", \"sounds_effects\")\n    _sound_cache = {}\n\n    @staticmethod\n    def _load_sound(fname):\n        full = os.path.join(SpatialSoundNode.SOUND_DIR, fname)\n        if fname not in SpatialSoundNode._sound_cache:\n            SpatialSoundNode._sound_cache[fname] = pygame.mixer.Sound(full)\n        return SpatialSoundNode._sound_cache[fname]\n\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, \"Emit Sound From\", editor, properties)\n        if self.editor.LevelEditor.dataManager.settings.path is None or not \"/Exemples/new_exemple.json\" in self.editor.LevelEditor.dataManager.settings.path:\n            self.SOUND_DIR = os.path.join(\"Ressources\", \"audio_files\")\n        self.add_data_pin(\"volume\", False, properties.get(\"volume\", 1.0), \"volume\")\n        self.add_data_pin(\"radius\", False, properties.get(\"radius\", 200.0), \"radius\")\n        self.add_data_pin(\"smooth\", False, properties.get(\"smooth\", 0.1), \"smooth\")\n\n        self.vol_field = InputField(\n            rect=(0,0,60,18),\n            text=str(self.properties.get(\"volume\",1.0)),\n            placeholder=\"0.0-1.0\",\n            on_change=lambda t: self._on_change(\"volume\", t)\n        )\n        self.rad_field = InputField(\n            rect=(0,0,60,18),\n            text=str(self.properties.get(\"radius\",200.0)),\n            placeholder=\"Radius\",\n            on_change=lambda t: self._on_change(\"radius\", t)\n        )\n        self.smo_field = InputField(\n            rect=(0,0,60,18),\n            text=str(self.properties.get(\"smooth\",0.1)),\n            placeholder=\"Smooth\",\n            on_change=lambda t: self._on_change(\"smooth\", t)\n        )\n\n        files = [\n            f for f in os.listdir(self.SOUND_DIR)\n            if os.path.splitext(f)[1].lower() in (\".wav\", \".mp3\", \".ogg\")\n        ]\n        self.btn_sound = DropdownButton(\n            self, pygame.Rect(0,0,140,24),\n            files,\n            callback=lambda f: self.properties.__setitem__(\"choice\", f)\n        )\n        pts = list(editor.LevelEditor.dataManager.get_location_point_name())\n        self.btn_loc = DropdownButton(\n            self, pygame.Rect(0,0,140,24),\n            pts,\n            callback=lambda l: self.properties.__setitem__(\"loc\", l)\n        )\n\n        def make_updater(el, pin_name, x_offset=8, y_offset=0):\n            def updater(nx, ny):\n                pin = next(p for p in self.inputs if p.name == pin_name)\n                px, py = pin.pos\n                el.rect.topleft = (\n                    px + x_offset,\n                    py + y_offset - el.rect.h // 2\n                )\n            return updater\n\n        self.vol_field.update_position = make_updater(self.vol_field, \"volume\")\n        self.rad_field.update_position = make_updater(self.rad_field, \"radius\")\n        self.smo_field.update_position = make_updater(self.smo_field, \"smooth\")\n        self.add_data_pin(\"__sound_ui__\", False, 0, \"\", 6)\n        self.add_data_pin(\"__loc_ui__\", False, 0, \"\", 12)\n        self.btn_sound.update_position = make_updater(self.btn_sound, \"__sound_ui__\", x_offset=10, y_offset=0)\n        self.btn_loc.update_position = make_updater(self.btn_loc, \"__loc_ui__\", x_offset=10, y_offset=0)\n\n        self.ui_elements.extend([\n            self.vol_field, self.rad_field, self.smo_field,\n            self.btn_loc, self.btn_sound\n        ])\n        self.height = 200\n\n        default_sound = properties.get(\"choice\", files[0])\n        self.properties[\"choice\"] = default_sound\n        self.btn_sound.selected = default_sound\n\n        default_loc = properties.get(\"loc\", pts[0] if pts else None)\n        self.properties[\"loc\"] = default_loc\n        self.btn_loc.selected = default_loc\n\n        for el in self.ui_elements:\n            el.update_position(self.x, self.y)\n\n    def _on_change(self, key, txt):\n        try:\n            self.properties[key] = float(txt)\n        except ValueError:\n            pass\n\n    def draw(self, surf, selected=False):\n        super().draw(surf, selected, draw_ui=False)\n        pin_vol = next(p for p in self.inputs if p.name == \"volume\")\n        if not pin_vol.connection:\n            self.vol_field.update_position(self.x, self.y)\n            self.vol_field.draw(surf)\n\n        pin_rad = next(p for p in self.inputs if p.name == \"radius\")\n        if not pin_rad.connection:\n            self.rad_field.update_position(self.x, self.y)\n            self.rad_field.draw(surf)\n\n        pin_smo = next(p for p in self.inputs if p.name == \"smooth\")\n        if not pin_smo.connection:\n            self.smo_field.update_position(self.x, self.y)\n            self.smo_field.draw(surf)\n\n        pin_loc = next(p for p in self.inputs if p.name == \"__loc_ui__\")\n        if not pin_loc.connection:\n            self.btn_loc.update_position(self.x, self.y)\n            self.btn_loc.draw(surf)\n\n        pin_sound = next(p for p in self.inputs if p.name == \"__sound_ui__\")\n        if not pin_sound.connection:\n            self.btn_sound.update_position(self.x, self.y)\n            self.btn_sound.draw(surf)\n\n    def execute(self, context):\n        def get_val(nm):\n            pin = next(p for p in self.inputs if p.name == nm)\n            if pin.connection:\n                upstream = pin.connection.node\n                upstream.execute(context)\n                return float(upstream.properties[pin.connection.name])\n            return float(self.properties.get(nm, 0))\n\n        fname = self.properties[\"choice\"]\n        loc = self.properties[\"loc\"]\n        vol = get_val(\"volume\")\n        radius = get_val(\"radius\")\n        smooth = get_val(\"smooth\")\n\n        pl = self.editor.LevelEditor.game_engine.player\n        pl.audio_manager.add_emitter(fname, loc, radius, smooth, volume=vol)\n\n        out = next(p for p in self.outputs if p.name==\"out\")\n        return out.connection.node if out and out.connection else None"
+},
+{
+  "name": "StopEmission",
+  "category": "Audio",
+  "description": "Arrête l'émission sonore provenant d'un point de localisation spécifique.",
+  "pins": [
+    {
+      "name": "__loc_ui__",
+      "type": "data",
+      "direction": "input",
+      "default": "0"
+    }
+  ],
+  "properties": [
+    "loc (nom du point de localisation sélectionné)"
+  ],
+  "code": "@register_node(\"StopEmission\", category=\"Audio\")\nclass StopEmission(Node):\n\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, \"Stop Emission From\", editor, properties)\n        pts = list(editor.LevelEditor.dataManager.get_location_point_name())\n        self.btn_loc = DropdownButton(\n            self, pygame.Rect(0,0,140,24),\n            pts,\n            callback=lambda l: self.properties.__setitem__(\"loc\", l)\n        )\n\n        def make_updater(el, pin_name, x_offset=8, y_offset=0):\n            def updater(nx, ny):\n                pin = next(p for p in self.inputs if p.name == pin_name)\n                px, py = pin.pos\n                el.rect.topleft = (\n                    px + x_offset,\n                    py + y_offset - el.rect.h // 2\n                )\n            return updater\n\n        self.add_data_pin(\"__loc_ui__\", False, 0, \"\", 12)\n        self.btn_loc.update_position = make_updater(self.btn_loc, \"__loc_ui__\", x_offset=10, y_offset=0)\n\n        self.ui_elements.append(self.btn_loc)\n        self.height = 120\n\n        default_loc = properties.get(\"loc\", pts[0] if pts else None)\n        self.properties[\"loc\"] = default_loc\n        self.btn_loc.selected = default_loc\n\n        for el in self.ui_elements:\n            el.update_position(self.x, self.y)\n\n    def _on_change(self, key, txt):\n        try:\n            self.properties[key] = float(txt)\n        except ValueError:\n            pass\n\n    def draw(self, surf, selected=False):\n        super().draw(surf, selected, draw_ui=False)\n\n        pin_loc = next(p for p in self.inputs if p.name == \"__loc_ui__\")\n        if not pin_loc.connection:\n            self.btn_loc.update_position(self.x, self.y)\n            self.btn_loc.draw(surf)\n\n    def execute(self, context):\n        loc = self.properties[\"loc\"]\n        pl = self.editor.LevelEditor.game_engine.player\n        pl.audio_manager.remove_emitter(loc)\n\n        out = next(p for p in self.outputs if p.name==\"out\")\n        return out.connection.node if out and out.connection else None"
+},
+{
+  "name": "Print Console",
+  "source": "editor/blueprint_editor/blueprints/b_debug.py",
+  "category": "Debug",
+  "pins": [
+    {
+      "name": "exec_in",
+      "type": "exec",
+      "direction": "input"
+    },
+    {
+      "name": "out",
+      "type": "exec",
+      "direction": "output"
+    },
+    {
+      "name": "value",
+      "type": "data",
+      "direction": "input",
+      "default": "Hello World"
+    }
+  ],
+  "properties": ["value (string à afficher dans la console)"],
+  "description": "Affiche une chaîne dans la console.",
+  "code": "@register_node(\"Print Console\", category=\"Debug\")\nclass PrintString(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Print Console', editor, properties)\n        self.height=90\n        self.add_data_pin('value', False, \"Hello World\", '    String')\n        string = InputField(rect=(0, 0, 120, 20), text=str(self.properties['value']), placeholder='Message...',\n                           on_change=lambda t: self._on_change('value', t))\n        self.ui_elements.append(string)\n        string.update_position = lambda nx, ny: setattr(string, 'rect', pygame.Rect(nx - editor.offset[0] + 20,\n                                                                                       ny - editor.offset[1] + 50,\n                                                                                       120, 20))\n        string.update_position(self.x, self.y)\n\n    def _on_change(self, key, txt):\n        if key == 'value':\n            self.properties[key] = txt\n        else:\n            try:\n                self.properties[key] = float(txt)\n            except ValueError:\n                pass\n\n    def execute(self, context):\n        for pin in self.inputs:\n            if pin.pin_type == 'data' and pin.connection:\n                src = pin.connection\n                getter_node  = src.node\n                getter_node.execute(context)\n                self.properties[pin.name] = src.node.properties[src.name]\n\n        print(self.properties['value'])\n\n        out = next((p for p in self.outputs if p.pin_type == 'exec'), None)\n        return out.connection.node if out and out.connection else None\n\n    def draw(self, surf, selected=False):\n        super().draw(surf, selected,draw_ui=False)\n        pin = next(p for p in self.inputs if p.name==\"value\")\n        if not pin.connection:\n            for el in self.ui_elements:\n                el.update_position(self.x,self.y)\n                el.draw(surf)"
+},
+{
+  "name": "Print Notify",
+  "source": "editor/blueprint_editor/blueprints/b_debug.py",
+  "category": "Debug",
+  "pins": [
+    {
+      "name": "exec_in",
+      "type": "exec",
+      "direction": "input"
+    },
+    {
+      "name": "out",
+      "type": "exec",
+      "direction": "output"
+    },
+    {
+      "name": "type",
+      "type": "data",
+      "direction": "input",
+      "default": "info"
+    },
+    {
+      "name": "title",
+      "type": "data",
+      "direction": "input",
+      "default": "Title"
+    },
+    {
+      "name": "description",
+      "type": "data",
+      "direction": "input",
+      "default": "Message…"
+    },
+    {
+      "name": "duration",
+      "type": "data",
+      "direction": "input",
+      "default": 2.0
+    }
+  ],
+  "properties": [
+    "type (info, warning, error, success, update)",
+    "title (string)",
+    "description (string)",
+    "duration (float, secondes)"
+  ],
+  "description": "Affiche une notification dans l'interface avec type, titre, description et durée.",
+  "code": "@register_node(\"Print Notify\", category=\"Debug\")\nclass PrintNotify(Node):\n    TYPES = [\"info\", \"warning\", \"error\", \"success\", \"update\"]\n\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, \"Print Notify\", editor, properties)\n\n        # --- Pins ---\n        self.add_data_pin(\"type\", False, \"info\", \"\")\n        self.add_data_pin(\"title\", False, \"Title\", \"\")\n        self.add_data_pin(\"description\", False, \"Message…\", \"\")\n        self.add_data_pin(\"duration\", False, 2.0, \"\")\n\n        # --- UI Elements ---\n        self.type_btn = DropdownButton(\n            self,\n            pygame.Rect(10, 30, 120, 24),\n            self.TYPES,\n            callback=self._on_type_select\n        )\n        \n        if self.properties.get('type'):\n            self.type_btn.selected=self.properties['type']\n        else:\n            self.properties['type']=\"info\"\n        self.title_field = InputField(\n            rect=(20, 60, 120, 20),\n            text=str(self.properties[\"title\"]),\n            placeholder=\"Title…\",\n            on_change=lambda t: self._on_change(\"title\", t)\n        )\n        self.ui_elements.append(self.title_field)\n\n        self.desc_field = InputField(\n            rect=(20, 90, 120, 20),\n            text=str(self.properties[\"description\"]),\n            placeholder=\"Description…\",\n            on_change=lambda t: self._on_change(\"description\", t)\n        )\n        self.ui_elements.append(self.desc_field)\n\n        self.dur_field = InputField(\n            rect=(20, 150, 120, 20),\n            text=str(self.properties[\"duration\"]),\n            placeholder=\"Durée\",\n            on_change=lambda t: self._on_change(\"duration\", t)\n        )\n        self.ui_elements.append(self.dur_field)\n        self.ui_elements.append(self.type_btn)\n\n        self.height = 150\n\n    def _on_type_select(self, choice: str):\n        self.properties[\"type\"] = choice\n\n    def _on_change(self, key, txt):\n        if key == \"duration\":\n            try:\n                self.properties[key] = float(txt)\n            except ValueError:\n                pass\n        else:\n            self.properties[key] = txt\n\n    def execute(self, context):\n        # évaluer upstream getters\n        for pin in self.inputs:\n            if pin.pin_type == \"data\" and pin.connection:\n                getter = pin.connection.node\n                getter.execute(context)\n                self.properties[pin.name] = getter.properties[pin.connection.name]\n\n        # appeler notify\n        nm = self.editor.LevelEditor.nm\n        nm.notify(\n            str(self.properties[\"type\"]),\n            str(self.properties[\"title\"]),\n            str(self.properties[\"description\"]),\n            duration=float(self.properties[\"duration\"])\n        )\n\n        # flot exec\n        out = next((p for p in self.outputs if p.pin_type == \"exec\"), None)\n        return out.connection.node if out and out.connection else None\n\n    def draw(self, surf, selected=False):\n        super().draw(surf, selected,draw_ui=False)\n        # repositionne manuellement chaque UI element\n        nx, ny = self.x - self.editor.offset[0], self.y - self.editor.offset[1]\n        # Dropdown\n        self.type_btn.update_position(self.x, self.y)\n        # InputFields : on modifie direct le rect\n        self.title_field.rect.topleft = (nx + 20, ny + 60)\n        self.desc_field.rect.topleft  = (nx + 20, ny + 90)\n        self.dur_field.rect.topleft   = (nx + 20, ny + 120)\n\n        if not next(p for p in self.inputs if p.name==\"type\").connection:\n            self.type_btn.draw(surf)\n        if not next(p for p in self.inputs if p.name==\"title\").connection:\n            self.title_field.draw(surf)\n        if not next(p for p in self.inputs if p.name==\"description\").connection:\n            self.desc_field.draw(surf)\n        if not next(p for p in self.inputs if p.name==\"duration\").connection:\n            self.dur_field.draw(surf)\n        self.type_btn.draw(surf)"
+},
+
+  {
+    "name": "On Enter",
+    "source": "editor/blueprint_editor/blueprints/b_events.py",
+    "category": "Events",
+    "pins": [
+      {
+        "name": "exec_out",
+        "type": "exec",
+        "direction": "output"
+      }
+    ],
+    "properties": [],
+    "description": "Déclenché quand le joueur entre dans une boîte de collision.",
+    "code": "class OnEnter(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'on_enter', editor, is_event=True, properties=properties)\n\n    def draw(self, surf, selected=False):\n        super().draw(surf, selected)"
+  },
+  {
+    "name": "On Exit",
+    "source": "editor/blueprint_editor/blueprints/b_events.py",
+    "category": "Events",
+    "pins": [
+      {
+        "name": "exec_out",
+        "type": "exec",
+        "direction": "output"
+      }
+    ],
+    "properties": [],
+    "description": "Déclenché quand le joueur sort d'une boîte de collision.",
+    "code": "class OnExit(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'on_exit', editor, is_event=True, properties=properties)\n\n    def draw(self, surf, selected=False):\n        super().draw(surf, selected)"
+  },
+  {
+    "name": "On Overlap",
+    "source": "editor/blueprint_editor/blueprints/b_events.py",
+    "category": "Events",
+    "pins": [
+      {
+        "name": "exec_out",
+        "type": "exec",
+        "direction": "output"
+      }
+    ],
+    "properties": [],
+    "description": "Déclenché tant que le joueur reste dans la boîte de collision (chevauchement).",
+    "code": "class OnOverlap(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'on_overlap', editor, is_event=True, properties=properties)\n\n    def draw(self, surf, selected=False):\n        super().draw(surf, selected)"
+  },
+  {
+    "name": "On Start",
+    "source": "editor/blueprint_editor/blueprints/b_events.py",
+    "category": "Events",
+    "pins": [
+      {
+        "name": "exec_out",
+        "type": "exec",
+        "direction": "output"
+      }
+    ],
+    "properties": [],
+    "description": "Déclenché au début du mode Play (lancement du jeu).",
+    "code": "class OnStart(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'on_start', editor, is_event=True, properties=properties)\n\n    def draw(self, surf, selected=False):\n        super().draw(surf, selected)"
+  },
+  {
+    "name": "On Tick",
+    "source": "editor/blueprint_editor/blueprints/b_events.py",
+    "category": "Events",
+    "pins": [
+      {
+        "name": "exec_out",
+        "type": "exec",
+        "direction": "output"
+      }
+    ],
+    "properties": [],
+    "description": "Déclenché à chaque tick du moteur pendant le mode Play.",
+    "code": "class OnTick(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'on_tick', editor, is_event=True, properties=properties)\n\n    def draw(self, surf, selected=False):\n        super().draw(surf, selected)"
+  },
+  {
+    "name": "On End",
+    "source": "editor/blueprint_editor/blueprints/b_events.py",
+    "category": "Events",
+    "pins": [
+      {
+        "name": "exec_out",
+        "type": "exec",
+        "direction": "output"
+      }
+    ],
+    "properties": [],
+    "description": "Déclenché à la fin du mode Play (arrêt du jeu).",
+    "code": "class OnEnd(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'on_end', editor, is_event=True, properties=properties)\n\n    def draw(self, surf, selected=False):\n        super().draw(surf, selected)"
+  },
+    {
+    "name": "Is Key Pressed",
+    "source": "editor/blueprint_editor/blueprints/b_input.py",
+    "category": "Input",
+    "pins": [
+      {
+        "name": "pressed",
+        "type": "bool",
+        "direction": "output"
+      }
+    ],
+    "properties": [
+    "key_name (string, default: \"<none>\")",
+    "key_code (int, default: null)"
+    ],
+    "description": "Retourne True si la touche spécifiée est pressée.",
+    "code": "class IsKeyPressed(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, \"Is Key Pressed\", editor, properties)\n        self.inputs.clear()\n        self.outputs.clear()\n        self.add_data_pin(\"pressed\", True, False, \"Pressed\")\n        self.waiting_for_key = False\n        key_name = self.properties.get(\"key_name\", \"<none>\")\n        self.key_btn = Button(rect=(10, 50, 70, 20), text=key_name, action=self._start_key_capture, border_radius=3, size=17, bg_color=(41, 41, 41))\n        self.ui_elements.append(self.key_btn)\n        self.height = 70\n\n    def _start_key_capture(self):\n        self.waiting_for_key = True\n        self.key_btn.text = \"Press a key...\"\n\n    def handle_event(self, e):\n        if self.waiting_for_key and e.type == pygame.KEYDOWN:\n            key_code = e.key\n            key_name = pygame.key.name(key_code)\n            self.properties[\"key_code\"] = key_code\n            self.properties[\"key_name\"] = key_name\n            self.key_btn.text = key_name\n            self.waiting_for_key = False\n            return\n        super().handle_event(e)\n\n    def execute(self, context):\n        code = self.properties.get(\"key_code\")\n        if code is None:\n            self.properties[\"pressed\"] = False\n        else:\n            keys = pygame.key.get_pressed()\n            self.properties[\"pressed\"] = bool(keys[code])\n        return None\n\n    def draw(self, surf, selected=False):\n        super().draw(surf, selected)\n        ox, oy = self.editor.offset\n        btn_x = self.x - ox + 10\n        btn_y = self.y - oy + 35\n        self.key_btn.rect.topleft = (btn_x, btn_y)\n        self.key_btn.draw(surf)\n        self.execute({})\n        font = pygame.font.Font(None, 18)\n        txt = font.render(str(self.properties[\"pressed\"]), True, (220,220,220))\n        surf.blit(txt, (self.x - ox + 98, self.y - oy + 50))"
+  },
+  {
+    "name": "Get Mouse Position",
+    "source": "editor/blueprint_editor/blueprints/b_input.py",
+    "category": "Input",
+    "pins": [
+      {
+        "name": "x",
+        "type": "int",
+        "direction": "output"
+      },
+      {
+        "name": "y",
+        "type": "int",
+        "direction": "output"
+      }
+    ],
+    "properties": [],
+    "description": "Retourne la position actuelle de la souris.",
+    "code": "class GetMousePosition(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, \"Get Mouse Position\", editor, properties)\n        self.inputs.clear()\n        self.outputs.clear()\n        self.add_data_pin(\"x\", True, 0, \"X\")\n        self.add_data_pin(\"y\", True, 0, \"Y\")\n        self.height = 70\n\n    def execute(self, context):\n        mx, my = pygame.mouse.get_pos()\n        self.properties[\"x\"] = mx\n        self.properties[\"y\"] = my\n        return None\n\n    def draw(self, surf, selected=False):\n        super().draw(surf, selected)\n        self.execute({})\n        font = pygame.font.Font(None, 18)\n        ox, oy = self.editor.offset\n        x = self.x - ox + 10\n        y = self.y - oy + 30\n        txt = font.render(f\"X: {self.properties['x']}  Y: {self.properties['y']}\", True, (220,220,220))\n        surf.blit(txt, (x, y))"
+  },
+  {
+    "name": "Is Mouse Button Pressed",
+    "source": "editor/blueprint_editor/blueprints/b_input.py",
+    "category": "Input",
+    "pins": [
+      {
+        "name": "pressed",
+        "type": "bool",
+        "direction": "output"
+      }
+    ],
+"properties": [
+  "button (string, options: [\"Left\", \"Middle\", \"Right\"], default: \"Left\")"
+],
+    "description": "Retourne True si le bouton souris sélectionné est pressé.",
+    "code": "class IsMouseButtonPressed(Node):\n    BUTTON_NAMES = [\"Left\", \"Middle\", \"Right\"]\n    BUTTON_MAP = {\"Left\": 0, \"Middle\": 1, \"Right\": 2}\n\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, \"Is Mouse Button Pressed\", editor, properties)\n        self.inputs.clear()\n        self.outputs.clear()\n        self.add_data_pin(\"pressed\", True, False, \"Pressed\")\n        opts = self.BUTTON_NAMES\n        self.btn = DropdownButton(self, pygame.Rect(10, 30, 75, 24), opts, callback=self._on_select)\n        choice = self.properties.get(\"button\")\n        if choice in opts:\n            self.btn.selected = choice\n        else:\n            self.properties[\"button\"] = opts[0]\n            self.btn.selected = opts[0]\n        self.ui_elements.append(self.btn)\n        self.height = 80\n\n    def _on_select(self, opt):\n        self.properties[\"button\"] = opt\n\n    def execute(self, context):\n        btns = pygame.mouse.get_pressed(3)\n        sel = self.properties.get(\"button\", self.BUTTON_NAMES[0])\n        idx = self.BUTTON_MAP.get(sel, 0)\n        self.properties[\"pressed\"] = bool(btns[idx])\n        return None\n\n    def draw(self, surf, selected=False):\n        super().draw(surf, selected, False)\n        ox, oy = self.editor.offset\n        bx = self.x - ox + 10\n        by = self.y - oy + 30\n        self.btn.rect.topleft = (bx, by)\n        self.btn.draw(surf)\n        self.execute({})\n        font = pygame.font.Font(None, 18)\n        txt = font.render(str(self.properties[\"pressed\"]), True, (220, 220, 220))\n        surf.blit(txt, (self.x - ox + 98, self.y - oy + 50))"
+  },
+  {
+  "name": "Set Input Active",
+  "source": "editor/blueprint_editor/blueprints/b_input.py",
+  "category": "Input",
+  "pins": [
+    {
+      "name": "exec_in",
+      "type": "exec",
+      "direction": "input"
+    },
+    {
+      "name": "exec_out",
+      "type": "exec",
+      "direction": "output"
+    }
+  ],
+"properties": [
+  "active (bool, options: [true, false], default: true)"
+],
+  "description": "Active ou désactive la gestion des entrées du joueur.",
+  "code": "class SetInputActive(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, \"Set Input Active\", editor, properties)\n        self.editor = editor\n\n        opts = [\"True\", \"False\"]\n        default = str(properties.get(\"active\", True))\n        self.dropdown = DropdownButton(\n            self,\n            pygame.Rect(15, 30, 120, 20),\n            opts,\n            callback=self._on_select\n        )\n        self.properties[\"active\"] = default == \"True\"\n        self.dropdown.selected = default\n        self.ui_elements.append(self.dropdown)\n\n    def _on_select(self, choice: str):\n        self.properties[\"active\"] = (choice == \"True\")\n\n    def draw(self, surf, selected=False):\n        super().draw(surf, selected, draw_ui=False)\n        for widget in self.ui_elements:\n            widget.update_position(self.x, self.y)\n            widget.draw(surf)\n\n    def execute(self, context):\n        is_active = self.properties.get(\"active\", True)\n        engine = self.editor.LevelEditor.game_engine\n        engine.player.input_handler.disable = not is_active\n\n        out = next((p for p in self.outputs if p.pin_type==\"exec\"), None)\n        return out.connection.node if out and out.connection else None"
+},
+{
+  "name": "Add",
+  "source": "editor/blueprint_editor/blueprints/b_operators.py",
+  "category": "Operators",
+  "pins": [
+    {
+      "name": "A",
+      "type": "float",
+      "direction": "input"
+    },
+    {
+      "name": "B",
+      "type": "float",
+      "direction": "input"
+    },
+    {
+      "name": "result",
+      "type": "float",
+      "direction": "output"
+    }
+  ],
+  "properties": [
+    "A (float, default: 0)",
+    "B (float, default: 0)",
+    "result (float)"
+  ],
+  "description": "Additionne les valeurs A et B.",
+  "code": "class AddNode(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, \"Add\", editor, properties)\n        self.inputs.clear()\n        self.outputs.clear()\n        self.add_data_pin(\"A\", False, \"0\", \"A\")\n        self.add_data_pin(\"B\", False, \"0\", \"B\")\n        self.A_field = InputField(rect=(0,0,50,18), text=str(self.properties[\"A\"]), placeholder=\"A\", on_change=lambda t: self._on_change(\"A\", t))\n        self.B_field = InputField(rect=(0,0,50,18), text=str(self.properties[\"B\"]), placeholder=\"B\", on_change=lambda t: self._on_change(\"B\", t))\n        self.ui_elements.extend([self.A_field, self.B_field])\n        self.add_data_pin(\"result\", True, \"0\", \"A+B\")\n        self.height = 100\n\n    def _on_change(self, key, txt):\n        self.properties[key] = txt\n\n    def _get_value(self, name, context):\n        pin = next(p for p in self.inputs if p.name==name)\n        if pin.connection:\n            node = pin.connection.node\n            node.execute(context)\n            try:\n                return float(node.properties[pin.connection.name])\n            except:\n                return 0.0\n        try:\n            return float(self.properties[name])\n        except:\n            return 0.0\n\n    def execute(self, context):\n        a = self._get_value(\"A\", context)\n        b = self._get_value(\"B\", context)\n        self.properties[\"result\"] = a + b\n        return None\n\n    def draw(self, surf, selected=False):\n        super().draw(surf, selected, draw_ui=False)\n        self.execute({})\n        for field, name in [(self.A_field, \"A\"), (self.B_field, \"B\")]:\n            pin = next(p for p in self.inputs if p.name==name)\n            px, py = pin.pos\n            field.rect.topleft = (px + 8, py - field.rect.h//2)\n            if not pin.connection:\n                field.draw(surf)\n        font = pygame.font.Font(None, 18)\n        ox, oy = self.editor.offset\n        txt = f\"{float(self.properties.get('result',0)):.2f}\"\n        surf.blit(font.render(txt, True, (220,220,220)), (self.x - ox + 10, self.y - oy + self.height - 24))"
+}
+,
+{
+  "name": "Subtract",
+  "source": "editor/blueprint_editor/blueprints/b_operators.py",
+  "category": "Operators",
+  "pins": [
+    {
+      "name": "A",
+      "type": "float",
+      "direction": "input"
+    },
+    {
+      "name": "B",
+      "type": "float",
+      "direction": "input"
+    },
+    {
+      "name": "result",
+      "type": "float",
+      "direction": "output"
+    }
+  ],
+  "properties": [
+    "A (float, default: 0)",
+    "B (float, default: 0)",
+    "result (float)"
+  ],
+  "description": "Soustrait B de A.",
+  "code": "class SubtractNode(AddNode):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, editor, properties)\n        self.title = \"Subtract\"\n        out_pin = next(p for p in self.outputs if p.name==\"result\")\n        out_pin.label = \"A-B\"\n\n    def execute(self, context):\n        a = self._get_value(\"A\", context)\n        b = self._get_value(\"B\", context)\n        self.properties[\"result\"] = a - b\n        return None"
+}
+,
+{
+  "name": "Multiply",
+  "source": "editor/blueprint_editor/blueprints/b_operators.py",
+  "category": "Operators",
+  "pins": [
+    {
+      "name": "A",
+      "type": "float",
+      "direction": "input"
+    },
+    {
+      "name": "B",
+      "type": "float",
+      "direction": "input"
+    },
+    {
+      "name": "result",
+      "type": "float",
+      "direction": "output"
+    }
+  ],
+  "properties": [
+    "A (float, default: 0)",
+    "B (float, default: 0)",
+    "result (float)"
+  ],
+  "description": "Multiplie A par B.",
+  "code": "class MultiplyNode(AddNode):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, editor, properties)\n        self.title = \"Multiply\"\n        out_pin = next(p for p in self.outputs if p.name==\"result\")\n        out_pin.label = \"AxB\"\n\n    def execute(self, context):\n        a = self._get_value(\"A\", context)\n        b = self._get_value(\"B\", context)\n        self.properties[\"result\"] = a * b\n        return None"
+}
+,
+{
+  "name": "Divide",
+  "source": "editor/blueprint_editor/blueprints/b_operators.py",
+  "category": "Operators",
+  "pins": [
+    {
+      "name": "A",
+      "type": "float",
+      "direction": "input"
+    },
+    {
+      "name": "B",
+      "type": "float",
+      "direction": "input"
+    },
+    {
+      "name": "result",
+      "type": "float",
+      "direction": "output"
+    }
+  ],
+  "properties": [
+    "A (float, default: 0)",
+    "B (float, default: 0)",
+    "result (float)"
+  ],
+  "description": "Divise A par B, retourne 0 si B est 0.",
+  "code": "class DivideNode(AddNode):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, editor, properties)\n        self.title = \"Divide\"\n        out_pin = next(p for p in self.outputs if p.name==\"result\")\n        out_pin.label = \"A/B\"\n\n    def execute(self, context):\n        a = self._get_value(\"A\", context)\n        b = self._get_value(\"B\", context)\n        self.properties[\"result\"] = a / b if b != 0 else 0.0\n        return None"
+},
+
+  {
+    "name": "Screen Shake",
+    "source": "editor/blueprint_editor/blueprints/b_others.py",
+    "category": "Camera",
+    "pins": [
+      {
+        "name": "intensity",
+        "type": "float",
+        "direction": "input"
+      },
+      {
+        "name": "duration",
+        "type": "float",
+        "direction": "input"
+      },
+      {
+        "name": "out",
+        "type": "exec",
+        "direction": "output"
+      }
+    ],
+    "properties": [
+      "intensity (float, default: 0)",
+      "duration (float, default: 0)"
+    ],
+    "description": "Effectue un effet de tremblement de caméra avec une intensité et durée données.",
+    "code": "class ScreenShakeNode(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, \"Screen Shake\", editor, properties)\n        self.add_data_pin(\"intensity\", False, \"0\", \"Intensity\")\n        self.add_data_pin(\"duration\",  False, \"0\", \"Duration\")\n\n        self.int_field = InputField(\n            rect=(0,0,60,18),\n            text=str(self.properties[\"intensity\"]),\n            placeholder=\"Intensity\",\n            on_change=lambda t: self._on_change(\"intensity\", t)\n        )\n        self.dur_field = InputField(\n            rect=(0,0,60,18),\n            text=str(self.properties[\"duration\"]),\n            placeholder=\"Duration\",\n            on_change=lambda t: self._on_change(\"duration\", t)\n        )\n        self.ui_elements.extend([self.int_field, self.dur_field])\n\n        self.outputs.clear()\n        self.outputs.append(Pin(self, \"out\", \"exec\", True, \"Exec\"))\n\n        self.height = 110\n\n        self._update_field_positions()\n\n    def _on_change(self, key, txt):\n        try:\n            self.properties[key] = float(txt)\n        except ValueError:\n            pass\n\n    def _get_value(self, name, context):\n        pin = next(p for p in self.inputs if p.name == name)\n        if pin.connection:\n            upstream = pin.connection.node\n            upstream.execute(context)\n            return float(upstream.properties[pin.connection.name])\n        return float(self.properties.get(name, 0))\n\n    def _update_field_positions(self):\n        for field, name in [(self.int_field, \"intensity\"), (self.dur_field, \"duration\")]:\n            pin = next(p for p in self.inputs if p.name == name)\n            px, py = pin.pos\n            field.rect.topleft = (\n                px + 8,\n                py - field.rect.h // 2\n            )\n\n    def execute(self, context):\n        intensity = self._get_value(\"intensity\", context)\n        duration  = self._get_value(\"duration\", context)\n\n        cam = self.editor.LevelEditor.game_engine.camera\n        cam.shake(int(duration), int(intensity))\n\n        out = next(p for p in self.outputs if p.pin_type==\"exec\")\n        return out.connection.node if out.connection else None\n\n    def draw(self, surf, selected=False):\n        self._update_field_positions()\n        super().draw(surf, selected,draw_ui=False)\n\n        for field, name in [(self.int_field, \"intensity\"), (self.dur_field, \"duration\")]:\n            pin = next(p for p in self.inputs if p.name == name)\n            if not pin.connection:\n                field.draw(surf)"
+  },
+  {
+    "name": "Get Time",
+    "source": "editor/blueprint_editor/blueprints/b_others.py",
+    "category": "Utility",
+    "pins": [
+      {
+        "name": "time",
+        "type": "float",
+        "direction": "output"
+      }
+    ],
+    "properties": [],
+    "description": "Retourne le temps écoulé en secondes depuis le lancement du programme.",
+    "code": "class GetTimeNode(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, \"Get Time\", editor, properties)\n        self.inputs.clear()\n        self.outputs.clear()\n        self.add_data_pin(\"time\", True, 0.0, \"t\")\n        self.height = 60\n\n    def execute(self, context):\n        ms = pygame.time.get_ticks()\n        t = ms / 1000.0\n        self.properties[\"time\"] = t\n        return None\n\n    def draw(self, surf, selected=False):\n        super().draw(surf, selected)\n        self.execute({})\n        font = pygame.font.Font(None, 18)\n        t = self.properties[\"time\"]\n        txt = font.render(f\"{t:.2f}s\", True, (220, 220, 220))\n        ox, oy = self.editor.offset\n        x = self.x - ox + (self.WIDTH - txt.get_width()) // 2\n        y = self.y - oy + self.HEADER_HEIGHT + 10\n        surf.blit(txt, (x, y))"
+  },
+  {
+    "name": "Delay",
+    "source": "editor/blueprint_editor/blueprints/b_others.py",
+    "category": "Utility",
+    "pins": [
+      {
+        "name": "exec_in",
+        "type": "exec",
+        "direction": "input"
+      },
+      {
+        "name": "duration",
+        "type": "float",
+        "direction": "input"
+      },
+      {
+        "name": "done",
+        "type": "exec",
+        "direction": "output"
+      }
+    ],
+    "properties": [
+      "duration (string, default: \"1.0\")"
+    ],
+    "description": "Ajoute un délai d'exécution en secondes avant de continuer l'exécution.",
+    "code": "class DelayNode(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, \"Delay\", editor, properties)\n        self.add_data_pin(\"duration\", False, \"1.0\", \"Seconds\")\n        self.outputs.clear()\n        self.outputs.append(Pin(self, \"done\", \"exec\", True, \"Done\"))\n\n        self.field = InputField(\n            rect=(0, 0, 80, 20),\n            text=str(self.properties.get(\"duration\", \"1.0\")),\n            placeholder=\"Delay (s)\",\n            on_change=lambda t: self._on_change(\"duration\", t)\n        )\n        self.ui_elements = [self.field]\n        self.height = 80\n        self.valid = True\n        self._update_field_position()\n\n    def _on_change(self, key, txt):\n        self.properties[key] = txt\n\n    def _update_field_position(self):\n        pin = next(p for p in self.inputs if p.pin_type == \"exec\")\n        px, py = pin.pos\n        self.field.rect.topleft = (px + 10, py - self.field.rect.h // 2)\n\n    def _check_validity(self):\n        def upstream_has_loop(exec_in_pin: Pin) -> bool:\n            if not exec_in_pin.connection:\n                return False\n            src_pin = exec_in_pin.connection\n            src_node = src_pin.node\n            if isinstance(src_node, ForNode) and src_pin.name == \"loop\":\n                return True\n            prev_in = next((p for p in src_node.inputs if p.pin_type == \"exec\"), None)\n            if prev_in:\n                return upstream_has_loop(prev_in)\n            return False\n\n        exec_in = next(p for p in self.inputs if p.pin_type == \"exec\")\n        self.valid = not upstream_has_loop(exec_in)\n\n    def _get_duration(self, context):\n        pin = next(p for p in self.inputs if p.name == \"duration\")\n        if pin.connection:\n            upstream = pin.connection.node\n            upstream.execute(context)\n            return float(upstream.properties.get(pin.connection.name, 0.0))\n        try:\n            return float(self.properties.get(\"duration\", 0.0))\n        except ValueError:\n            return 0.0\n\n    def execute(self, context):\n        self._check_validity()\n        if not self.valid:\n            done = next(p for p in self.outputs if p.name == \"done\")\n            return done.connection.node if done.connection else None\n\n        delay = self._get_duration(context)\n        resume_at = pygame.time.get_ticks() + int(delay * 1000)\n        self.editor.delayed_tasks.append({\n            \"node\": self,\n            \"context\": dict(context),\n            \"resume_at\": resume_at\n        })\n        return None\n\n    def draw(self, surf, selected=False):\n        self._check_validity()\n        self._update_field_position()\n        if not self.valid:\n            ox, oy = self.editor.offset\n            x, y = self.x - ox, self.y - oy\n            w, h = self.WIDTH, self.height\n            pygame.draw.rect(surf, (80,20,20), (x, y, w, h), border_radius=4)\n            pygame.draw.rect(surf, (200,50,50), (x, y, w, h), 2, border_radius=4)\n            hdr = pygame.Rect(x, y, w, self.HEADER_HEIGHT)\n            pygame.draw.rect(surf, (150,0,0), hdr, border_top_left_radius=4, border_top_right_radius=4)\n\n            font = pygame.font.Font(None, 18)\n            surf.blit(font.render(\"Delay [Invalid]\", True, (255,180,180)), (x+6, y+4))\n            font2 = pygame.font.Font(None, 14)\n            surf.blit(font2.render(\"Ne pas placer Après un pin loop !\", True, (255,180,180)), (x+6, y+32))\n            return\n\n        super().draw(surf, selected, draw_ui=False)\n        pin = next(p for p in self.inputs if p.name == \"duration\")\n        if not pin.connection:\n            self.field.draw(surf)"
+  },
+  {
+    "name": "Get Current Background",
+    "category": "World",
+    "source": "editor/blueprint_editor/blueprints/b_world.py",
+    "description": "Ce nœud récupère le nom du background actuellement actif dans l'éditeur de niveau, et le fournit sous forme de donnée.",
+    "pins": [
+        { "name": "background_name", "type": "data", "direction": "output", "label": "Name" }
+    ],
+    "properties": ["background_name (nom du background actif)"],
+    "code": "@register_node(\"Get Current Background\", category=\"World\")\nclass GetCurrentBackground(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, \"Get Current Background\", editor, properties)\n        self.inputs.clear()\n        self.outputs.clear()\n        self.add_data_pin(\"background_name\", True, \"\", \"Name\")\n        self.height = 60\n\n    def execute(self, context):\n        dm = self.editor.LevelEditor.dataManager\n        bg = dm.get_current_background()\n        name = bg.get(\"name\") if bg else \"\"\n        self.properties[\"background_name\"] = name\n        return None\n\n    def draw(self, surf, selected=False):\n        super().draw(surf, selected)\n        self.execute({})\n        font = pygame.font.Font(None, 18)\n        ox, oy = self.editor.offset\n        txt = self.properties[\"background_name\"]\n        surf.blit(font.render(txt, True, (220,220,220)), (self.x - ox + 10, self.y - oy + 34))"
+    },
+    {
+  "name": "Set Current Background",
+  "category": "World",
+  "source": "editor/blueprint_editor/blueprints/b_world.py",
+  "description": "Ce nœud permet de définir dynamiquement le background courant en spécifiant son nom et une durée de transition. Il déclenche une transition visuelle vers le nouveau fond.",
+  "pins": [
+    { "name": "set_background_name", "type": "data", "direction": "input", "label": "bg name" },
+    { "name": "duration", "type": "data", "direction": "input", "label": "duration" },
+    { "name": "out", "type": "exec", "direction": "output", "label": "Out" }
+  ],
+  "properties": [
+    "set_background_name (nom du background à appliquer)",
+    "duration (durée de transition)"
+  ],
+  "code": "@register_node(\"Set Current Background\", category=\"World\")\nclass SetCurrentBackground(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, \"Set Current Background\", editor, properties)\n        self.add_data_pin(\"set_background_name\", False, \"\", \"bg name\")\n        self.add_data_pin(\"duration\", False, properties.get(\"duration\", 1.0), \"duration\")\n        self.duration_field = InputField(\n            rect=(0, 0, 60, 18),\n            text=str(self.properties.get(\"duration\", 1.0)),\n            placeholder=\"Duration\",\n            on_change=lambda t: self._on_change(\"duration\", t)\n        )\n        self.btn = DropdownButton(\n            self,\n            pygame.Rect(0, 40, 140, 24),\n            list(editor.LevelEditor.dataManager.settings.backgrounds),\n            callback=self._on_select\n        )\n        if self.properties.get('set_background_name'):\n            self.btn.selected = self.properties['set_background_name']\n        else:\n            self.properties[\"set_background_name\"] = self.btn.options[0] if self.btn.options else \"\"\n        def make_updater(el, pin_name, x_offset=8, y_offset=0):\n            def updater(nx, ny):\n                pin = next(p for p in self.inputs if p.name == pin_name)\n                px, py = pin.pos\n                el.rect.topleft = (px + x_offset, py + y_offset - el.rect.h // 2)\n            return updater\n        self.duration_field.update_position = make_updater(self.duration_field, \"duration\")\n        self.ui_elements = [self.duration_field, self.btn]\n        self.height = 100\n        for el in self.ui_elements:\n            el.update_position(self.x, self.y)\n\n    def _on_select(self, choice: str):\n        self.properties[\"set_background_name\"] = choice\n\n    def _on_change(self, key, txt):\n        try: self.properties[key] = float(txt)\n        except ValueError: pass\n\n    def updateDropDownField(self):\n        opts = list(self.editor.LevelEditor.dataManager.settings.backgrounds)\n        self.btn.options = opts\n        if self.btn.selected not in opts and opts:\n            self.btn.selected = opts[0]\n            self.properties[\"set_background_name\"] = opts[0]\n\n    def draw(self, surf, selected=False):\n        self.updateDropDownField()\n        pin = next(p for p in self.inputs if p.name == \"set_background_name\").connection\n        super().draw(surf, selected, draw_ui=False, draw_label=pin)\n        pin_dur = next(p for p in self.inputs if p.name == \"duration\")\n        if not pin_dur.connection:\n            self.duration_field.update_position(self.x, self.y)\n            self.duration_field.draw(surf)\n        if not pin:\n            for el in [self.btn]:\n                el.update_position(self.x, self.y)\n                el.draw(surf)\n\n    def execute(self, context):\n        dm = self.editor.LevelEditor.dataManager\n        for pin in self.inputs:\n            if pin.pin_type == \"data\" and pin.connection:\n                upstream = pin.connection.node\n                upstream.execute(context)\n                self.properties[pin.name] = upstream.properties[pin.connection.name]\n        name = self.properties[\"set_background_name\"]\n        duration = float(self.properties.get(\"duration\", 1.0))\n        settings = dm.settings\n        if name in settings.backgrounds:\n            settings.parallax_index = settings.backgrounds.index(name)\n            level = self.editor.LevelEditor.game_engine.level\n            new_bg = dm.get_background_by_name(name)\n            level.start_background_transition(new_bg, duration=duration)\n        out = next(p for p in self.outputs if p.pin_type == \"exec\")\n        return out.connection.node if out.connection else None"
+},
+{
+  "name": "Hide Light",
+  "category": "World",
+  "source": "editor/blueprint_editor/blueprints/b_world.py",
+  "description": "Ce nœud masque une lumière du niveau à partir de son nom. Utile pour désactiver dynamiquement un éclairage précis durant l'exécution.",
+  "pins": [],
+  "properties": ["choice (nom de la lumière à masquer)"],
+  "code": "@register_node(\"Hide Light\", category=\"World\")\nclass HideLightNode(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, \"Hide Light\", editor, properties)\n        self.editor = editor\n        lights = self.editor.LevelEditor.dataManager.lights\n        if not lights:\n            self.valid = False\n            self.editor.LevelEditor.nm.notify(\n                'warning', 'Hide Light', \"Aucune light définie : node désactivée\", 1.5\n            )\n            return\n        self.valid = True\n        names = [getattr(l, 'name', f\"Light{idx}\") for idx, l in enumerate(lights)]\n        self.btn = DropdownButton(\n            self,\n            pygame.Rect(0, 40, 140, 24),\n            names,\n            callback=self._on_select\n        )\n        if self.properties.get('choice') in names:\n            self.btn.selected = self.properties['choice']\n        else:\n            self.properties['choice'] = names[0]\n            self.btn.selected = names[0]\n        self.ui_elements.append(self.btn)\n\n    def _on_select(self, opt: str):\n        if not getattr(self, 'valid', False): return\n        self.properties['choice'] = opt\n\n    def updateDropDownField(self):\n        if not getattr(self, 'valid', False): return\n        lights = self.editor.LevelEditor.dataManager.lights\n        names = [getattr(l, 'name', f\"Light{idx}\") for idx, l in enumerate(lights)]\n        self.btn.options = names\n        if names and self.btn.selected not in names:\n            self.btn.selected = names[0]\n            self.properties['choice'] = names[0]\n\n    def draw(self, surf, selected=False):\n        ox, oy = self.editor.offset\n        if not getattr(self, 'valid', False):\n            w, h = self.WIDTH, self.height\n            x, y = self.x - ox, self.y - oy\n            rect = pygame.Rect(x, y, w, h)\n            pygame.draw.rect(surf, (60, 20, 20), rect, border_radius=4)\n            pygame.draw.rect(surf, (200, 50, 50), rect, 2, border_radius=4)\n            hdr = pygame.Rect(x, y, w, self.HEADER_HEIGHT)\n            pygame.draw.rect(surf, (150, 0, 0), hdr, border_top_left_radius=4, border_top_right_radius=4)\n            font_t = pygame.font.Font(None, 18)\n            surf.blit(font_t.render(\"Hide Light [Error]\", True, (255, 200, 200)), (x + 6, y + 4))\n            lines = [\n                \"Aucune light définie\",\n                \"Veuillez en ajouter une au\",\n                \"niveau !\",\n                \"(supprimez cette node)\"\n            ]\n            font_m = pygame.font.Font(None, 15)\n            base_x = x + 6\n            base_y = y + self.HEADER_HEIGHT + 10\n            line_h = 14\n            for i, line in enumerate(lines):\n                surf.blit(font_m.render(line, True, (255,180,180)), (base_x, base_y + i*line_h))\n            return\n        self.updateDropDownField()\n        super().draw(surf, selected,False)\n        for el in self.ui_elements:\n            el.update_position(self.x, self.y)\n            el.draw(surf)\n\n    def execute(self, context):\n        if not getattr(self, 'valid', False):\n            return None\n        for pin in self.inputs:\n            if pin.pin_type == 'data' and pin.connection:\n                src = pin.connection\n                getter = src.node\n                getter.execute(context)\n                self.properties[pin.name] = getter.properties[src.name]\n        choice = self.properties.get('choice')\n        for i, light in enumerate(self.editor.LevelEditor.dataManager.lights):\n            name = getattr(light, 'name', f\"Light{i}\")\n            if name == choice:\n                light.visible = False\n                break\n        lvl = self.editor.LevelEditor.game_engine.level\n        lvl.lights = self.editor.LevelEditor.dataManager.lights.copy()\n        lvl.init_lightning()\n        out = next((p for p in self.outputs if p.pin_type == 'exec'), None)\n        return out.connection.node if out and out.connection else None"
+},
+
+  {
+    "name": "Show Light",
+    "category": "World",
+    "source": "editor/blueprint_editor/blueprints/b_world.py",
+    "description": "Ce nœud rend visible une lumière dans le niveau à partir de son nom. Il permet d'activer dynamiquement un éclairage précis durant l'exécution.",
+    "pins": [],
+    "properties": ["choice (nom de la lumière à activer)"],
+    "code": "@register_node(\"Show Light\", category=\"World\")\nclass ShowLightNode(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, \"Show Light\", editor, properties)\n        self.editor = editor\n        lights = self.editor.LevelEditor.dataManager.lights\n        if not lights:\n            self.valid = False\n            self.editor.LevelEditor.nm.notify(\n                'warning', 'Show Light', \"Aucune light définie : node désactivée\", 1.5\n            )\n            return\n        self.valid = True\n        names = [getattr(l, 'name', f\"Light{idx}\") for idx, l in enumerate(lights)]\n        self.btn = DropdownButton(\n            self,\n            pygame.Rect(0, 40, 140, 24),\n            names,\n            callback=self._on_select\n        )\n        if self.properties.get('choice') in names:\n            self.btn.selected = self.properties['choice']\n        else:\n            self.properties['choice'] = names[0]\n            self.btn.selected = names[0]\n        self.ui_elements.append(self.btn)\n\n    def _on_select(self, opt: str):\n        if not getattr(self, 'valid', False): return\n        self.properties['choice'] = opt\n\n    def updateDropDownField(self):\n        if not getattr(self, 'valid', False): return\n        lights = self.editor.LevelEditor.dataManager.lights\n        names = [getattr(l, 'name', f\"Light{idx}\") for idx, l in enumerate(lights)]\n        self.btn.options = names\n        if names and self.btn.selected not in names:\n            self.btn.selected = names[0]\n            self.properties['choice'] = names[0]\n\n    def draw(self, surf, selected=False):\n        ox, oy = self.editor.offset\n        if not getattr(self, 'valid', False):\n            w, h = self.WIDTH, self.height\n            x, y = self.x - ox, self.y - oy\n            rect = pygame.Rect(x, y, w, h)\n            pygame.draw.rect(surf, (60, 20, 20), rect, border_radius=4)\n            pygame.draw.rect(surf, (200, 50, 50), rect, 2, border_radius=4)\n            hdr = pygame.Rect(x, y, w, self.HEADER_HEIGHT)\n            pygame.draw.rect(surf, (150, 0, 0), hdr, border_top_left_radius=4, border_top_right_radius=4)\n            font_t = pygame.font.Font(None, 18)\n            surf.blit(font_t.render(\"Show Light [Error]\", True, (255, 200, 200)), (x + 6, y + 4))\n            lines = [\"Aucune light définie\", \"Veuillez en ajouter une au\", \"niveau !\", \"(supprimez cette node)\"]\n            font_m = pygame.font.Font(None, 15)\n            base_x = x + 6\n            base_y = y + self.HEADER_HEIGHT + 10\n            line_h = 14\n            for i, line in enumerate(lines):\n                surf.blit(font_m.render(line, True, (255,180,180)), (base_x, base_y + i*line_h))\n            return\n        self.updateDropDownField()\n        super().draw(surf, selected, False)\n        for el in self.ui_elements:\n            el.update_position(self.x, self.y)\n            el.draw(surf)\n\n    def execute(self, context):\n        if not getattr(self, 'valid', False):\n            return None\n        for pin in self.inputs:\n            if pin.pin_type == 'data' and pin.connection:\n                src = pin.connection\n                getter = src.node\n                getter.execute(context)\n                self.properties[pin.name] = getter.properties[src.name]\n        choice = self.properties.get('choice')\n        for i, light in enumerate(self.editor.LevelEditor.dataManager.lights):\n            name = getattr(light, 'name', f\"Light{i}\")\n            if name == choice:\n                light.visible = True\n                break\n        lvl = self.editor.LevelEditor.game_engine.level\n        lvl.lights = self.editor.LevelEditor.dataManager.lights.copy()\n        lvl.init_lightning()\n        out = next((p for p in self.outputs if p.pin_type == 'exec'), None)\n        return out.connection.node if out and out.connection else None"
+  },
+  {
+    "name": "Set Global Illumination",
+    "category": "World",
+    "source": "editor/blueprint_editor/blueprints/b_world.py",
+    "description": "Ce nœud permet de définir dynamiquement le niveau d'éclairage global (Global Illumination) du niveau. La valeur attendue est un flottant entre 0.0 et 1.0.",
+    "pins": [
+      { "name": "illum", "type": "data", "direction": "input", "label": "GI" },
+      { "name": "out", "type": "exec", "direction": "output", "label": "Out" }
+    ],
+    "properties": ["illum (valeur de GI entre 0.0 et 1.0)"],
+    "code": "@register_node(\"Set Global Illumination\", category=\"World\")\nclass SetGlobalIllumination(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, \"Set Global Illumination\", editor, properties)\n        self.add_data_pin(\"illum\", False, properties.get(\"illum\", 0.5), \"GI\")\n        self.add_exec_pin(\"out\", True, \"Out\")\n        self.height = 70\n\n    def execute(self, context):\n        for pin in self.inputs:\n            if pin.pin_type == \"data\" and pin.connection:\n                pin.connection.node.execute(context)\n                self.properties[pin.name] = pin.connection.node.properties[pin.connection.name]\n        val = float(self.properties.get(\"illum\", 0.0))\n        val = max(0.0, min(1.0, val))\n        self.editor.LevelEditor.game_engine.level.gi = val\n        out = next((p for p in self.outputs if p.pin_type == 'exec'), None)\n        return out.connection.node if out and out.connection else None"
+  },
+  {
+    "name": "Get Global Illumination",
+    "category": "World",
+    "source": "editor/blueprint_editor/blueprints/b_world.py",
+    "description": "Ce nœud permet d'obtenir la valeur actuelle de l'éclairage global (Global Illumination) dans le niveau. Cela peut être utile pour ajuster dynamiquement des effets.",
+    "pins": [
+      { "name": "illum", "type": "data", "direction": "output", "label": "GI" }
+    ],
+    "properties": ["illum (valeur actuelle de GI)"],
+    "code": "@register_node(\"Get Global Illumination\", category=\"World\")\nclass GetGlobalIllumination(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, \"Get Global Illumination\", editor, properties)\n        self.add_data_pin(\"illum\", True, \"\", \"GI\")\n        self.height = 60\n\n    def execute(self, context):\n        self.properties[\"illum\"] = self.editor.LevelEditor.game_engine.level.gi\n        return None"
+  },
+  {
+  "name": "Set Bubble Text",
+  "category": "World",
+  "source": "editor/blueprint_editor/blueprints/b_world.py",
+  "description": "Ce nœud permet d'afficher un texte flottant (bulle) au-dessus d'un CollisionRect nommé dans le niveau. On peut configurer le texte, sa taille, sa couleur, la vitesse de défilement, la durée d'affichage, etc.",
+  "pins": [
+    { "name": "choice", "type": "data", "direction": "input", "label": "Rect" },
+    { "name": "text", "type": "data", "direction": "input", "label": "Texte" },
+    { "name": "font_size", "type": "data", "direction": "input", "label": "FontSize" },
+    { "name": "speed", "type": "data", "direction": "input", "label": "Speed" },
+    { "name": "duration", "type": "data", "direction": "input", "label": "Duration" },
+    { "name": "text_color", "type": "data", "direction": "input", "label": "Color" },
+    { "name": "", "type": "exec", "direction": "output", "label": "" }
+  ],
+  "properties": [
+    "choice (nom du rect)",
+    "text (texte de la bulle)",
+    "font_size (taille de police)",
+    "speed (vitesse d'animation 0 = instantané)",
+    "duration (durée d'affichage -1 = infini)",
+    "text_color (couleur du texte)"
+  ],
+  "code": "@register_node(\"Set Bubble Text\", category=\"World\")\nclass SetBubbleText(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, \"Set Bubble Text\", editor, properties)\n        self.editor = editor\n\n        rect_names = [cr.name for cr in editor.LevelEditor.dataManager.collisionRects]\n        if not rect_names:\n            self.valid = False\n            editor.LevelEditor.nm.notify(\"warning\", \"Set Bubble Text\", \"Aucun CollisionRect défini : node désactivée\", 1.5)\n            self.height = 40\n            return\n        self.valid = True\n\n        default_choice = properties.get(\"choice\", rect_names[0])\n        self.add_data_pin(\"choice\", False, default_choice, \"\", offset_y=0)\n        self.properties[\"choice\"] = default_choice\n\n        self.add_data_pin(\"text\", False, properties.get(\"text\", \"Bubble…\"), \"Text\", offset_y=0)\n        self.properties[\"text\"] = properties.get(\"text\", \"Bubble…\")\n\n        self.add_data_pin(\"font_size\", False, str(properties.get(\"font_size\", 14)), \"FontSize\", offset_y=0)\n        self.properties[\"font_size\"] = int(properties.get(\"font_size\", 14))\n\n        self.add_data_pin(\"speed\", False, str(properties.get(\"speed\", 0.0)), \"Speed\", offset_y=0)\n        self.properties[\"speed\"] = float(properties.get(\"speed\", 0.0))\n\n        self.add_data_pin(\"duration\", False, str(properties.get(\"duration\", -1.0)), \"Duration\", offset_y=0)\n        self.properties[\"duration\"] = float(properties.get(\"duration\", -1.0))\n\n        self.add_data_pin(\"text_color\", False, properties.get(\"text_color\", (255,255,255)), \"Color\", offset_y=0)\n        self.properties[\"text_color\"] = properties.get(\"text_color\", (255,255,255))\n\n        self.height = max(24 + len(self.inputs)*25, 140)\n\n    def execute(self, context):\n        if not self.valid:\n            return None\n\n        for pin in list(self.inputs):\n            if pin.pin_type == \"data\" and pin.connection:\n                upstream = pin.connection.node\n                upstream.execute(context)\n                self.properties[pin.name] = upstream.properties[pin.connection.name]\n\n        level = self.editor.LevelEditor.game_engine.level\n        for cr in level.collision_rects:\n            if cr.name == self.properties[\"choice\"]:\n                cr.text = str(self.properties[\"text\"])\n                cr.font_size = int(self.properties[\"font_size\"])\n                cr.text_color = tuple(self.properties[\"text_color\"])\n                cr.bubble_speed = float(self.properties[\"speed\"])\n                cr.bubble_duration = float(self.properties[\"duration\"])\n                cr.bubble_start_time = time.time()\n                break\n\n        out = next((p for p in self.outputs if p.pin_type == \"exec\"), None)\n        return out.connection.node if out and out.connection else None"
+},
+{
+  "name": "Teleport",
+  "category": "Player",
+  "source": "editor/blueprint_editor/blueprints/b_player.py",
+  "description": "Téléporte le joueur à un point de localisation (LocationPoint) prédéfini dans le niveau. Si aucun point n’est défini, la node est désactivée.",
+  "pins": [
+    { "name": "", "type": "exec", "direction": "output", "label": "" }
+  ],
+  "properties": [
+    "choice (nom du point de localisation sélectionné)"
+  ],
+  "code": "@register_node(\"Teleport\", category=\"Player\")\nclass TeleportPlayer(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Teleport', editor, properties)\n        self.editor = editor\n\n        pts = list(self.editor.LevelEditor.dataManager.get_location_point_name())\n        if not pts:\n            self.editor.LevelEditor.nm.notify(\n                'warning',\n                'TeleportPlayer',\n                \"Aucun locationPoint n'est posé : node désactivée\",\n                1.5\n            )\n            self.valid = False\n            return\n\n        self.valid = True\n        self.btn = DropdownButton(\n            self,\n            pygame.Rect(10, 30, 120, 24),\n            pts,\n            callback=self._on_select\n        )\n        if 'choice' in self.properties and self.properties['choice'] in pts:\n            self.btn.selected = self.properties['choice']\n        else:\n            self.properties['choice'] = pts[0]\n            self.btn.selected = pts[0]\n        self.ui_elements.append(self.btn)\n\n    def _on_select(self, opt: str):\n        if not self.valid:\n            return\n        self.properties['choice'] = opt\n\n    def updateDropDownField(self):\n        if not self.valid:\n            return\n        pts = list(self.editor.LevelEditor.dataManager.get_location_point_name())\n        self.btn.options = pts\n        if pts and self.btn.selected not in pts:\n            self.btn.selected = pts[0]\n            self.properties['choice'] = pts[0]\n\n    def draw(self, surf, selected=False):\n        ox, oy = self.editor.offset\n        if not getattr(self, 'valid', False):\n            w, h = self.WIDTH, self.height\n            x, y = self.x - ox, self.y - oy\n            rect = pygame.Rect(x, y, w, h)\n\n            pygame.draw.rect(surf, (60, 20, 20), rect, border_radius=4)\n            pygame.draw.rect(surf, (200, 50, 50), rect, 2, border_radius=4)\n\n            hdr = pygame.Rect(x, y, w, self.HEADER_HEIGHT)\n            pygame.draw.rect(surf, (150, 0, 0), hdr, border_top_left_radius=4, border_top_right_radius=4)\n\n            font_title = pygame.font.Font(None, 18)\n            title_surf = font_title.render(\"Teleport [Error]\", True, (255, 200, 200))\n            surf.blit(title_surf, (x + 6, y + 4))\n\n            font_msg = pygame.font.Font(None, 15)\n            lines = [\n                \"Aucun point de localisation\",\n                \"disponible !\",\n                \"(Veuillez supprimer cette\",\n                \"node)\"\n            ]\n            base_x = x + 6\n            base_y = y + self.HEADER_HEIGHT + 10\n            line_height = 12\n\n            for i, line in enumerate(lines):\n                msg_surf = font_msg.render(line, True, (255, 180, 180))\n                surf.blit(msg_surf, (base_x, base_y + i * line_height))\n            return\n\n        self.updateDropDownField()\n        super().draw(surf, selected)\n        for el in self.ui_elements:\n            el.update_position(self.x, self.y)\n            el.draw(surf)\n\n    def execute(self, context):\n        if not getattr(self, 'valid', False):\n            return None\n        for pin in self.inputs:\n            if pin.pin_type == 'data' and pin.connection:\n                getter = pin.connection.node\n                getter.execute(context)\n                self.properties[pin.name] = getter.properties[pin.name]\n\n        self.editor.LevelEditor.game_engine.player.update_location_by_name(\n            self.btn.selected\n        )\n        out = next((p for p in self.outputs if p.pin_type == 'exec'), None)\n        return out.connection.node if out and out.connection else None"
+},
+{
+  "name": "Damage Player",
+  "category": "Player",
+  "source": "editor/blueprint_editor/blueprints/b_player.py",
+  "description": "Inflige une quantité de dégâts au joueur. La quantité est définie via un champ numérique ou une entrée connectée.",
+  "pins": [
+    { "name": "amount", "type": "data", "direction": "input", "label": "amount" },
+    { "name": "", "type": "exec", "direction": "output", "label": "" }
+  ],
+  "properties": [
+    "amount (valeur des dégâts à infliger)"
+  ],
+  "code": "@register_node(\"Damage\", category=\"Player\")\nclass DamagePlayer(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Damage Player', editor)\n        self.add_data_pin('amount', False, \"10\", 'amount')\n        amount = InputField(rect=(0, 0, 120, 20), text=str(self.properties['amount']), placeholder='Amount of Damage...',\n                           on_change=lambda t: self._on_change('amount', t))\n        self.ui_elements.append(amount)\n        amount.update_position = lambda nx, ny: setattr(amount, 'rect', pygame.Rect(nx - editor.offset[0] + 20,\n                                                                                       ny - editor.offset[1] + 50,\n                                                                                       120, 20))\n        amount.update_position(self.x, self.y)\n\n    def _on_change(self, key, txt):\n        if key == 'amount':\n            self.properties[key] = txt\n        else:\n            try:\n                self.properties[key] = float(txt)\n            except ValueError:\n                pass\n\n    def execute(self, context):\n        for pin in self.inputs:\n            if pin.pin_type == 'data' and pin.connection:\n                src = pin.connection\n                getter_node  = src.node\n                getter_node.execute(context)\n                self.properties[pin.name] = src.node.properties[src.name]\n\n        self.editor.LevelEditor.game_engine.player.health_system.take_damage(float(self.properties['amount']))\n        out = next((p for p in self.outputs if p.pin_type == 'exec'), None)\n        return out.connection.node if out and out.connection else None\n\n    def draw(self, surf, selected=False):\n        pin=next(p for p in self.inputs if p.name == \"amount\").connection\n        super().draw(surf, selected,draw_ui=False,draw_label=pin)\n        if not pin:\n            for el in self.ui_elements:\n                el.update_position(self.x,self.y)\n                el.draw(surf)"
+},
+{
+  "name": "Heal",
+  "category": "Player",
+  "source": "editor/blueprint_editor/blueprints/b_player.py",
+  "description": "Soigne le joueur avec la valeur spécifiée.",
+  "pins": [
+    { "name": "amount", "type": "data", "direction": "input", "label": "amount" },
+    { "name": "", "type": "exec", "direction": "output", "label": "Suite" }
+  ],
+  "properties": ["amount (quantité de soin à appliquer)"],
+  "code": "@register_node(\"Heal\", category=\"Player\")\nclass HealPlayer(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Heal Player', editor, properties)\n        self.add_data_pin('amount', False, \"10\", 'amount')\n        ... (interface setup omitted)\n\n    def execute(self, context):\n        ...\n        self.editor.LevelEditor.game_engine.player.health_system.heal_with_amount(float(self.properties['amount']))\n        ...\n        return ..."
+},
+{
+  "name": "Set MaxHealth",
+  "category": "Player",
+  "source": "editor/blueprint_editor/blueprints/b_player.py",
+  "description": "Définit le maximum de points de vie du joueur.",
+  "pins": [
+    { "name": "health", "type": "data", "direction": "input", "label": "Max Health" },
+    { "name": "", "type": "exec", "direction": "output", "label": "Suite" }
+  ],
+  "properties": ["health (nouvelle valeur de vie maximale du joueur)"],
+  "code": "@register_node(\"Set MaxHealth\", category=\"Player\")\nclass SetMaxHealth(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Set MaxHealth', editor, properties)\n        self.add_data_pin('health', False, ..., 'Max Health')\n        ... (interface setup omitted)\n\n    def execute(self, context):\n        ...\n        self.editor.LevelEditor.game_engine.player.health_system.max_health = float(self.properties['health'])\n        return ..."
+},
+{
+  "name": "Get Player Health",
+  "category": "Player",
+  "source": "editor/blueprint_editor/blueprints/b_player.py",
+  "description": "Récupère la valeur actuelle des points de vie du joueur.",
+  "pins": [
+    { "name": "health", "type": "data", "direction": "output", "label": "Current Health" }
+  ],
+  "properties": ["health (valeur actuelle de vie du joueur)"],
+  "code": "@register_node(\"Get Player Health\", category=\"Player\")\nclass GetPlayerHealth(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Get Player Health', editor, properties)\n        ...\n\n    def execute(self, context):\n        self.properties['health'] = self.editor.LevelEditor.game_engine.player.health_system.health\n        return None"
+},
+{
+  "name": "Get Player MaxHealth",
+  "category": "Player",
+  "source": "editor/blueprint_editor/blueprints/b_player.py",
+  "description": "Récupère la valeur maximale de points de vie du joueur.",
+  "pins": [
+    { "name": "max_health", "type": "data", "direction": "output", "label": "Max Health" }
+  ],
+  "properties": ["max_health (valeur maximale de vie du joueur)"],
+  "code": "@register_node(\"Get Player MaxHealth\", category=\"Player\")\nclass GetPlayerMaxHealth(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Get Player MaxHealth', editor, properties)\n        ...\n\n    def execute(self, context):\n        self.properties['max_health'] = self.editor.LevelEditor.game_engine.player.health_system.max_health\n        return None"
+},
+  {
+    "name": "Get Player Velocity",
+    "category": "Player",
+    "source": "editor/blueprint_editor/blueprints/b_player.py",
+    "description": "Ce nœud permet de récupérer la vitesse actuelle du joueur sur les axes X et Y.",
+    "pins": [
+      { "name": "vx", "type": "data", "direction": "output", "label": "Vx" },
+      { "name": "vy", "type": "data", "direction": "output", "label": "Vy" }
+    ],
+    "properties": ["vx (vitesse horizontale)", "vy (vitesse verticale)"],
+    "code": "@register_node(\"Get Player Velocity\", category=\"Player\")\nclass GetPlayerVelocity(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Get Player Velocity', editor, properties)\n        self.inputs.clear()\n        self.outputs.clear()\n        self.add_data_pin('vx', True, '0', 'Vx')\n        self.add_data_pin('vy', True, '0', 'Vy')\n        self.height = 80\n\n    def execute(self, context):\n        phys = self.editor.LevelEditor.game_engine.player.physics\n        self.properties['vx'] = phys.entity.movement.velocity_x\n        self.properties['vy'] = phys.y_velocity\n        return None"
+  },
+  {
+    "name": "Set Player Velocity",
+    "category": "Player",
+    "source": "editor/blueprint_editor/blueprints/b_player.py",
+    "description": "Ce nœud permet de modifier la vitesse de déplacement du joueur.",
+    "pins": [
+      { "name": "speed", "type": "data", "direction": "input", "label": "speed" }
+    ],
+    "properties": ["speed (valeur de vitesse du joueur)"],
+    "code": "@register_node(\"Set Player Velocity\", category=\"Player\")\nclass SetPlayerSpeed(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Set Player Velocity', editor, properties)\n        self.add_data_pin('speed', False, str(self.editor.LevelEditor.game_engine.player.speed), 'speed')\n        self.height = 80\n        fld = InputField(rect=(0,0,120,20), text=str(self.properties['speed']), placeholder='Speed...', on_change=lambda t: self._on_change('speed', t))\n        self.ui_elements.append(fld)\n        fld.update_position = lambda nx, ny: setattr(fld, 'rect', pygame.Rect(nx-editor.offset[0]+20, ny-editor.offset[1]+50, 120,20))\n        fld.update_position(self.x, self.y)\n\n    def _on_change(self, key, txt):\n        try: self.properties[key] = float(txt)\n        except ValueError: pass\n\n    def execute(self, context):\n        for pin in self.inputs:\n            if pin.pin_type=='data' and pin.connection:\n                getter = pin.connection.node\n                getter.execute(context)\n                self.properties['speed'] = getter.properties[pin.connection.name]\n        self.editor.LevelEditor.game_engine.player.speed = float(self.properties['speed'])\n        out = next(p for p in self.outputs if p.pin_type=='exec')\n        return out.connection.node if out.connection else None"
+  },
+  {
+    "name": "Get Player MaxSpeed",
+    "category": "Player",
+    "source": "editor/blueprint_editor/blueprints/b_player.py",
+    "description": "Ce nœud retourne la vitesse maximale actuelle du joueur.",
+    "pins": [
+      { "name": "max_speed", "type": "data", "direction": "output", "label": "" }
+    ],
+    "properties": ["max_speed (valeur de vitesse maximale)"],
+    "code": "@register_node(\"Get Player MaxSpeed\", category=\"Player\")\nclass GetPlayerMaxSpeed(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Get Player MaxSpeed', editor, properties)\n        self.inputs.clear()\n        self.outputs.clear()\n        self.add_data_pin('max_speed', True, '0', '')\n        self.height = 60\n\n    def execute(self, context):\n        ms = self.editor.LevelEditor.game_engine.player.movement.max_speed\n        self.properties['max_speed'] = ms\n        return None"
+  },
+  {
+    "name": "Set Player MaxSpeed",
+    "category": "Player",
+    "source": "editor/blueprint_editor/blueprints/b_player.py",
+    "description": "Ce nœud permet de définir la vitesse maximale du joueur.",
+    "pins": [
+      { "name": "max_speed", "type": "data", "direction": "input", "label": "max speed" }
+    ],
+    "properties": ["max_speed (nouvelle vitesse maximale)"],
+    "code": "@register_node(\"Set Player MaxSpeed\", category=\"Player\")\nclass SetPlayerMaxSpeed(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Set Player MaxSpeed', editor, properties)\n        self.add_data_pin('max_speed', False, str(self.editor.LevelEditor.game_engine.player.movement.max_speed), 'max speed')\n        self.height = 80\n        fld = InputField(rect=(0,0,120,20), text=str(self.properties['max_speed']), placeholder='Max Speed...', on_change=lambda t: self._on_change('max_speed', t))\n        self.ui_elements.append(fld)\n        fld.update_position = lambda nx, ny: setattr(fld, 'rect', pygame.Rect(nx - editor.offset[0] + 20, ny - editor.offset[1] + 50, 120, 20))\n        fld.update_position(self.x, self.y)\n\n    def _on_change(self, key, txt):\n        try: self.properties[key] = float(txt)\n        except ValueError: pass\n\n    def execute(self, context):\n        for pin in self.inputs:\n            if pin.pin_type=='data' and pin.connection:\n                getter = pin.connection.node\n                getter.execute(context)\n                self.properties['max_speed'] = getter.properties[pin.connection.name]\n        self.editor.LevelEditor.game_engine.player.movement.max_speed = float(self.properties['max_speed'])\n        out = next(p for p in self.outputs if p.pin_type=='exec')\n        return out.connection.node if out.connection else None"
+  },
+  {
+    "name": "Set Player Gravity",
+    "category": "Player",
+    "source": "editor/blueprint_editor/blueprints/b_player.py",
+    "description": "Ce nœud permet de définir la gravité appliquée au joueur.",
+    "pins": [
+      { "name": "gravity", "type": "data", "direction": "input", "label": "gravity" }
+    ],
+    "properties": ["gravity (valeur de gravité appliquée au joueur)"],
+    "code": "@register_node(\"Set Player Gravity\", category=\"Player\")\nclass SetPlayerGravity(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Set Player Gravity', editor, properties)\n        self.add_data_pin('gravity', False, str(self.editor.LevelEditor.game_engine.player.physics.gravity), 'gravity')\n        self.height = 80\n        fld = InputField((0,0,120,20), text=str(self.properties['gravity']), placeholder='Gravity...', on_change=lambda t: self._on_change('gravity', t))\n        self.ui_elements.append(fld)\n        fld.update_position = lambda nx,ny: setattr(fld,'rect', pygame.Rect(nx-editor.offset[0]+20, ny-editor.offset[1]+50, 120,20))\n        fld.update_position(self.x,self.y)\n\n    def _on_change(self, key, txt):\n        try: self.properties[key] = float(txt)\n        except: pass\n\n    def execute(self, context):\n        for pin in self.inputs:\n            if pin.pin_type=='data' and pin.connection:\n                getter = pin.connection.node\n                getter.execute(context)\n                self.properties['gravity'] = getter.properties[pin.connection.name]\n        self.editor.LevelEditor.game_engine.player.physics.gravity = float(self.properties['gravity'])\n        out = next(p for p in self.outputs if p.pin_type=='exec')\n        return out.connection.node if out.connection else None"
+  },
+  {
+  "name": "Get Player Gravity",
+  "category": "Player",
+  "source": "editor/blueprint_editor/blueprints/b_player.py",
+  "description": "Renvoie la valeur actuelle de la gravité appliquée au joueur.",
+  "pins": [
+    { "name": "gravity", "type": "data", "direction": "output", "label": "" }
+  ],
+  "properties": ["gravity (valeur actuelle de la gravité du joueur)"],
+  "code": "@register_node(\"Get Player Gravity\", category=\"Player\")\nclass GetPlayerGravity(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Get Player Gravity', editor, properties)\n        self.inputs.clear()\n        self.outputs.clear()\n        self.add_data_pin('gravity', True, '0', '')\n        self.height = 60\n\n    def execute(self, context):\n        g = self.editor.LevelEditor.game_engine.player.physics.gravity\n        self.properties['gravity'] = g\n        return None"
+},
+{
+  "name": "Is Player On Ground",
+  "category": "Player",
+  "source": "editor/blueprint_editor/blueprints/b_player.py",
+  "description": "Vérifie si le joueur est actuellement en contact avec le sol.",
+  "pins": [
+    { "name": "ground", "type": "data", "direction": "output", "label": "IsOnGround" }
+  ],
+  "properties": ["ground (booléen indiquant si le joueur est au sol)"],
+  "code": "@register_node(\"Is Player On Ground\", category=\"Player\")\nclass GetPlayerMaxHealth(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Is Player On Ground', editor, properties)\n        self.inputs.clear()\n        self.outputs.clear()\n        self.add_data_pin('ground', True, False, 'IsOnGround')\n        self.height = 60\n\n    def execute(self, context):\n        current = self.editor.LevelEditor.game_engine.player.collisions.OnGround()\n        self.properties['ground'] = current\n        return None"
+},
+{
+  "name": "Is Player On Wall",
+  "category": "Player",
+  "source": "editor/blueprint_editor/blueprints/b_player.py",
+  "description": "Vérifie si le joueur est actuellement en contact avec un mur.",
+  "pins": [
+    { "name": "wall", "type": "data", "direction": "output", "label": "IsOnWall" }
+  ],
+  "properties": ["wall (booléen indiquant si le joueur est collé à un mur)"],
+  "code": "@register_node(\"Is Player On Wall\", category=\"Player\")\nclass GetPlayerMaxHealth(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Is Player On Ground', editor, properties)\n        self.inputs.clear()\n        self.outputs.clear()\n        self.add_data_pin('wall', True, False, 'IsOnWall')\n        self.height = 60\n\n    def execute(self, context):\n        current = self.editor.LevelEditor.game_engine.player.collisions.OnWall()\n        self.properties['wall'] = current\n        return None"
+},
+{
+  "name": "Get Player Position",
+  "category": "Player",
+  "source": "editor/blueprint_editor/blueprints/b_player.py",
+  "description": "Renvoie la position actuelle (x, y) du joueur dans le monde.",
+  "pins": [
+    { "name": "x", "type": "data", "direction": "output", "label": "x" },
+    { "name": "y", "type": "data", "direction": "output", "label": "y" }
+  ],
+  "properties": ["x (position X du joueur)", "y (position Y du joueur)"],
+  "code": "@register_node(\"Get Player Position\", category=\"Player\")\nclass GetPlayerVelocity(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Get Player Position', editor, properties)\n        self.inputs.clear()\n        self.outputs.clear()\n        self.add_data_pin('x', True, '0', 'x')\n        self.add_data_pin('y', True, '0', 'y')\n        self.height = 80\n\n    def execute(self, context):\n        phys = self.editor.LevelEditor.game_engine.player.rect\n        self.properties['x'] = phys.x\n        self.properties['y'] = phys.y\n        return None"
+},
+{
+  "name": "Get Player Direction",
+  "category": "Player",
+  "source": "editor/blueprint_editor/blueprints/b_player.py",
+  "description": "Renvoie la direction actuelle du joueur (par exemple 'left' ou 'right').",
+  "pins": [
+    { "name": "direction", "type": "data", "direction": "output", "label": "" }
+  ],
+  "properties": ["direction (chaîne indiquant la direction du joueur)"],
+  "code": "@register_node(\"Get Player Direction\", category=\"Player\")\nclass GetPlayerDirection(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Get Player Direction', editor, properties)\n        self.inputs.clear()\n        self.outputs.clear()\n        self.add_data_pin('direction', True, '0', '')\n        self.height = 60\n\n    def execute(self, context):\n        self.properties['direction'] = self.editor.LevelEditor.game_engine.player.direction\n        return None"
+},
+{
+  "name": "Is Player Jumping",
+  "category": "Player",
+  "source": "editor/blueprint_editor/blueprints/b_player.py",
+  "description": "Retourne si le joueur est en train de sauter.",
+  "pins": [
+    { "name": "jumping", "type": "data", "direction": "output", "label": "" }
+  ],
+  "properties": ["jumping (booléen indiquant si le joueur saute)"],
+  "code": "@register_node(\"Is Player Jumping\", category=\"Player\")\nclass IsPlayerJumping(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Is Player Jumping', editor, properties)\n        self.inputs.clear()\n        self.outputs.clear()\n        self.add_data_pin('jumping', True, '0', '')\n        self.height = 60\n\n    def execute(self, context):\n        self.properties['jumping'] = self.editor.LevelEditor.game_engine.player.physics.is_jumping\n        return None\n\n    def draw(self, surf, selected=False):\n        super().draw(surf, selected)\n        self.execute({})\n        font = pygame.font.Font(None, 18)\n        ox, oy = self.editor.offset\n        txt = str(self.properties['jumping'])\n        surf.blit(font.render(txt, True, (220,220,220)),\n                  (self.x - ox + 20, self.y - oy + 34))"
+}
+,
+{
+  "name": "Is Player Dashing",
+  "category": "Player",
+  "source": "editor/blueprint_editor/blueprints/b_player.py",
+  "description": "Retourne si le joueur est en train de dash.",
+  "pins": [
+    { "name": "dashing", "type": "data", "direction": "output", "label": "" }
+  ],
+  "properties": ["dashing (booléen indiquant si le joueur dash)"],
+  "code": "@register_node(\"Is Player Dashing\", category=\"Player\")\nclass IsPlayerDashing(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Is Player Dashing', editor, properties)\n        self.inputs.clear()\n        self.outputs.clear()\n        self.add_data_pin('dashing', True, '0', '')\n        self.height = 60\n\n    def execute(self, context):\n        self.properties['dashing'] = self.editor.LevelEditor.game_engine.player.movement.is_dashing\n        return None\n\n    def draw(self, surf, selected=False):\n        super().draw(surf, selected)\n        self.execute({})\n        font = pygame.font.Font(None, 18)\n        ox, oy = self.editor.offset\n        txt = str(self.properties['dashing'])\n        surf.blit(font.render(txt, True, (220,220,220)),\n                  (self.x - ox + 20, self.y - oy + 34))"
+}
+,
+{
+  "name": "Respawn Player",
+  "category": "Player",
+  "source": "editor/blueprint_editor/blueprints/b_player.py",
+  "description": "Réinitialise la position du joueur (respawn).",
+  "pins": [
+    { "name": "exec", "type": "exec", "direction": "output", "label": "" }
+  ],
+  "properties": [],
+  "code": "@register_node(\"Respawn Player\", category=\"Player\")\nclass Respawn(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Respawn Player', editor, properties)\n\n    def execute(self, context):\n        self.editor.LevelEditor.game_engine.player.reset_pos()\n        out = next(p for p in self.outputs if p.pin_type=='exec')\n        return out.connection.node if out.connection else None"
+}
+,
+{
+  "name": "Set SpawnPoint",
+  "category": "Player",
+  "source": "editor/blueprint_editor/blueprints/b_player.py",
+  "description": "Définit le point de spawn du joueur via un menu déroulant des points disponibles.",
+  "pins": [
+    { "name": "exec", "type": "exec", "direction": "output", "label": "" }
+  ],
+  "properties": ["choice (nom du point de spawn sélectionné)"],
+  "code": "@register_node(\"Set SpawnPoint\", category=\"Player\")\nclass SetSpawnPointPlayer(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Set SpawnPoint', editor, properties)\n        self.editor = editor\n\n        pts = list(self.editor.LevelEditor.dataManager.get_location_point_name())\n        if not pts:\n            self.editor.LevelEditor.nm.notify(\n                'warning',\n                'Set SpawnPoint',\n                \"Aucun locationPoint n'est posé : node désactivée\",\n                1.5\n            )\n            self.valid = False\n            return\n\n        self.valid = True\n        self.btn = DropdownButton(\n            self,\n            pygame.Rect(10, 30, 120, 24),\n            pts,\n            callback=self._on_select\n        )\n\n        if 'choice' in self.properties and self.properties['choice'] in pts:\n            self.btn.selected = self.properties['choice']\n        else:\n            self.properties['choice'] = pts[0]\n            self.btn.selected = pts[0]\n\n        self.ui_elements.append(self.btn)\n\n    def _on_select(self, opt: str):\n        if not self.valid:\n            return\n        self.properties['choice'] = opt\n\n    def updateDropDownField(self):\n        if not self.valid:\n            return\n        pts = list(self.editor.LevelEditor.dataManager.get_location_point_name())\n        self.btn.options = pts\n        if pts and self.btn.selected not in pts:\n            self.btn.selected = pts[0]\n            self.properties['choice'] = pts[0]\n\n    def draw(self, surf, selected=False):\n        ox, oy = self.editor.offset\n        if not getattr(self, 'valid', False):\n            w, h = self.WIDTH, self.height\n            x, y = self.x - ox, self.y - oy\n            rect = pygame.Rect(x, y, w, h)\n\n            pygame.draw.rect(surf, (60, 20, 20), rect, border_radius=4)\n            pygame.draw.rect(surf, (200, 50, 50), rect, 2, border_radius=4)\n\n            hdr = pygame.Rect(x, y, w, self.HEADER_HEIGHT)\n            pygame.draw.rect(surf, (150, 0, 0), hdr, border_top_left_radius=4, border_top_right_radius=4)\n\n            font_title = pygame.font.Font(None, 18)\n            title_surf = font_title.render(\"Set SpawnPoint [Error]\", True, (255, 200, 200))\n            surf.blit(title_surf, (x + 6, y + 4))\n\n            font_msg = pygame.font.Font(None, 15)\n            lines = [\n                \"Aucun point de localisation\",\n                \"disponible !\",\n                \"(Veuillez supprimer cette\",\n                \"node)\"\n            ]\n            base_x = x + 6\n            base_y = y + self.HEADER_HEIGHT + 10\n            line_height = 12\n            for i, line in enumerate(lines):\n                msg_surf = font_msg.render(line, True, (255, 180, 180))\n                surf.blit(msg_surf, (base_x, base_y + i * line_height))\n            return\n\n        self.updateDropDownField()\n        super().draw(surf, selected)\n        for el in self.ui_elements:\n            el.update_position(self.x, self.y)\n            el.draw(surf)\n\n    def execute(self, context):\n        if not getattr(self, 'valid', False):\n            return None\n        for pin in self.inputs:\n            if pin.pin_type == 'data' and pin.connection:\n                getter = pin.connection.node\n                getter.execute(context)\n                self.properties[pin.name] = getter.properties[pin.name]\n\n        self.editor.LevelEditor.game_engine.player.spawn_name=self.btn.selected\n        out = next((p for p in self.outputs if p.pin_type == 'exec'), None)\n        return out.connection.node if out and out.connection else None"
+}
+,
+{
+  "name": "Apply Force",
+  "category": "Physics",
+  "source": "editor/blueprint_editor/blueprints/b_player.py",
+  "description": "Applique une force au joueur avec valeurs X, Y et durée.",
+  "pins": [
+    { "name": "force_x", "type": "data", "direction": "input", "label": "Force X" },
+    { "name": "force_y", "type": "data", "direction": "input", "label": "Force Y" },
+    { "name": "duration", "type": "data", "direction": "input", "label": "Duration" },
+    { "name": "exec", "type": "exec", "direction": "output", "label": "" }
+  ],
+  "properties": [
+    "force_x (float, force horizontale)",
+    "force_y (float, force verticale)",
+    "duration (float ou None, durée de la force en ms)"
+  ],
+  "code": "@register_node(\"Apply Force\", category=\"Physics\")\nclass ApplyForceNode(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Apply Force', editor, properties)\n\n        for key, default in ((\"force_x\", \"0.0\"), (\"force_y\", \"0.0\"), (\"duration\", \"0.0\")):\n            self.add_data_pin(key, False, str(self.properties.get(key, default)), key.replace('_', ' ').title())\n\n        self.ui_elements = []\n        for key in (\"force_x\", \"force_y\", \"duration\"):\n            fld = InputField(\n                rect=(0, 0, 80, 20),\n                text=str(self.properties.get(key, \"\")),\n                placeholder=key.replace('_', ' ').title(),\n                on_change=lambda t, k=key: self._on_change(k, t)\n            )\n            fld.prop_name = key\n            fld.pin = next(p for p in self.inputs if p.name == key)\n            self.ui_elements.append(fld)\n\n        self.height = 140\n\n    def _on_change(self, key, txt):\n        if key in (\"force_x\", \"force_y\"):\n            try:\n                self.properties[key] = float(txt)\n            except ValueError:\n                pass\n        elif key == \"duration\":\n            if txt.lower() in (\"none\", \"\"):\n                self.properties[key] = None\n            else:\n                try:\n                    self.properties[key] = int(txt)\n                except ValueError:\n                    pass\n\n    def execute(self, context):\n        for pin in self.inputs:\n            if pin.pin_type == \"data\" and pin.connection:\n                src = pin.connection.node\n                src.execute(context)\n                self.properties[pin.name] = src.properties.get(pin.connection.name)\n\n        fx = float(self.properties.get(\"force_x\", 0.0))\n        fy = float(self.properties.get(\"force_y\", 0.0))\n        dur = float(self.properties.get(\"duration\", 0.0))\n\n        player = self.editor.LevelEditor.game_engine.player\n        player.movement.add_force(force_x=fx, force_y=fy, duration_ms=dur)\n\n        out_pin = next(p for p in self.outputs if p.pin_type == \"exec\")\n        return out_pin.connection.node if out_pin.connection else None\n\n    def draw(self, surf, selected=False):\n        super().draw(surf, selected)\n        ox, oy = self.editor.offset\n        y_start = 30\n        for i, el in enumerate(self.ui_elements):\n            el.update_position(self.x + 10, self.y + y_start + i * 25)\n            el.draw(surf)"
+},
+{
+  "name": "Clear Forces",
+  "category": "Player",
+  "source": "editor/blueprint_editor/blueprints/b_player.py",
+  "description": "Supprime toutes les forces appliquées au joueur.",
+  "pins": [
+    { "name": "exec", "type": "exec", "direction": "output", "label": "" }
+  ],
+  "properties": [],
+  "code": "@register_node(\"Clear Forces\", category=\"Player\")\nclass ClearForces(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Clear Forces', editor, properties)\n\n    def execute(self, context):\n        self.editor.LevelEditor.game_engine.player.movement.clear_forces()\n        out = next(p for p in self.outputs if p.pin_type=='exec')\n        return out.connection.node if out.connection else None"
+}
+,
+{
+  "name": "Is Player Colliding With",
+  "category": "Player",
+  "source": "editor/blueprint_editor/blueprints/b_player.py",
+  "description": "Indique si le joueur est en collision avec un CollisionRect sélectionné via une liste déroulante.",
+  "pins": [
+    { "name": "colliding", "type": "data", "direction": "output", "label": "" }
+  ],
+  "properties": ["choice (nom du CollisionRect sélectionné)"],
+  "code": "@register_node(\"Is Player Colliding With\", category=\"Player\")\nclass GetPlayerCollision(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, \"Is Player Colliding With\", editor, properties)\n        self.inputs.clear()\n        self.outputs.clear()\n\n        self.rect_names = [cr.name for cr in editor.LevelEditor.dataManager.collisionRects]\n\n        if not self.rect_names:\n            editor.LevelEditor.nm.notify(\n                'warning',\n                'Is Player Colliding With',\n                \"Aucun CollisionRect défini : node désactivée\",\n                1.5\n            )\n            self.valid = False\n            self.height = 60\n            self.add_data_pin('colliding', True, 'False', 'IsCol')\n            return\n\n        self.valid = True\n        self.dropdown = DropdownButton(\n            self,\n            pygame.Rect(0, 30, 100, 24),\n            self.rect_names,\n            callback=self._on_select\n        )\n\n        choice = properties.get('choice')\n        if choice in self.rect_names:\n            self.dropdown.selected = choice\n        else:\n            self.dropdown.selected = self.rect_names[0]\n            self.properties['choice'] = self.rect_names[0]\n\n        self.ui_elements.append(self.dropdown)\n\n        self.add_data_pin('colliding', True, 'False', 'IsCol')\n\n        self.height = 80\n\n    def _on_select(self, opt: str):\n        if not getattr(self, 'valid', False):\n            return\n        self.properties['choice'] = opt\n\n    def execute(self, context):\n        if not getattr(self, 'valid', False):\n            self.properties['colliding'] = False\n            return None\n\n        name = self.properties.get('choice', \"\")\n        player = self.editor.LevelEditor.game_engine.player\n        hit = player.collisions.checkWithByName(name)\n        self.properties['colliding'] = bool(hit)\n        return None\n\n    def draw(self, surf, selected=False):\n        ox, oy = self.editor.offset\n\n        if not getattr(self, 'valid', False):\n            x, y = self.x - ox, self.y - oy\n            w, h = self.WIDTH, self.height\n            rect = pygame.Rect(x, y, w, h)\n            pygame.draw.rect(surf, (60,20,20), rect, border_radius=4)\n            pygame.draw.rect(surf, (200,50,50), rect, 2, border_radius=4)\n            font = pygame.font.Font(None, 16)\n            surf.blit(font.render(\"No CollisionRects!\", True, (255,180,180)), (x+6, y+30))\n            return\n\n        all_names = [cr.name for cr in self.editor.LevelEditor.dataManager.collisionRects]\n        self.dropdown.options = all_names\n        if self.dropdown.selected not in all_names and all_names:\n            self.dropdown.selected = all_names[0]\n            self.properties['choice'] = all_names[0]\n\n        super().draw(surf, selected, draw_ui=False)\n\n        for el in self.ui_elements:\n            el.update_position(self.x, self.y)\n            el.draw(surf)\n\n        self.execute({})\n\n        txt = str(self.properties.get('colliding', False))\n        font = pygame.font.Font(None, 18)\n        surf.blit(font.render(txt, True, (220,220,220)),\n                  (self.x - ox + 117, self.y - oy + 62))"
+}
+,
+{
+  "name": "Get Current Animation",
+  "category": "Player",
+  "source": "editor/blueprint_editor/blueprints/b_player.py",
+  "description": "Renvoie l'animation courante du joueur.",
+  "pins": [
+    { "name": "current_animation", "type": "data", "direction": "output", "label": "" }
+  ],
+  "properties": [],
+  "code": "@register_node(\"Get Current Animation\", category=\"Player\")\nclass GetCurrentAnim(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Get Current Animation', editor, properties)\n        self.inputs.clear()\n        self.outputs.clear()\n        self.add_data_pin('current_animation', True, 'None', 'Current Anim')\n        self.height = 60\n\n    def execute(self, context):\n        current = self.editor.LevelEditor.game_engine.player.animation.current_animation\n        self.properties['current_animation'] = current\n        return None\n\n    def draw(self, surf, selected=False):\n        super().draw(surf, selected)\n        self.execute({})\n        font = pygame.font.Font(None, 18)\n        text = font.render(f\"{self.properties['current_animation']}\", True, (220,220,220))\n        ox, oy = self.editor.offset\n        x = self.x - ox + 20\n        y = self.y - oy + 34\n        surf.blit(text, (x, y))"
+}
+,
+{
+  "name": "Get Animation Play Count",
+  "category": "Player",
+  "source": "editor/blueprint_editor/blueprints/b_player.py",
+  "description": "Renvoie le nombre de fois que l'animation actuelle a été jouée.",
+  "pins": [
+    { "name": "animation_count", "type": "data", "direction": "output", "label": "" }
+  ],
+  "properties": [],
+  "code": "@register_node(\"Get Animation Play Count\", category=\"Player\")\nclass GetAnimationCount(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Get Animation Count', editor, properties)\n        self.inputs.clear()\n        self.outputs.clear()\n        self.add_data_pin('animation_count', True, 'None', 'Current Anim Count')\n        self.height = 60\n\n    def execute(self, context):\n        current = self.editor.LevelEditor.game_engine.player.animation.animation_count\n        self.properties['animation_count'] = current\n        return None\n\n    def draw(self, surf, selected=False):\n        super().draw(surf, selected)\n        self.execute({})\n        font = pygame.font.Font(None, 18)\n        text = font.render(f\"{self.properties['animation_count']}\", True, (220,220,220))\n        ox, oy = self.editor.offset\n        x = self.x - ox + 20\n        y = self.y - oy + 34\n        surf.blit(text, (x, y))"
+},
+{
+  "name": "Get Current Frame",
+  "category": "Player",
+  "source": "editor/blueprint_editor/blueprints/b_player.py",
+  "description": "Renvoie l'image (frame) actuelle de l'animation du joueur.",
+  "pins": [
+    { "name": "frame", "type": "data", "direction": "output", "label": "" }
+  ],
+  "properties": [],
+  "code": "@register_node(\"Get Current Frame\", category=\"Player\")\nclass GetCurrentFrame(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Get Current Frame', editor, properties)\n        self.inputs.clear()\n        self.outputs.clear()\n        self.add_data_pin('frame', True, 'None', 'Get Current Frame')\n        self.height = 60\n\n    def execute(self, context):\n        current = self.editor.LevelEditor.game_engine.player.animation.current_frame\n        self.properties['frame'] = current\n        return None\n\n    def draw(self, surf, selected=False):\n        super().draw(surf, selected)\n        self.execute({})\n        font = pygame.font.Font(None, 18)\n        text = font.render(f\"{self.properties['frame']}\", True, (220,220,220))\n        ox, oy = self.editor.offset\n        x = self.x - ox + 20\n        y = self.y - oy + 34\n        surf.blit(text, (x, y))"
+},
+{
+  "name": "Force Set Animation",
+  "category": "Player",
+  "source": "editor/blueprint_editor/blueprints/b_player.py",
+  "description": "Force le changement d'animation du joueur en ignorant la possibilité d'annulation (is cancelable).",
+  "pins": [
+    { "name": "exec", "type": "exec", "direction": "input", "label": "" },
+    { "name": "exec", "type": "exec", "direction": "output", "label": "" }
+  ],
+  "properties": [
+    "choice (nom de l'animation à forcer)",
+    "isCancelable (booléen indiquant si l'animation peut être annulée par une autre)"
+  ],
+  "code": "@register_node(\"Force Set Animation\", category=\"Player\")\nclass ForceSetAnimation(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Force Set Animation', editor, properties)\n        self.anim_mgr = self.editor.LevelEditor.game_engine.player.animation\n\n        self.btn_anim = DropdownButton(\n            self,\n            pygame.Rect(15, 30, 110, 24),\n            list(self.anim_mgr.animations.keys()),\n            callback=self._on_select_anim\n        )\n        self.btn_cancel = DropdownButton(\n            self,\n            pygame.Rect(15, 60, 110, 24),\n            [\"True\", \"False\"],\n            callback=self._on_select_cancel\n        )\n\n        if 'choice' in self.properties:\n            self.btn_anim.selected = self.properties['choice']\n        if 'isCancelable' in self.properties:\n            self.btn_cancel.selected = str(self.properties['isCancelable'])\n\n        self.ui_elements.extend([self.btn_anim, self.btn_cancel])\n\n    def _on_select_anim(self, opt: str):\n        self.properties['choice'] = opt\n\n    def _on_select_cancel(self, opt: str):\n        self.properties['isCancelable'] = (opt == \"True\")\n\n    def updateDropDownField(self):\n        opts = list(self.anim_mgr.animations.keys())\n        self.btn_anim.options = opts\n        if self.btn_anim.selected not in opts and opts:\n            self.btn_anim.selected = opts[0]\n            self.properties['choice'] = opts[0]\n        if self.btn_cancel.selected not in [\"True\", \"False\"]:\n            self.btn_cancel.selected = \"True\"\n            self.properties['isCancelable'] = True\n\n    def draw(self, surf, selected=False):\n        self.updateDropDownField()\n        super().draw(surf, selected)\n        for el in self.ui_elements:\n            el.update_position(self.x, self.y)\n            el.draw(surf)\n\n    def execute(self, context):\n        for pin in self.inputs:\n            if pin.pin_type == 'data' and pin.connection:\n                src = pin.connection\n                src.node.execute(context)\n                self.properties[pin.name] = src.node.properties[pin.name]\n\n        anim_name = self.properties.get('choice')\n        cancelable = self.properties.get('isCancelable', True)\n\n        if anim_name in self.anim_mgr.animations:\n            anim_obj = self.anim_mgr.animations[anim_name]\n            anim_obj.isCancelable = cancelable\n            self.anim_mgr.forceSetAnimation(anim_name)\n\n        out = next((p for p in self.outputs if p.pin_type == 'exec'), None)\n        return out.connection.node if out and out.connection else None"
+},
+{
+  "name": "Set Animation",
+  "category": "Player",
+  "source": "editor/blueprint_editor/blueprints/b_player.py",
+  "description": "Change l'animation courante du joueur avec possibilité d'annulation.",
+  "pins": [
+    { "name": "exec", "type": "exec", "direction": "input", "label": "" },
+    { "name": "exec", "type": "exec", "direction": "output", "label": "" }
+  ],
+  "properties": [
+    "choice (nom de l'animation à définir)",
+    "isCancelable (booléen indiquant si l'animation peut être annulée par une autre)"
+  ],
+  "code": "@register_node(\"Set Animation\", category=\"Player\")\nclass SetAnimation(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Set Animation', editor, properties)\n        self.anim_mgr = self.editor.LevelEditor.game_engine.player.animation\n\n        self.btn_anim = DropdownButton(\n            self,\n            pygame.Rect(15, 30, 110, 24),\n            list(self.anim_mgr.animations.keys()),\n            callback=self._on_select_anim\n        )\n        self.btn_cancel = DropdownButton(\n            self,\n            pygame.Rect(15, 60, 110, 24),\n            [\"True\", \"False\"],\n            callback=self._on_select_cancel\n        )\n\n        if 'choice' in self.properties:\n            self.btn_anim.selected = self.properties['choice']\n        if 'isCancelable' in self.properties:\n            self.btn_cancel.selected = str(self.properties['isCancelable'])\n\n        self.ui_elements.extend([self.btn_anim, self.btn_cancel])\n\n    def _on_select_anim(self, opt: str):\n        self.properties['choice'] = opt\n\n    def _on_select_cancel(self, opt: str):\n        self.properties['isCancelable'] = (opt == \"True\")\n\n    def updateDropDownField(self):\n        opts = list(self.anim_mgr.animations.keys())\n        self.btn_anim.options = opts\n        if self.btn_anim.selected not in opts and opts:\n            self.btn_anim.selected = opts[0]\n            self.properties['choice'] = opts[0]\n        if self.btn_cancel.selected not in [\"True\", \"False\"]:\n            self.btn_cancel.selected = \"True\"\n            self.properties['isCancelable'] = True\n\n    def draw(self, surf, selected=False):\n        self.updateDropDownField()\n        super().draw(surf, selected)\n        for el in self.ui_elements:\n            el.update_position(self.x, self.y)\n            el.draw(surf)\n\n    def execute(self, context):\n        for pin in self.inputs:\n            if pin.pin_type == 'data' and pin.connection:\n                src = pin.connection\n                src.node.execute(context)\n                self.properties[pin.name] = src.node.properties[pin.name]\n\n        anim_name = self.properties.get('choice')\n        cancelable = self.properties.get('isCancelable', True)\n\n        if anim_name in self.anim_mgr.animations:\n            anim_obj = self.anim_mgr.animations[anim_name]\n            anim_obj.isCancelable = cancelable\n            self.anim_mgr.setAnimation(anim_name)\n\n        out = next((p for p in self.outputs if p.pin_type == 'exec'), None)\n        return out.connection.node if out and out.connection else None"
+},
+{
+  "name": "Set Pl Anim Speed",
+  "category": "Player",
+  "source": "editor/blueprint_editor/blueprints/b_player.py",
+  "description": "Modifie la vitesse de l'animation actuelle du joueur.",
+  "pins": [
+    { "name": "speed", "type": "data", "direction": "input", "label": "" },
+    { "name": "exec", "type": "exec", "direction": "output", "label": "" }
+  ],
+  "properties": [
+    "speed (vitesse d'animation, frameRate)"
+  ],
+  "code": "@register_node(\"Set Pl Anim Speed\", category=\"Player\")\nclass SetAnimationSpeed(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Set Pl Anim Speed', editor, properties)\n        # Data pin pour injecter une valeur éventuelle\n        current_speed = self.editor.LevelEditor.game_engine.player.animation.getCurrentAnimation().frameRate\n        self.add_data_pin('speed', False, str(current_speed), 'Speed')\n        # Champ texte pour saisir manuellement\n        speed_field = InputField(\n            rect=(0, 0, 120, 20),\n            text=str(self.properties.get('speed', current_speed)),\n            placeholder='Animation Speed',\n            on_change=lambda t: self._on_change('speed', t)\n        )\n        speed_field.update_position = lambda nx, ny: setattr(\n            speed_field, 'rect',\n            pygame.Rect(\n                nx - editor.offset[0] + 10,\n                ny - editor.offset[1] + 50,\n                120, 20\n            )\n        )\n        speed_field.update_position(self.x, self.y)\n        self.ui_elements.append(speed_field)\n\n    def _on_change(self, key, txt):\n        try:\n            self.properties[key] = txt\n        except Exception:\n            pass\n\n    def execute(self, context):\n        for pin in self.inputs:\n            if pin.pin_type == 'data' and pin.connection:\n                src = pin.connection\n                src.node.execute(context)\n                self.properties[pin.name] = src.node.properties[src.name]\n\n        try:\n            speed_val = float(self.properties['speed'])\n        except (KeyError, ValueError):\n            speed_val = self.editor.LevelEditor.game_engine.player.animation.getCurrentAnimation().frameRate\n\n        anim = self.editor.LevelEditor.game_engine.player.animation.getCurrentAnimation()\n        anim.frameRate = speed_val\n\n        out = next((p for p in self.outputs if p.pin_type == 'exec'), None)\n        return out.connection.node if out and out.connection else None\n\n    def draw(self, surf, selected=False):\n        super().draw(surf, selected)\n        for el in self.ui_elements:\n            el.update_position(self.x, self.y)\n            el.draw(surf)"
+},
+  {
+    "name": "Set z index",
+    "category": "Player",
+    "source": "editor/blueprint_editor/blueprints/b_player.py",
+    "description": "Définit l'indice z (z-index) du joueur.",
+    "pins": [
+      { "name": "exec", "type": "exec", "direction": "input", "label": "" },
+      { "name": "exec", "type": "exec", "direction": "output", "label": "" },
+      { "name": "index", "type": "data", "direction": "input", "label": "index" }
+    ],
+    "properties": ["string (index)"],
+    "code": "@register_node(\"Set z index\", category=\"Player\")\nclass SetPlayerIndex(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Set z index', editor, properties)\n        current_index = self.editor.LevelEditor.game_engine.level.player_z_index\n        self.add_data_pin('index', False, str(current_index), 'index')\n        index_field = InputField(\n            rect=(0, 0, 120, 20),\n            text=str(self.properties.get('index', current_index)),\n            placeholder='Pl z-index',\n            on_change=lambda t: self._on_change('index', t)\n        )\n        index_field.update_position = lambda nx, ny: setattr(\n            index_field, 'rect',\n            pygame.Rect(\n                nx - editor.offset[0] + 10,\n                ny - editor.offset[1] + 50,\n                120, 20\n            )\n        )\n        index_field.update_position(self.x, self.y)\n        self.ui_elements.append(index_field)\n\n    def _on_change(self, key, txt):\n        try:\n            self.properties[key] = txt\n        except Exception:\n            pass\n\n    def execute(self, context):\n        for pin in self.inputs:\n            if pin.pin_type == 'data' and pin.connection:\n                src = pin.connection\n                src.node.execute(context)\n                self.properties[pin.name] = src.node.properties[src.name]\n\n        try:\n            index = int(self.properties['index'])\n        except (KeyError, ValueError):\n            index = self.editor.LevelEditor.game_engine.level.player_z_index\n\n        self.editor.LevelEditor.game_engine.level.player_z_index = int(index)\n\n        out = next((p for p in self.outputs if p.pin_type == 'exec'), None)\n        return out.connection.node if out and out.connection else None\n\n    def draw(self, surf, selected=False):\n        super().draw(surf, selected)\n        for el in self.ui_elements:\n            el.update_position(self.x, self.y)\n            el.draw(surf)"
+  },
+  {
+    "name": "Get z index",
+    "category": "Player",
+    "source": "editor/blueprint_editor/blueprints/b_player.py",
+    "description": "Renvoie l'indice z (z-index) actuel du joueur.",
+    "pins": [
+      { "name": "index", "type": "data", "direction": "output", "label": "Current index" }
+    ],
+    "properties": ["string (index)"],
+    "code": "@register_node(\"Get z index\", category=\"Player\")\nclass GetZIndex(Node):\n    def __init__(self, pos, editor, properties):\n        super().__init__(pos, 'Get z index', editor, properties)\n        self.inputs.clear()\n        self.outputs.clear()\n        self.add_data_pin('index', True, '0', 'Current index')\n        self.height = 60\n\n    def execute(self, context):\n        self.properties['index'] = self.editor.LevelEditor.game_engine.level.player_z_index\n        return None\n\n    def draw(self, surf, selected=False):\n        super().draw(surf, selected)\n        self.execute({})\n        font = pygame.font.Font(None, 18)\n        text = font.render(f\"{self.properties['index']}\", True, (220, 220, 220))\n        ox, oy = self.editor.offset\n        x = self.x - ox + 20\n        y = self.y - oy + 34\n        surf.blit(text, (x, y))"
+  }
+
+]

@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/7.1.0/fuse.min.js" integrity="sha512-H1bWCnc4dDJwdioqpOCkU76ZxEdvBvOy9R9Dd9EqftlzQg92owjX5IVdiOw00llAyQFUZJNPrzDnWZ/lZtf25A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="icon" href="/assets/images/search.ico" />
+    <title>Documentation TileMapEditor</title>
+</head>
+<body>
+  <header>
+    <nav>
+      <a class="nav-left" href="https://github.com/zerosh0/TileMapEditor" target="_blank">
+        <img src="../assets/images/github.svg" alt="GitHub" id="github"/>
+        <h1 id="title">TileMapEditor</h1>
+      </a>
+  <div id="search-container">
+    <input id="search" placeholder="Rechercher…" autocomplete="off" />
+    <div id="search-results"></div>
+  </div>
+    </nav>
+  </header>
+    <button id="mobile-menu-btn" aria-label="Ouvrir le menu" class="mobile-menu-btn">
+    &#9776;
+    </button>
+
+  <img id="illustration" src="../assets/images/illustration.svg" alt="Illustration" />
+
+  <div class="layout">
+
+<aside class="sidebar-left">
+  <nav>
+    <ul class="menu">
+      <li>
+        <a href="../index.html">Accueil</a>
+      </li>
+
+      <li>
+        <a href="getting-started.html">Prise en main</a>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="interface.html">Interface</a>
+        </div>
+        <ul class="submenu">
+          <li><a href="interface.html#viewport">Viewport</a></li>
+          <li><a href="interface.html#tilepalette">Tile Palette</a></li>
+          <li><a href="interface.html#layers">Layers</a></li>
+          <li><a href="interface.html#tools">Outils</a></li>
+        </ul>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="animations.html#">Animations</a>
+        </div>
+        <ul class="submenu">
+          <li><a href="animations.html#intro">Présentation</a></li>
+          <li><a href="animations.html#animation-editor">Éditeur d'animation</a></li>
+          <li><a href="animations.html#timeline">Timeline</a></li>
+          <li><a href="animations.html#playmode-integration">Intégration au mode Play</a></li>
+        </ul>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="#" class="active">Éditeur Nodal</a>
+        </div>
+        <ul class="submenu">
+          <li><a href="#overview">Présentation</a></li>
+          <li><a href="#node-types">Types de nœuds</a></li>
+          <li><a href="#errors">Erreurs & validation</a></li>
+          <li><a href="#custom-nodes">Nodes personnalisés</a></li>
+        </ul>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="settings.html" >Paramètres</a>
+        </div>
+        <ul class="submenu">
+        <li><a href="settings.html#world-settings">World Settings</a></li>
+        <li><a href="settings.html#player-profile">Player Profile</a></li>
+        <li><a href="settings.html#advanced">Paramètres Avancés</a></li>
+        </ul>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="data-format.html">Stockage & Données</a>
+        </div>
+        <ul class="submenu">
+          <li><a href="data-format.html#level">Niveau</a></li>
+          <li><a href="data-format.html#tilemaps">TileMaps</a></li>
+          <li><a href="data-format.html#animations">Animations</a></li>
+          <li><a href="data-format.html#nodes">Nodes</a></li>
+          <li><a href="data-format.html#parameters">Paramètres</a></li>
+        </ul>
+      </li>
+
+        <li>
+        <a href="references.html">Bibliothèque</a>
+      </li>
+
+    </ul>
+  </nav>
+</aside>
+
+
+
+
+<main class="content">
+  <div class="inner">
+    <article>
+
+      <h1 id="overview">Présentation générale</h1>
+      <p>
+        Le <strong>LevelGraph</strong> est un éditeur nodal intégré qui permet de définir des logiques personnalisées pour chaque collision présente dans un niveau.
+        Lorsqu'une collision est sélectionnée, cliquez sur l'icône <strong>engrenage + clé à molette</strong> (en haut à droite de la section "Editing") pour ouvrir l'éditeur nodal associé.
+      </p>
+<picture>
+  <source srcset="../assets/image_webp/levelgraph.webp" type="image/webp" />
+  <img src="../assets/images/levelgraph.gif" alt="Ouverture du level graph" style="max-width: 100%; margin-bottom: 1rem;" loading="lazy" />
+</picture>
+      <h2 id="navigation">Navigation et interaction</h2>
+      <ul>
+        <li><strong>Clique droit</strong> : ouvrir le menu de création de nœud à l'emplacement du curseur</li>
+        <li><strong>Scroll</strong> : zoomer/dézoomer dans le menu contextuel ou le viewport</li>
+        <li><strong>Drag avec molette ou alt+Clique gauche</strong> : déplacer la vue dans le viewport</li>
+        <li><strong>Drag clique gauche</strong> : sélectionner une ou plusieurs nodes</li>
+        <li><strong>Supr</strong> : supprimer les nodes sélectionnées</li>
+        <li><strong>Ctrl+C / Ctrl+V</strong> : copier-coller (fonctionne entre plusieurs LevelGraphs)</li>
+        <li><strong>Drag sur un pin</strong> : connecter à un autre pin ou ouvrir une recherche de node connectée</li>
+        <li><strong>Flèche gauche</strong> : ouvrir/fermer le panneau de node à gauche (catégorisé)</li>
+      </ul>
+
+      <h2 id="node-types">Types de nœuds</h2>
+      <p>Chaque nœud représente une instruction. On distingue 4 grands types :</p>
+      <ul>
+        <li><strong>Événements</strong> 🔴 (rouge) : <code>OnEnter</code>, <code>OnExit</code>, <code>OnStart</code>, <code>OnTick</code>, <code>OnEnd</code>, <code>OnOverlap</code></li>
+        <li><strong>Actions</strong> ⚪ : exécution d'une tâche (ex : <code>Teleport</code>, <code>Play Animation</code>)</li>
+        <li><strong>Setters</strong> 🔧 : modification de données (ex : <code>Set Player Speed</code>)</li>
+        <li><strong>Getters</strong> 🟣 : récupération de données (ex : <code>Get Player Health</code>)</li>
+      </ul>
+      <p>
+        Les <strong>pins blancs</strong> sont des <em>exec pins</em> pour déclencher des suites d'actions.
+        Les <strong>pins violets</strong> sont des <em>data pins</em> pour transmettre des valeurs.
+      </p>
+      <div class="alert alert-info">
+  <div class="alert-body">
+    <strong>Astuce :</strong> Vous pouvez consulter la documentation d'une node directement depuis la bibliothèque de nodes.  
+    Rendez-vous dans la <strong><a href="references.html" target="_blank" style=" color: #055160;">documentation des nodes</a> </strong>pour plus de détails.
+  </div>
+</div>
+
+<picture>
+  <source srcset="../assets/image_webp/nodes.webp" type="image/webp" />
+  <img src="../assets/images/nodes.png" alt="Types de nœuds" style="max-width: 100%; margin-bottom: 1rem;" loading="lazy" />
+</picture>
+
+
+      <h2 id="logic-nodes">🧠 Nœuds logiques et événements</h2>
+
+<p>
+  Pour construire des logiques dynamiques, l'éditeur propose plusieurs nœuds essentiels. Voici un aperçu des plus utilisés :
+</p>
+
+<h3>⚙️ Nœuds de logique</h3>
+<ul>
+  <li><strong><code>If</code></strong> — compare deux valeurs (<code>A</code> et <code>B</code>) avec un opérateur (<code>==</code>, <code>!=</code>, <code>&lt;</code>, etc.) et exécute selon le résultat (sorties <code>true</code> ou <code>false</code>).</li>
+  <li><strong><code>For</code></strong> — exécute une boucle <code>n</code> fois. Utilisez la sortie <code>loop</code> pour les instructions répétées n fois, et <code>next</code> pour continuer à la fin de la boucle, i correspond à l'indice de cette dernière.</li>
+  <li><strong><code>Sequence</code></strong> — déclenche une suite d'instructions dans l'ordre (utile pour enchaîner plusieurs actions).</li>
+  <li><strong><code>FlipFlop</code></strong> — alterne entre deux sorties <code>A</code> et <code>B</code> à chaque activation.</li>
+  <li><strong><code>Once</code></strong> — n'exécute qu'une seule fois, même si le flux repasse dedans. Très utile pour déclencher des actions uniques.</li>
+  <li><strong><code>Set Variable</code></strong> / <strong><code>Get Variable</code></strong> — permet de stocker et réutiliser des valeurs (états, compteurs, flags...)</li>
+</ul>
+<picture>
+  <source srcset="../assets/image_webp/logic.webp" type="image/webp" />
+  <img src="../assets/images/logic.png" alt="Nœuds logiques" style="max-width: 100%; margin-top: 1rem;" loading="lazy" />
+</picture>
+
+
+<div class="alert alert-warning">
+  <div class="alert-body">
+    <strong>Remarque :</strong> Les variables utilisées avec <code>Set Variable</code> et <code>Get Variable</code> sont <strong>propres à chaque LevelGraph</strong>.  
+    Elles sont <strong>réinitialisées à chaque lancement du mode Play</strong>, ce qui signifie qu'elles ne conservent pas leur valeur entre deux sessions.
+  </div>
+</div>
+
+<h3>🎯 Nœuds d'événements</h3>
+<p>
+  Chaque événement représente un déclencheur automatique. Un même événement ne peut être ajouté qu'une seule fois par LevelGraph.
+</p>
+<ul>
+  <li><strong><code>OnEnter</code></strong> — déclenché lorsque le joueur entre dans la collision</li>
+  <li><strong><code>OnExit</code></strong> — déclenché à la sortie du joueur de la collision</li>
+  <li><strong><code>OnOverlap</code></strong> — déclenché tant que le joueur reste dans la collision</li>
+  <li><strong><code>OnStart</code></strong> — au lancement du mode Play</li>
+  <li><strong><code>OnTick</code></strong> — déclenché à chaque frame (⚠️ à utiliser avec modération)</li>
+  <li><strong><code>OnEnd</code></strong> — à la fermeture du mode Play</li>
+</ul>
+
+<picture>
+  <source srcset="../assets/image_webp/events.webp" type="image/webp" />
+  <img src="../assets/images/events.png" alt="Types de nœuds d'événements" style="max-width: 100%; margin-top: 1rem;" loading="lazy" />
+</picture>
+
+
+
+<div class="alert alert-info">
+  <div class="alert-body">
+    <strong>Info :</strong> Lors de la sauvegarde d'un niveau, le graphe nodal est automatiquement enregistré dans un fichier <code>.lvg</code>, placé dans le même dossier que le fichier <code>.json</code> du niveau.  
+    Le chemin absolu de ce fichier est stocké dans le <code>.json</code> du niveau.  
+    Lors du chargement, l'éditeur tente d'abord d'ouvrir ce fichier via le chemin absolu. Si celui-ci est introuvable (par exemple après un déplacement), il essaiera alors de le retrouver en utilisant un chemin relatif basé sur le dossier du niveau.
+  </div>
+</div>
+
+      <h2 id="errors">💥 Gestion des erreurs</h2>
+      <p>
+        Le système est doté d'un <strong>mécanisme de détection d'erreur runtime</strong>. Si une erreur est rencontrée pendant l'exécution en mode Play :
+      </p>
+      <ul>
+        <li>Le jeu est mis en pause automatiquement</li>
+        <li>Le LevelGraph concerné est rouvert</li>
+        <li>Un message d'erreur détaillé est affiché</li>
+      </ul>
+<picture>
+  <source srcset="../assets/image_webp/error.webp" type="image/webp" />
+  <img src="../assets/images/error.png" alt="Error" style="max-width: 100%; margin-bottom: 1rem;" loading="lazy" />
+</picture>
+
+      <div class="alert alert-error">
+        <div class="alert-body">
+          <strong>Attention :</strong> Les erreurs non typées (ex : un setter avec une mauvaise valeur de type) peuvent ne pas être interceptées et faire planter l'éditeur.
+        </div>
+      </div>
+
+<h3>🧵 Exécution mono-thread</h3>
+<p>
+  L'exécution du <strong>LevelGraph</strong> se fait entièrement dans le <strong>fil principal</strong> du jeu, aussi appelé thread principal.
+  Cela signifie que chaque instruction nodale est traitée les unes après les autres, sans interruption ni exécution en parallèle.
+</p>
+
+<p>
+  En pratique, cela veut dire que si une série de nœuds prend trop de temps à s'exécuter (par exemple une boucle très longue), <strong>le jeu peut se figer temporairement</strong>, le temps que toute la chaîne soit parcourue. Aucune autre logique ou animation ne pourra s'exécuter durant ce laps de temps.
+</p>
+
+<div class="alert alert-info">
+  <div class="alert-body">
+    <strong>Conseil :</strong> Le nœud <code>Delay</code> est le seul à fonctionner de manière <strong>asynchrone</strong>. Il permet de suspendre l'exécution sans bloquer le reste du jeu. Vous pouvez l'utiliser pour insérer des pauses dans vos logiques sans impacter la fluidité globale.
+  </div>
+</div>
+
+  <img src="../assets/images/delay.jpg" alt="Delay exception" class="no-bg" style="max-width: 100%; margin-bottom: 1rem; box-shadow: -1px 7px 16px 3px rgb(208 208 219);" loading="lazy" />
+
+
+<div class="alert alert-warning">
+  <div class="alert-body">
+    <strong>Attention :</strong> Le nœud <code>Delay</code> <strong>ne peut pas être utilisé</strong> directement à la sortie du pin loop d'une boucle For, car les boucles sont exécutées de manière synchrone. Cette erreur est automatiquement détectée par l'éditeur et signalée.
+  </div>
+</div>
+
+<p>
+  <ul>
+    <li>🟢 Les exécutions sont séquentielles : une instruction à la fois</li>
+    <li>🔴 Aucune exécution parallèle n'est possible entre deux chaînes de nœuds</li>
+    <li>⏱️ Évitez les logiques coûteuses ou les boucles trop grandes sans contrôle</li>
+    <li>🧠 Pensez à isoler des comportements complexes avec des <code>Delay</code> ou des séquences bien découpées</li>
+  </ul>
+</p>
+
+
+      <h3>🔁 Boucles infinies ?</h3>
+      <p>
+        En théorie, une boucle infinie est impossible : chaque node ne peut avoir qu'un seul pin <code>exec</code> entrant et sortant. Toutefois, soyez attentif à vos logiques répétitives.
+      </p>
+
+      <h2 id="audio">🔊 Système audio</h2>
+      <p>
+        Deux nœuds permettent de jouer des sons :
+      </p>
+      <ul>
+        <li><code>Play Sound</code> : joue un son brut</li>
+        <li><code>Emit Sound From</code> : joue un son spatialisé depuis un <code>Location Point</code></li>
+      </ul>
+<picture>
+  <source srcset="../assets/image_webp/sound.webp" type="image/webp" />
+  <img src="../assets/images/sound.png" alt="Système audio" style="max-width: 100%; margin-bottom: 1rem;" loading="lazy" />
+</picture>
+
+      <div class="alert alert-info">
+        <div class="alert-body">
+          <strong>Info :</strong> Les sons doivent être placés dans <code>./Ressources/audio_files</code> pour apparaître dans les sélecteurs.
+        </div>
+      </div>
+<div class="alert alert-warning">
+  <div class="alert-body">
+    <strong>Limite :</strong> Par défaut, <code>pygame</code> ne permet que <strong>8 canaux audio simultanés</strong>, ce qui signifie que seuls 8 sons peuvent être joués en même temps. 
+    L'éditeur élève automatiquement cette limite à <strong>32 canaux:</strong>
+    <br><br>
+    <code>pygame.mixer.set_num_channels(32)</code>
+    <br><br>
+    Cette ligne se trouve en bas du fichier <code>main.py</code>, dans le bloc <code>if __name__ == "__main__"</code>.
+    <br><br>
+    ➕ Si vous jouez beaucoup de sons (par exemple via des effets, musiques et sons spatialisés), certains peuvent être ignorés. Dans ce cas, vous pouvez augmenter la limite, par exemple :
+    <pre><code>pygame.mixer.set_num_channels(64)</code></pre>
+    
+    ✅ Si cette limite est atteinte en cours d'exécution, <strong>l'éditeur vous affichera automatiquement un message d'avertissement</strong> pour vous en informer, afin que vous puissiez ajuster cette valeur.
+    <br><br>
+    ⚠️ Attention toutefois : augmenter le nombre de canaux augmente légèrement l'utilisation mémoire et peut entraîner des problèmes de mixage ou de saturation audio sur certaines machines.
+  </div>
+</div>
+
+<h2 id="conditions">🧩 Conditions de placement</h2>
+<p>
+  Tous les nœuds ne sont pas disponibles immédiatement : certains dépendent du contexte du niveau ou de la présence de certaines ressources. Ces restrictions évitent des erreurs lors de l'exécution.
+</p>
+
+<picture>
+  <source srcset="../assets/image_webp/teleport_error.webp" type="image/webp" />
+  <img src="../assets/images/teleport_error.png" alt="Exemple de nodes désactivés" style="max-width: 100%; margin-top: 1rem;" loading="lazy" />
+</picture>
+
+
+<p style="font-style: italic; font-size: 0.9rem; margin-top: 0.5rem;">
+  Exemple : certains nœuds comme <code>Teleport</code> sont désactivés tant qu'aucun point de localisation n'est placé sur la scène.
+</p>
+<div class="alert alert-warning">
+  <div class="alert-body">
+    <strong>Remarque :</strong> Si un nœud ne peut pas être posé, il sera désactivé. L'éditeur empêche alors automatiquement son ajout pour garantir la cohérence du graphe.
+  </div>
+</div>
+
+<h3>🔄 Exemples fréquents</h3>
+<ul>
+  <li><strong>🔀 Teleport</strong> : nécessite au moins un <code>Location Point</code> placé dans le niveau.</li>
+  <li><strong>🎵 Nœuds Audio</strong> : pour utiliser <code>Play Sound</code>, <code>Emit Sound From</code>, etc., il faut que des fichiers audio soient présents dans <code>./Ressources/audio_files</code>.</li>
+  <li><strong>🔁 Emit Sound From</strong> : dépend de la présence d'un <code>Location Point</code> dans la scène.</li>
+</ul>
+
+<h3>📁 Emplacements des ressources</h3>
+<p>
+  Pour que les <strong>nœuds audio</strong> puissent jouer des sons dans un niveau, les fichiers doivent être placés dans des dossiers spécifiques. L'éditeur les parcourt automatiquement pour alimenter le menu de sélection.
+</p>
+
+<ul>
+  <li>
+    <code>./Ressources/audio_files</code> — répertoire principal pour <strong>vos sons personnalisés</strong>. Tous les fichiers audio ajoutés ici seront disponibles dans l'éditeur.
+  </li>
+  <li>
+    <code>./editor/game_engine/Assets/sounds_effects</code> — utilisé exclusivement par les <strong>niveaux d'exemple</strong> fournis avec l'éditeur (par exemple <code>new_exemple.json</code>). Il permet de séparer les ressources internes de démonstration des projets utilisateurs.
+  </li>
+</ul>
+
+<div class="alert alert-info">
+  <div class="alert-body">
+    <strong>Conseil :</strong> Pour garder vos projets propres et autonomes, placez vos fichiers sonores dans <code>./Ressources/audio_files</code>. Évitez de modifier les ressources système ou d'exemple.
+  </div>
+</div>
+
+  <h2 id="custom-nodes">🧩 Créer ses propres Custom Nodes</h2>
+
+  <p>
+    Le système nodal est extensible grâce aux <strong>Custom Nodes</strong>, que vous pouvez ajouter simplement en Python.
+    Chaque nœud personnalisé hérite de la classe <code>Node</code> et est enregistré via le décorateur <code>@register_node</code>.
+  </p>
+
+<div class="alert alert-warning">
+  <div class="alert-body">
+    <strong>Important :</strong> Tous les nœuds personnalisés doivent être définis dans le fichier
+    <code>./editor/blueprint_editor/blueprints/b_custom.py</code> pour être reconnus par l’éditeur.
+    Assurez-vous que vos classes soient bien décorées avec <code>@register_node</code>.
+  </div>
+</div>
+
+
+  <h3>🔧 Structure de base</h3>
+  <pre class="language-python"><code>
+@register_node("NomAffiché", category="MaCatégorie")
+class MonNode(Node):
+    def __init__(self, pos, editor, properties):
+        super().__init__(pos, "TitreDuNode", editor, properties)
+        # Ajouter des pins ici
+        self.add_data_pin("nom", is_output=False, default=0, label="Entrée")
+    
+    def execute(self, context):
+        # Code d'exécution ici
+        next_node = next((p.connection.node for p in self.outputs if p.pin_type == "exec"), None)
+        return next_node # ou None si c'est un getter car pas de pin exec à suivre
+  </code></pre>
+
+  <p>
+    Chaque nœud hérite de <code>Node</code> et doit redéfinir la méthode <code>execute(self, context)</code>.<br>
+    Les sorties (appelées <strong>pins</strong>) peuvent être ajoutées avec <code>add_data_pin</code>.
+  </p>
+
+  <h3>📤 Exemple 1 : Getter</h3>
+  <p>Expose une valeur du jeu via un pin de sortie.</p>
+  <pre class="language-python"><code>
+@register_node("Get Score", category="Custom")
+class GetScore(Node):
+    def __init__(self, pos, editor, properties):
+        super().__init__(pos, "Get Score", editor, properties)
+        self.inputs.clear()  # Pas d'entrée
+        self.outputs.clear()
+        self.add_data_pin("score", is_output=True, default=0, label="Score")
+    
+    def execute(self, context):
+        self.properties["score"] = self.editor.game_state.get("player_score", 0)
+        return None
+  </code></pre>
+
+  <h3>📥 Exemple 2 : Setter</h3>
+  <p>Reçoit une valeur via un pin d'entrée et l'enregistre.</p>
+  <pre class="language-python"><code>
+@register_node("Set Health", category="Custom")
+class SetHealth(Node):
+    def __init__(self, pos, editor, properties):
+        super().__init__(pos, "Set Health", editor, properties)
+        self.add_data_pin("hp", is_output=False, default=100, label="HP")
+    
+    def execute(self, context):
+        pin = next(p for p in self.inputs if p.name == "hp")
+        value = pin.connection.node.properties[pin.connection.name] if pin.connection else self.properties["hp"]
+        self.editor.game_state["player_health"] = int(value)
+        return next((p.connection.node for p in self.outputs if p.pin_type == "exec"), None)
+  </code></pre>
+
+  <h3>▶️ Exemple 3 : Action</h3>
+  <p>Déclenche une animation ou effet sans manipulation de données.</p>
+  <pre class="language-python"><code>
+@register_node("Play Animation", category="Custom")
+class PlayAnim(Node):
+    def __init__(self, pos, editor, properties):
+        super().__init__(pos, "Play Animation", editor, properties)
+        self.add_data_pin("anim_name", is_output=False, default="idle", label="Animation")
+    
+    def execute(self, context):
+        pin = next(p for p in self.inputs if p.name == "anim_name")
+        name = pin.connection.node.properties[pin.connection.name] if pin.connection else self.properties["anim_name"]
+        self.editor.game_engine.play_animation(name)
+        return next((p.connection.node for p in self.outputs if p.pin_type == "exec"), None)
+  </code></pre>
+
+<h3>🎬 Exemple 4 : Action avec UI - <code>Play Animation</code></h3>
+<p>
+  Ce nœud permet de jouer une animation prédéfinie dans l'éditeur. L'utilisateur peut sélectionner l'animation via une liste déroulante dynamique.
+</p>
+
+<div class="alert alert-info">
+  <div class="alert-body">
+    <strong>Type :</strong> Action - ce nœud déclenche un effet mais ne transfère pas de données.  
+  </div>
+</div>
+
+<h4>💡 Comportement</h4>
+<ul>
+  <li>Affiche dynamiquement les animations disponibles à partir du gestionnaire de l'éditeur.</li>
+  <li>Joue l'animation sélectionnée lorsque le nœud est exécuté.</li>
+  <li>Utilise un <code>DropdownButton</code> pour l'UI.</li>
+</ul>
+
+<h4>🧱 Code complet (./editor/blueprint_editor/blueprints/b_animations.py)</h4>
+
+<pre class="language-python"><code>
+@register_node("Play Animation", category="Animation")
+class PlayAnimation(Node):
+    def __init__(self, pos, editor, properties):
+        super().__init__(pos, 'Play Animation', editor, properties)
+        self.editor = editor
+
+        # DropdownButton avec les noms des animations
+        self.btn = DropdownButton(
+            self,
+            pygame.Rect(10, 30, 120, 24),
+            list(self.editor.LevelEditor.animations.animations.keys()),
+            callback=self._on_select
+        )
+
+        # Réutilisation d'un choix précédent
+        if self.properties.get('choice'):
+            self.btn.selected = self.properties['choice']
+
+        # Ajout à l'UI
+        self.ui_elements.append(self.btn)
+
+    def _on_select(self, opt: str):
+        self.properties['choice'] = opt
+
+    def updateDropDownField(self):
+        # Met à jour les options depuis le dictionnaire d'animations
+        self.btn.options = list(self.editor.LevelEditor.animations.animations.keys())
+        if not self.btn.selected in self.btn.options and self.btn.options:
+            self.btn.selected = self.btn.options[0]
+
+    def draw(self, surf, selected=False):
+        self.updateDropDownField()
+        super().draw(surf, selected)
+        for el in self.ui_elements:
+            el.update_position(self.x, self.y)
+            el.draw(surf)
+
+    def execute(self, context):
+        # Met à jour les entrées data si présentes
+        for pin in self.inputs:
+            if pin.pin_type == 'data' and pin.connection:
+                src = pin.connection
+                getter_node = src.node
+                getter_node.execute(context)
+                self.properties[pin.name] = getter_node.properties[src.name]
+
+        # Joue l'animation sélectionnée
+        anim = self.editor.LevelEditor.animations.animations[self.btn.selected]
+        anim.timeline.current = 0.0
+        anim.play(anim.timeline.loop)
+
+        # Passe au prochain nœud de la branche
+        out = next((p for p in self.outputs if p.pin_type == 'exec'), None)
+        return out.connection.node if out and out.connection else None
+</code></pre>
+
+<h4>🖼️ Interface dans l'éditeur</h4>
+<p>Le nœud s'affichera avec un bouton déroulant contenant les noms des animations disponibles.</p>
+<ul>
+  <li>Les options sont automatiquement extraites du gestionnaire <code>self.editor.LevelEditor.animations</code>.</li>
+  <li>Le champ <code>choice</code> dans les <code>properties</code> stocke le nom choisi.</li>
+</ul>
+
+
+  <h2 id="next-steps">Envie d'en savoir plus ?</h2>
+  <p>
+    Consultez les pages suivantes pour explorer les fonctionnalités clés de l'éditeur :
+  </p>
+  <ul>
+    <li>
+      🔧 <strong><a href="interface.html">Interface</a></strong> — Comprendre les outils de dessin, la gestion des layers et le fonctionnement du viewport.
+    </li>
+    <li>
+      🎞️ <strong><a href="animations.html">Animations</a></strong> — Créez, éditez et déclenchez des animations dans vos niveaux à l'aide de la timeline visuelle.
+    </li>
+<picture>
+  <source srcset="../assets/image_webp/sleep.webp" type="image/webp" />
+  <img src="../assets/images/sleep.gif" alt="Éditeur Nodal en action" style="max-width: 600px; margin-top: 1em;" loading="lazy" />
+</picture>
+
+
+    </article>
+  </div>
+</main>
+
+<aside class="sidebar-right" style="height: 220px;">
+  <div class="toc">
+    <strong>Sur cette page</strong>
+    <ul>
+      <li><a href="#overview">Présentation générale</a></li>
+      <li><a href="#navigation">Navigation</a></li>
+      <li><a href="#node-types">Types de nœuds</a></li>
+      <li><a href="#logic-nodes">Nœuds logiques</a></li>
+      <li><a href="#errors">Gestion des erreurs</a></li>
+      <li><a href="#audio">Système audio</a></li>
+      <li><a href="#conditions">Conditions</a></li>
+      <li><a href="#custom-nodes">Noeuds personnalisés</a></li>
+    </ul>
+  </div>
+</aside>
+
+
+
+
+
+
+  </div>
+
+</body>
+    <script src="../assets/js/script.js"></script>
+</html>

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/7.1.0/fuse.min.js" integrity="sha512-H1bWCnc4dDJwdioqpOCkU76ZxEdvBvOy9R9Dd9EqftlzQg92owjX5IVdiOw00llAyQFUZJNPrzDnWZ/lZtf25A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="../assets/js/script.js"></script>
+    <title>Documentation TileMapEditor</title>
+    <link rel="icon" href="/assets/images/search.ico" />
+</head>
+<body>
+  <header>
+    <nav>
+      <a class="nav-left" href="https://github.com/zerosh0/TileMapEditor" target="_blank">
+        <img src="../assets/images/github.svg" alt="GitHub" id="github"/>
+        <h1 id="title">TileMapEditor</h1>
+      </a>
+  <div id="search-container">
+    <input id="search" placeholder="Rechercher…" autocomplete="off" />
+    <div id="search-results"></div>
+  </div>
+    </nav>
+  </header>
+    <button id="mobile-menu-btn" aria-label="Ouvrir le menu" class="mobile-menu-btn">
+    &#9776;
+    </button>
+
+  <img id="illustration" src="../assets/images/illustration.svg" alt="Illustration" />
+
+  <div class="layout">
+
+
+<aside class="sidebar-left">
+  <nav>
+    <ul class="menu">
+      <li>
+        <a href="../index.html">Accueil</a>
+      </li>
+
+      <li>
+        <a href="" class="active">Prise en main</a>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="interface.html">Interface</a>
+        </div>
+        <ul class="submenu">
+          <li><a href="interface.html#viewport">Viewport</a></li>
+          <li><a href="interface.html#tilepalette">Tile Palette</a></li>
+          <li><a href="interface.html#layers">Layers</a></li>
+          <li><a href="interface.html#tools">Outils</a></li>
+        </ul>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="animations.html#">Animations</a>
+        </div>
+        <ul class="submenu">
+          <li><a href="animations.html#intro">Présentation</a></li>
+          <li><a href="animations.html#animation-editor">Éditeur d'animation</a></li>
+          <li><a href="animations.html#timeline">Timeline</a></li>
+          <li><a href="animations.html#playmode-integration">Intégration au mode Play</a></li>
+        </ul>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="editor_nodal.html#">Éditeur Nodal</a>
+        </div>
+        <ul class="submenu">
+          <li><a href="editor_nodal.html#overview">Présentation</a></li>
+          <li><a href="editor_nodal.html#node-types">Types de nœuds</a></li>
+          <li><a href="editor_nodal.html#errors">Erreurs & validation</a></li>
+          <li><a href="editor_nodal.html#custom-nodes">Nodes personnalisés</a></li>
+        </ul>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="settings.html" >Paramètres</a>
+        </div>
+        <ul class="submenu">
+        <li><a href="settings.html#world-settings">World Settings</a></li>
+        <li><a href="settings.html#player-profile">Player Profile</a></li>
+        <li><a href="settings.html#advanced">Paramètres Avancés</a></li>
+        </ul>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="data-format.html">Stockage & Données</a>
+        </div>
+        <ul class="submenu">
+          <li><a href="data-format.html#level">Niveau</a></li>
+          <li><a href="data-format.html#tilemaps">TileMaps</a></li>
+          <li><a href="data-format.html#animations">Animations</a></li>
+          <li><a href="data-format.html#nodes">Nodes</a></li>
+          <li><a href="data-format.html#parameters">Paramètres</a></li>
+        </ul>
+      </li>
+
+        <li>
+        <a href="references.html">Bibliothèque</a>
+      </li>
+
+    </ul>
+  </nav>
+</aside>
+
+
+
+    <!-- Main content area -->
+<main class="content">
+  <div class="inner">
+    <article>
+      <h1 id="overview">Vue d'ensemble de TileMapEditor</h1>
+      <p>
+        Voici un aperçu des quatre grands axes de TileMapEditor pour comprendre en un clin d'œil ce que l'éditeur permet de faire.
+      </p>
+
+      <!-- 1. Édition de niveau -->
+      <h2 id="level-editing">1. Édition de niveau</h2>
+      <p>
+        Construisez vos cartes en plaçant des tuiles, en gérant les calques, en dessinant des zones de collision
+        et en ajoutant des points de repère pour guider le gameplay.
+      </p>
+      <ul>
+        <li><strong>Placement de tuiles</strong> : dessinez directement sur la grille.</li>
+        <li><strong>Layers</strong> : importez plusieurs TileMaps, superposez-les et ajustez leur opacité.</li>
+        <li><strong>Collisions</strong> : définissez des rectangles semi-transparents pour les interactions.</li>
+        <li><strong>Points de repère</strong> : placez des marqueurs (spawn, triggers) dans votre niveau.</li>
+      </ul>
+  <picture>
+    <source srcset="../assets/image_webp/editing.webp" type="image/webp">
+    <img src="../assets/images/editing.gif" alt="Édition de niveau" style="max-width:700px;" loading="lazy" />
+  </picture>
+
+
+      <!-- 2. Animations -->
+      <h2 id="animations-overview">2. Animations</h2>
+      <p>
+        Animez vos tuiles grâce à une timeline : créez, déplacez et supprimez des keyframes,
+        contrôlez la vitesse, la durée et le comportement en boucle.
+      </p>
+      <ul>
+        <li><strong>Timeline</strong> : organise par calque vos séquences d'animation.</li>
+        <li><strong>Keyframes</strong> : posez-les librement pour définir chaque état des tiles.</li>
+        <li><strong>Aperçu en temps réel</strong> pour affiner directement le rendu dans l'éditeur.</li>
+      </ul>
+  <picture>
+    <source srcset="../assets/image_webp/animation-overview.webp" type="image/webp">
+    <img src="../assets/images/animation-overview.gif" alt="Système d'animation" style="max-width:700px;" loading="lazy" />
+  </picture>
+
+
+      <!-- 3. Mode Play -->
+      <h2 id="playmode">3. Mode Play</h2>
+      <p>
+        Testez instantanément votre niveau avec un personnage configuré : collisions, déplacements,
+        animations et sauts sont gérés automatiquement.
+      </p>
+      <ul>
+        <li><strong>Démarrage rapide</strong> : lancez votre carte en un clic.</li>
+        <li><strong>Paramètres à la volée</strong> : ajustez gravité, vitesse, point d'apparition.</li>
+        <li><strong>Mode fly</strong> : explorez librement pour repérer les issues.</li>
+      </ul>
+    <picture>
+      <source srcset="../assets/image_webp/playmode-demo.webp" type="image/webp">
+      <img src="../assets/images/playmode-demo.gif" alt="Mode Play" style="max-width:700px;" loading="lazy" />
+    </picture>
+
+
+      <!-- 4. Éditeur Nodal -->
+      <h2 id="node-editor-overview">4. Éditeur Nodal & Prototypage</h2>
+      <p>
+        Construisez la logique de votre jeu visuellement : connectez plus de 80 nœuds pour gérer événements,
+        physique, IA ou audio.
+      </p>
+      <ul>
+        <li><strong>Les nœuds</strong> : chaque nœud représente une action, un trigger ou un calcul.</li>
+        <li><strong>Graphes modulaires</strong> : export indépendamment des niveaux (.lvg).</li>
+        <li><strong>Debug & validation</strong> : erreurs repérées en temps réel dans l'éditeur.</li>
+      </ul>
+<picture class="no-bg">
+  <source srcset="../assets/image_webp/node_editor.webp" type="image/webp">
+  <img src="../assets/images/node_editor.png" alt="Éditeur Nodal" class="no-bg" style="max-width:700px;box-shadow: -1px 7px 16px 3px rgb(208 208 219);" loading="lazy" />
+</picture>
+
+
+      <h2 id="next-steps">Prochaines étapes</h2>
+      <p>
+        Envie d'en savoir plus ? Consultez les pages suivantes pour explorer chaque module en détail.
+        <a href="interface.html">Interface</a>,  
+        <a href="animations.html">Animations</a>,  
+        <a href="playmode.html">Mode Play</a>,  
+        <a href="editor_nodal.html">Éditeur Nodal</a>.
+      </p>
+<picture>
+  <source srcset="../assets/image_webp/sleep.webp" type="image/webp">
+  <img src="../assets/images/sleep.gif" alt="sleep" style="max-width:700px;" loading="lazy" />
+</picture>
+
+    </article>
+  </div>
+</main>
+
+<aside class="sidebar-right" style="height: 170px;">
+  <div class="toc">
+    <strong>Sur cette page</strong>
+    <ul>
+      <li><a href="#overview">Vue d'ensemble</a></li>
+      <li><a href="#level-editing">Édition de niveau</a></li>
+      <li><a href="#animations-overview">Animations</a></li>
+      <li><a href="#playmode">Mode Play</a></li>
+      <li><a href="#editor_nodal-overview">Éditeur Nodal</a></li>
+      <li><a href="#next-steps">Prochaines étapes</a></li>
+    </ul>
+  </div>
+</aside>
+
+
+  </div>
+
+</body>
+</html>

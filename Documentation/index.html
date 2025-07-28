@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="assets/css/style.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/7.1.0/fuse.min.js" integrity="sha512-H1bWCnc4dDJwdioqpOCkU76ZxEdvBvOy9R9Dd9EqftlzQg92owjX5IVdiOw00llAyQFUZJNPrzDnWZ/lZtf25A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="assets/js/script.js"></script>
+    <title>Documentation TileMapEditor</title>
+    <link rel="icon" href="/assets/images/search.ico" />
+</head>
+<body>
+  <header>
+    <nav>
+      <a class="nav-left" href="https://github.com/zerosh0/TileMapEditor" target="_blank">
+        <img src="assets/images/github.svg" alt="GitHub" id="github"/>
+        <h1 id="title">TileMapEditor</h1>
+      </a>
+  <div id="search-container">
+    <input id="search" placeholder="Rechercher…" autocomplete="off" />
+    <div id="search-results"></div>
+  </div>
+    </nav>
+  </header>
+    <button id="mobile-menu-btn" aria-label="Ouvrir le menu" class="mobile-menu-btn">
+    &#9776;
+    </button>
+
+  <img id="illustration" src="assets/images/illustration.svg" alt="Illustration" />
+
+  <div class="layout">
+
+
+
+<aside class="sidebar-left">
+  <nav>
+    <ul class="menu">
+      <li>
+        <a href="#"  class="active">Accueil</a>
+      </li>
+
+      <li>
+        <a href="./pages/getting-started.html">Prise en main</a>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="./pages/interface.html">Interface</a>
+        </div>
+        <ul class="submenu">
+          <li><a href="./pages/interface.html#viewport">Viewport</a></li>
+          <li><a href="./pages/interface.html#tilepalette">Tile Palette</a></li>
+          <li><a href="./pages/interface.html#layers">Layers</a></li>
+          <li><a href="./pages/interface.html#tools">Outils</a></li>
+        </ul>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="./pages/animations.html#">Animations</a>
+        </div>
+        <ul class="submenu">
+          <li><a href="./pages/animations.html#intro">Présentation</a></li>
+          <li><a href="./pages/animations.html#animation-editor">Éditeur d'animation</a></li>
+          <li><a href="./pages/animations.html#timeline">Timeline</a></li>
+          <li><a href="./pages/animations.html#playmode-integration">Intégration au mode Play</a></li>
+        </ul>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="./pages/editor_nodal.html#">Éditeur Nodal</a>
+        </div>
+        <ul class="submenu">
+          <li><a href="./pages/editor_nodal.html#overview">Présentation</a></li>
+          <li><a href="./pages/editor_nodal.html#node-types">Types de nœuds</a></li>
+          <li><a href="./pages/editor_nodal.html#errors">Erreurs & validation</a></li>
+          <li><a href="./pages/editor_nodal.html#custom-nodes">Nodes personnalisés</a></li>
+        </ul>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="./pages/settings.html" >Paramètres</a>
+        </div>
+        <ul class="submenu">
+        <li><a href="./pages/settings.html#world-settings">World Settings</a></li>
+        <li><a href="./pages/settings.html#player-profile">Player Profile</a></li>
+        <li><a href="./pages/settings.html#advanced">Paramètres Avancés</a></li>
+        </ul>
+      </li>
+
+      <li class="has-sub">
+        <div class="menu-item">
+          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+          <a href="./pages/data-format.html">Stockage & Données</a>
+        </div>
+        <ul class="submenu">
+          <li><a href="./pages/data-format.html#level">Niveau</a></li>
+          <li><a href="./pages/data-format.html#tilemaps">TileMaps</a></li>
+          <li><a href="./pages/data-format.html#animations">Animations</a></li>
+          <li><a href="./pages/data-format.html#nodes">Nodes</a></li>
+          <li><a href="./pages/data-format.html#parameters">Paramètres</a></li>
+        </ul>
+      </li>
+
+        <li>
+        <a href="./pages/references.html">Bibliothèque</a>
+      </li>
+
+    </ul>
+  </nav>
+</aside>
+
+
+
+
+    <!-- Main content area -->
+<main class="content">
+  <div class="inner">
+      <article>
+
+        <h1 id="intro">Bienvenue dans TileMapEditor</h1>
+        <p>
+          <strong>TileMapEditor</strong> est un éditeur de cartes 2D pensé pour la conception de jeux vidéo utilisant <code class="inline">pygame</code>. Il permet la création, l'organisation et l'animation de niveaux grâce à une interface visuelle, un éditeur nodal intégré, et des outils pour gérer gameplay, collisions, audio, etc...
+        </p>
+
+  <picture>
+    <source srcset="assets/image_webp/main.webp" type="image/webp">
+    <img src="assets/images/main.gif" alt="Aperçu éditeur" style="max-width: 800px;" loading="lazy">
+  </picture>
+
+        <h2 id="features">Fonctionnalités principales</h2>
+        <ul>
+          <li>✔️ Éditeur visuel de tilemaps avec support des calques</li>
+          <li>🎞️ Système d'animations intégré (timeline, keyframes, preview)</li>
+          <li>🧠 Éditeur nodal personnalisable pour logique de gameplay</li>
+          <li>🎮 Système de test en mode Play pour vérifier vos niveaux</li>
+          <li>🔊 Gestion audio spatialisée (avec prévisualisation)</li>
+          <li>⚙️ Export et import de niveaux, animations, paramètres, etc.</li>
+          <li>🗃️ Stockage clair en JSON pour intégration facile dans un moteur</li>
+        </ul>
+
+
+    <picture class="no-bg">
+      <source srcset="assets/image_webp/node_editor.webp" type="image/webp">
+      <img src="assets/images/node_editor.png" class="no-bg" alt="Éditeur de noeuds" style="max-width: 600px;box-shadow: -1px 7px 16px 3px rgb(208 208 219);" />
+    </picture>
+
+        <h2 id="install">Installation</h2>
+      <p>
+        L'éditeur fonctionne avec <code class="inline">Python 3.10+</code>, notamment pour la compatibilité avec des fonctionnalités modernes comme <code class="inline">match</code> ou les <code class="inline">f-strings</code>.
+      </p>
+
+      <p>
+        Il nécessite également l'installation de <strong>pygame</strong> — une bibliothèque Python utilisée pour l'affichage et les interactions.  
+        Vous avez le choix entre deux versions :
+      </p>
+
+      <ul>
+        <li>
+          <strong><code class="inline">pygame</code></strong> — la version officielle et classique, suffisante dans la majorité des cas.
+        </li>
+        <li>
+          <strong><code class="inline">pygame-ce</code></strong> — (Community Edition) une version communautaire plus performante et mieux optimisée.
+        </li>
+      </ul>
+      <div class="alert alert-info"><div class="alert-body">
+        <strong>Conseil :</strong> il est fortement recommandé d'utiliser <kbd>pygame-ce</kbd>, qui offre des performances supérieures (jusqu'à +20% de FPS dans certains cas), ainsi qu'un rendu graphique plus net.
+      </div>
+      </div>
+
+
+        <h3 id="requirements">Prérequis</h3>
+        <ul>
+          <li>Python <strong>3.10+</strong></li>
+          <li>pygame ou <strong>pygame-ce</strong></li>
+          <li>Système : Windows, Linux ou macOS (recommandé en 64-bit)</li>
+          <li>Avoir une carton son</li>
+        </ul>
+
+        <h3 id="quickstart">Installation rapide</h3>
+        <pre class="language-bash"><code>
+# Créez un environnement virtuel (optionnel mais recommandé)
+python -m venv env
+source env/bin/activate  # ou env\Scripts\activate sous Windows
+
+# Installez pygame-ce
+pip install pygame-ce
+
+# Lancez l'éditeur
+python main.py
+        </code></pre>
+
+        <h2 id="structure">Structure du projet</h2>
+        <p>
+          Le projet se divise en plusieurs modules :
+        </p>
+        <ul>
+          <li><code class="inline">main.py</code> — L'interface principale de l'éditeur</li>
+          <li><code class="inline">editor/blueprint_editor/</code> — L'éditeur nodal</li>
+          <li><code class="inline">editor/game_engine/</code> — L'environnement d'exécution en mode jeu</li>
+        <li>
+          <code class="inline">editor/ui</code> — Contient les composants de l'interface utilisateur personnalisée de l'éditeur : boutons, sliders, boîtes de dialogue, sélecteurs de couleurs, etc. Ces classes gèrent l'interaction visuelle avec l'utilisateur.
+        </li>
+
+        <li>
+          <code class="inline">editor/core</code> — Regroupe les éléments centraux de l'éditeur, incluant la gestion des données (<code>DataManager</code>), le système d'événements (<code>EventHandler</code>), la configuration (<code>settings</code>), des fonctions utilitaires (<code>utils.py</code>), ainsi que la gestion de l'historique d'actions (annulation/refaire avec <kbd>Ctrl+Z</kbd>/<kbd>Ctrl+Y</kbd>).
+        </li>
+
+        <li>
+          <code class="inline">editor/animations</code> — Gère les animations, y compris la timeline et la manipulation des tiles animées. Ce module contient la logique d'édition, d'aperçu et d'intégration des animations dans la carte.
+        </li>
+
+        <li>
+          <code class="inline">editor/render</code> — Responsable du rendu graphique de l'éditeur : dessin des éléments de la scène, gestion du parallax, surcouches, zoom et interactions de viewport. Il centralise les appels de dessin via un <code>DrawManager</code>.
+        </li>
+
+        <li>
+          <code class="inline">editor/services</code> — Regroupe les services de lecture/écriture de fichiers. Il gère l'ouverture, la sauvegarde, et l'export des fichiers TileMap et projets liés.
+        </li>
+
+        </ul>
+
+        <h2 id="prochaine">Et ensuite ?</h2>
+        <p>
+          Pour commencer, consultez la section <a href="pages/getting-started.html">Prise en main</a> pour effectuer vos premiers pas dans l'éditeur.
+        </p>
+
+<picture>
+  <source srcset="assets/image_webp/play_demo.webp" type="image/webp">
+  <img src="assets/images/play_demo.gif" alt="Mode Play" style="max-width: 600px;" loading="lazy">
+</picture>
+
+
+      </article>
+
+  </div>
+</main>
+
+    <!-- Right Sidebar : table des matières locale -->
+    <aside class="sidebar-right" style="height: 115px;">
+    <div class="toc">
+        <strong>Sur cette page</strong>
+        <ul>
+        <li><a href="#intro">Introduction</a></li>
+        <li><a href="#features">Fonctionnalités</a></li>
+        <li><a href="#install">Installation</a></li>
+        <li><a href="#structure">Structure</a></li>
+        </ul>
+    </div>
+    </aside>
+
+  </div>
+
+</body>
+</html>
