@@ -14,7 +14,7 @@
 - 🔊 nécessite une carte son
 
 > 📘 Une documentation complète est disponible ici :  
-> 👉 [Accéder à la documentation](https://zerosh0.github.io/TileMapEditor/Documentation/index.html)
+> 👉 [Accéder à la documentation](https://zerosh0.github.io/TileMapEditor/index.html)
 
 ---
 
@@ -72,7 +72,7 @@ TileMapEditor/
 │   ├── render/                    # Affichage, layers, parallax, zoom
 │   ├── services/                  # Chargement/sauvegarde/export des fichiers
 ├── Assets/                        # Tuiles, images, icônes, backgrounds
-├── Documentation/                # Site de documentation complet (HTML)
+├── docs/                # Site de documentation complet (HTML)
 ├── README.md
 ```
 ---
