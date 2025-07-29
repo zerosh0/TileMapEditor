@@ -1,6 +1,6 @@
 # 🎨 TileMapEditor
 
-![Aperçu de l’éditeur](Documentation/assets/images/main.gif)
+![Aperçu de l’éditeur](docs/assets/images/main.gif)
 
 **TileMapEditor** est un éditeur de niveaux 2D multiplateforme conçu pour les jeux vidéo créés avec **Python** et **Pygame**. Il vous permet de créer, animer, tester et exporter des niveaux complexes à l’aide d’une interface intuitive, d’un éditeur nodal visuel, d’un système d’animation, et bien plus encore.
 
