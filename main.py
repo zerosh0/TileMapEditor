@@ -28,7 +28,7 @@ from editor.ui.Release import ReleaseNotesPopup
 class LevelDesign:
     def __init__(self, screen: pygame.surface.Surface):
         self.running = True
-        self.version=1.0
+        self.version=1.1
         self.screen = screen
         self.zoom_sensitivity = 0.25
         self.move_sensitivity = 1
@@ -185,7 +185,7 @@ class LevelDesign:
     def draw(self):
             self.DrawManager.draw(self.viewport, self.dataManager, self.tilePalette,self.animations,self.clock,self.game_engine)
             self.nm.draw(self.screen)
-            self.popup.run(screen, version=1.0)
+            self.popup.run(screen, version=self.version)
 
     def run(self):
         while self.running:

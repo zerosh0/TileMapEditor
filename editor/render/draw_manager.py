@@ -194,24 +194,42 @@ class DrawManager:
             self.TypeText=self.font.render("", True, (255, 255, 255))
             self.ColorText=self.font.render("", True, (255, 255, 255))
 
+
     def drawElements(self):
         if not self.viewportData.displayRect or self.game_engine.running:
             return
+
+        viewport_rect = pygame.Rect(0, 30, self.viewport.get_width(), self.viewport.get_height())
+
         if self.settings.show_collisions:
-            for CollisionRect in self.dataManager.collisionRects:
-                CollisionRect.draw(self.screen,self.viewportData.panningOffset,self.viewportData.zoom,CollisionRect==self.dataManager.selectedElement)
+            for collision in self.dataManager.collisionRects:
+                screen_rect = collision.get_screen_rect(self.viewportData.panningOffset, self.viewportData.zoom)
+                if viewport_rect.colliderect(screen_rect):
+                    collision.draw(self.screen, self.viewportData.panningOffset, self.viewportData.zoom,
+                                collision == self.dataManager.selectedElement)
+
         if self.settings.show_location_points:
-            for locationPoint in self.dataManager.locationPoints:
-                image=self.locationPointImageFlag if locationPoint.name==self.settings.player_spawn_point else self.locationPointImage
-                if locationPoint==self.dataManager.selectedElement:
-                    image=self.DottedlocationPointImageFlag if locationPoint.name==self.settings.player_spawn_point else self.DottedlocationPointImage
-                locationPoint.draw(self.screen,self.viewportData.panningOffset,self.viewportData.zoom,image)
-        self.light_mask = pygame.Surface((self.screen.get_width() - 250,self.screen.get_height()-30), flags=pygame.SRCALPHA)
-        self.light_mask.fill((0,0,0,self.shadow_alpha))
+            for lp in self.dataManager.locationPoints:
+                image = self.locationPointImageFlag if lp.name == self.settings.player_spawn_point else self.locationPointImage
+                if lp == self.dataManager.selectedElement:
+                    image = self.DottedlocationPointImageFlag if lp.name == self.settings.player_spawn_point else self.DottedlocationPointImage
+                screen_rect = lp.get_screen_rect(self.viewportData.panningOffset, self.viewportData.zoom, image)
+                if viewport_rect.colliderect(screen_rect):
+                    lp.draw(self.screen, self.viewportData.panningOffset, self.viewportData.zoom, image)
+
         if self.settings.display_lights:
+            self.light_mask = pygame.Surface((self.screen.get_width() - 250, self.screen.get_height() - 30), flags=pygame.SRCALPHA)
+            self.light_mask.fill((0, 0, 0, self.shadow_alpha))
             for light in self.dataManager.lights:
-                light.draw(self.screen,self.light_mask,self.shadow_alpha,self.viewportData.panningOffset,self.viewportData.zoom,light==self.dataManager.selectedElement and not self.colorPick.picker_visible)
-            self.screen.blit(self.light_mask, (0,30))
+                cx, cy = light.get_screen_pos(self.viewportData.panningOffset, self.viewportData.zoom)
+                radius_px = int(light.radius * self.viewportData.zoom)
+                light_rect = pygame.Rect(cx - radius_px, cy - radius_px, 2 * radius_px, 2 * radius_px)
+                if viewport_rect.colliderect(light_rect):
+                    light.draw(self.screen, self.light_mask, self.shadow_alpha, self.viewportData.panningOffset,
+                            self.viewportData.zoom,
+                            light == self.dataManager.selectedElement and not self.colorPick.picker_visible)
+            self.screen.blit(self.light_mask, (0, 30))
+
 
 
 

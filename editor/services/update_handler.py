@@ -128,8 +128,11 @@ class UpdateAndCrashHandler:
                         "User-Agent": "Mozilla/5.0"
                     }
                 )
-                urllib.request.urlopen(req, timeout=5)
-                
+                with urllib.request.urlopen(req, timeout=5) as response:
+                    status_code = response.getcode()
+                    if status_code != 204:
+                        raise RuntimeError(f"Erreur lors de l'envoi")
+                                    
             except Exception:
                 # Si échec, fallback vers le Worker
                 try:

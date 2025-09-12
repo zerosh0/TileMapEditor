@@ -221,6 +221,7 @@ class Level:
         # pas de transition en cours → dessin normal
         if self._bg_target is None:
             if self.background_def.get("type") == "image":
+                screen.fill(tuple(self.background_def.get("bg_color", BACKGROUND_COLOR)))
                 self._draw_parallax(self._parallax_layers, screen, camera, alpha=255)
             else:
                 screen.fill(tuple(self.background_def.get("color", BACKGROUND_COLOR)))

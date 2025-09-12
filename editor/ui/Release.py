@@ -47,32 +47,38 @@ class ReleaseNotesPopup:
         # Placeholder for title/version
         self.version_number    = None
         self.title             = ""
-        self.subtitle          = (
-            "Après une version alpha, le projet atteint une première version stable.\n"
-            "L'interface, les fonctionnalités et les performances ont été considérablement modifiées."
+        self.subtitle = (
+            "Version 1.1 - Optimisations et améliorations"
         )
 
         # Release sections
         self.sections = [
-            ("Interface & Dialogues",
-             "L'interface a été entièrement revue pour offrir une meilleure lisibilité et une cohérence visuelle solide. "
-             "Les anciennes boîtes de dialogue basées sur Tkinter ont été retirées au profit de composants SDL natifs, "
-             "évitant ainsi les problèmes de compatibilité, notamment sur macOS. "
-             "L'explorateur de fichiers et le sélecteur de couleurs sont désormais intégrés directement dans l'éditeur, "
-             "rapides et plus adaptés à son ergonomie."),
-            ("Animations de Tiles",
-             "Un système de timeline multi-calques permet de concevoir des animations détaillées pour les tiles. "
-             "Vous pouvez poser, déplacer ou supprimer des keyframes librement, "
-             "et contrôler la vitesse, la durée, et le comportement en boucle de chaque séquence."),
-            ("Mode Play & Personnage",
-             "Le mode Play permet de lancer rapidement un niveau avec un personnage jouable déjà configuré. "
-             "Ce dernier gère les collisions, les déplacements, les animations et les sauts. "
-             "Plusieurs paramètres peuvent être ajustés à la volée : gravité, point d'apparition, vitesse de mouvement, "
-             "et un mode fly utile pour explorer ou déboguer."),
-            ("Éditeur Nodal & Système Audio",
-             "L'éditeur nodal permet de structurer la logique du jeu, les interactions et les déclencheurs de manière visuelle. "
-             "Plus de 80 nœuds sont disponibles, couvrant la logique, le joueur, le monde, les événements, la physique ou encore l'audio spatial. "
-             "Les graphes sont enregistrés dans un format dédié (.lvg), indépendant du niveau, pour faciliter la lisibilité et la modularité du projet.")
+                ("Optimisations & Corrections",
+     "Des optimisations ont été apportées à l'éditeur. "
+     "L'utilisation des parallax n'a désormais plus d'impact significatif sur les performances, même dans des scènes complexes. "
+     "De plus, le zoom étendu sur la carte n'entraîne plus de chutes importantes de FPS. "
+     "Ces améliorations permettent de gérer des cartes plus lourdes et plus vastes avec une fluidité accrue. "
+     "Enfin, un correctif a été appliqué au mode Play: le fond n'était pas redessiné correctement, "
+     "ce qui provoquait un affichage erroné où l'écran précédent restait visible. Ce comportement a été corrigé."),
+            # ("Interface & Dialogues",
+            #  "L'interface a été entièrement revue pour offrir une meilleure lisibilité et une cohérence visuelle solide. "
+            #  "Les anciennes boîtes de dialogue basées sur Tkinter ont été retirées au profit de composants SDL natifs, "
+            #  "évitant ainsi les problèmes de compatibilité, notamment sur macOS. "
+            #  "L'explorateur de fichiers et le sélecteur de couleurs sont désormais intégrés directement dans l'éditeur, "
+            #  "rapides et plus adaptés à son ergonomie."),
+            # ("Animations de Tiles",
+            #  "Un système de timeline multi-calques permet de concevoir des animations détaillées pour les tiles. "
+            #  "Vous pouvez poser, déplacer ou supprimer des keyframes librement, "
+            #  "et contrôler la vitesse, la durée, et le comportement en boucle de chaque séquence."),
+            # ("Mode Play & Personnage",
+            #  "Le mode Play permet de lancer rapidement un niveau avec un personnage jouable déjà configuré. "
+            #  "Ce dernier gère les collisions, les déplacements, les animations et les sauts. "
+            #  "Plusieurs paramètres peuvent être ajustés à la volée : gravité, point d'apparition, vitesse de mouvement, "
+            #  "et un mode fly utile pour explorer ou déboguer."),
+            # ("Éditeur Nodal & Système Audio",
+            #  "L'éditeur nodal permet de structurer la logique du jeu, les interactions et les déclencheurs de manière visuelle. "
+            #  "Plus de 80 nœuds sont disponibles, couvrant la logique, le joueur, le monde, les événements, la physique ou encore l'audio spatial. "
+            #  "Les graphes sont enregistrés dans un format dédié (.lvg), indépendant du niveau, pour faciliter la lisibilité et la modularité du projet.")
         ]
         self.already=False
         # Pre-rendered text lines
