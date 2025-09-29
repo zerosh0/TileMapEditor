@@ -132,6 +132,7 @@ Créez des logiques interactives sans coder :
 
 ## 💡 Statut du projet
 
-🎉 **Version actuelle : 1.0 – Première version stable**  
+🎉 **Version actuelle : 1.1**  
 ✅ Le cœur des fonctionnalités est en place.  
+
 📢 Contributions, idées, bugs et feedbacks sont les bienvenus !
