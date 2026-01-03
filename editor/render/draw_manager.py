@@ -172,6 +172,35 @@ class DrawManager:
             drawn_surf = self.fps_font.render(f"{self.drawn} tiles", True, self.fps_color)
             self.screen.blit(drawn_surf, (self.screen.get_width() - drawn_surf.get_width() - 180, self.fps_margin))
 
+    def draw_update_tag(self):
+        if not self.update.need_update:
+            return
+
+        sidebar_width = 250
+        screen_width = self.screen.get_width()
+        screen_height = self.screen.get_height()
+
+        font_small = self.font_manager.get(size=14)
+        text_color = (255, 255, 255)
+        orange_main = (200, 100, 20)
+
+        label = f"MISE À JOUR : v{self.update.new_version}"
+        text_surf = font_small.render(label, True, text_color)
+        padding_x = 15
+        padding_y = 6
+        rect_w = text_surf.get_width() + padding_x * 2 + 10
+        rect_h = text_surf.get_height() + padding_y * 2
+        
+        x = (screen_width - sidebar_width) + (sidebar_width // 2) - (rect_w // 2)
+        y = screen_height - rect_h - 10
+
+        badge_rect = pygame.Rect(x, y, rect_w, rect_h)
+        pygame.draw.rect(self.screen, orange_main, badge_rect, border_radius=15)
+        icon_center = (x + padding_x, y + rect_h // 2)
+        pygame.draw.circle(self.screen, (255, 230, 100), icon_center, 3)
+        self.screen.blit(text_surf, (x + padding_x + 12, y + padding_y))
+        return badge_rect
+
     def drawLight(self):
         if self.viewportData.light_preview and self.viewportData.light_origin:
             ox, oy = self.viewportData.light_origin
@@ -499,6 +528,7 @@ class DrawManager:
                 button.draw(self.screen)
         self.slider.draw(self.screen)
         self.playButton.draw(self.screen)
+        self.draw_update_tag()
 
 
 

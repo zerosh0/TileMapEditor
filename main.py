@@ -1,4 +1,3 @@
-import sys
 from typing import Dict
 from editor.animations.animation import AnimationManager
 from editor.blueprint_editor.system import BlueprintEditor
@@ -24,11 +23,12 @@ import pygame
 
 
 from editor.ui.Release import ReleaseNotesPopup
+from editor.vfx.play_ground import ParticleEditor
 
 class LevelDesign:
     def __init__(self, screen: pygame.surface.Surface):
         self.running = True
-        self.version=1.1
+        self.version=1.2
         self.screen = screen
         self.zoom_sensitivity = 0.25
         self.move_sensitivity = 1
@@ -74,6 +74,7 @@ class LevelDesign:
             "draw": lambda: self.setTool(Tools.Draw),
             "location_point": lambda: self.setTool(Tools.LocationPoint),
             "light": lambda: self.setTool(Tools.Light),
+            "VFX": lambda: self.vfx(),
             "rotate": lambda: self.dataManager.RotateCurrentTiles(),
             "show": lambda: self.viewport.ChangeShowState(),
             "editName": lambda: self.DialogController.EditName(),
@@ -252,13 +253,23 @@ class LevelDesign:
         if self.animations.panel_visible:
             self.settings.active_section=Section.HIDDEN
 
+    def vfx(self):
+        ok = self.DialogController.ask_confirmation(
+            "Le système de particules est en phase expérimentale. Voulez-vous ouvrir la sandbox ?",150
+        )
+        if not ok: return
+        self.setTool(Tools.VFX)
+        ParticleEditor(self.screen,self.clock).run()
+        self.eventHandler.ResizeWindow()
+        
 
-    def tutorial(self):
+
+    def tutorial(self,already_open):
+        if already_open: return
         ok = self.DialogController.ask_confirmation(
             "C'est votre première utilisation de l'éditeur. Souhaitez-vous ouvrir la documentation maintenant ? Vous pourrez toujours y accéder plus tard via Aide > Documentation.",150
         )
-        if not ok:
-            return
+        if not ok: return
         self.doc.open_docs()
 
     def new(self):

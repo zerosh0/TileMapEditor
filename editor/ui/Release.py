@@ -48,37 +48,22 @@ class ReleaseNotesPopup:
         self.version_number    = None
         self.title             = ""
         self.subtitle = (
-            "Version 1.1 - Optimisations et améliorations"
+            "Version 1.2 - Système VFX & Stabilité"
         )
 
         # Release sections
         self.sections = [
-                ("Optimisations & Corrections",
-     "Des optimisations ont été apportées à l'éditeur. "
-     "L'utilisation des parallax n'a désormais plus d'impact significatif sur les performances, même dans des scènes complexes. "
-     "De plus, le zoom étendu sur la carte n'entraîne plus de chutes importantes de FPS. "
-     "Ces améliorations permettent de gérer des cartes plus lourdes et plus vastes avec une fluidité accrue. "
-     "Enfin, un correctif a été appliqué au mode Play: le fond n'était pas redessiné correctement, "
-     "ce qui provoquait un affichage erroné où l'écran précédent restait visible. Ce comportement a été corrigé."),
-            # ("Interface & Dialogues",
-            #  "L'interface a été entièrement revue pour offrir une meilleure lisibilité et une cohérence visuelle solide. "
-            #  "Les anciennes boîtes de dialogue basées sur Tkinter ont été retirées au profit de composants SDL natifs, "
-            #  "évitant ainsi les problèmes de compatibilité, notamment sur macOS. "
-            #  "L'explorateur de fichiers et le sélecteur de couleurs sont désormais intégrés directement dans l'éditeur, "
-            #  "rapides et plus adaptés à son ergonomie."),
-            # ("Animations de Tiles",
-            #  "Un système de timeline multi-calques permet de concevoir des animations détaillées pour les tiles. "
-            #  "Vous pouvez poser, déplacer ou supprimer des keyframes librement, "
-            #  "et contrôler la vitesse, la durée, et le comportement en boucle de chaque séquence."),
-            # ("Mode Play & Personnage",
-            #  "Le mode Play permet de lancer rapidement un niveau avec un personnage jouable déjà configuré. "
-            #  "Ce dernier gère les collisions, les déplacements, les animations et les sauts. "
-            #  "Plusieurs paramètres peuvent être ajustés à la volée : gravité, point d'apparition, vitesse de mouvement, "
-            #  "et un mode fly utile pour explorer ou déboguer."),
-            # ("Éditeur Nodal & Système Audio",
-            #  "L'éditeur nodal permet de structurer la logique du jeu, les interactions et les déclencheurs de manière visuelle. "
-            #  "Plus de 80 nœuds sont disponibles, couvrant la logique, le joueur, le monde, les événements, la physique ou encore l'audio spatial. "
-            #  "Les graphes sont enregistrés dans un format dédié (.lvg), indépendant du niveau, pour faciliter la lisibilité et la modularité du projet.")
+            ("Système de Mise à Jour",
+             "Le système de vérification des mises à jour a été intégralement revu. "
+             "Il arrivait que celui-ci ne fonctionne que partiellement ou ne s'affiche pas du tout ; "
+             "ces problèmes sont désormais résolus pour garantir une détection fiable des dernières versions."),
+
+            ("Nouveautés & VFX",
+             "Cette version marque le début de l'intégration du système de VFX (effets visuels). "
+             "Un nouvel outil dédié a été ajouté à l'interface pour commencer à manipuler les particules. "),
+
+            ("Corrections Mineures",
+             "En plus des nouveautés, plusieurs corrections mineures ont été appliquées.")
         ]
         self.already=False
         # Pre-rendered text lines
@@ -106,6 +91,7 @@ class ReleaseNotesPopup:
         self.drag_start_y     = 0
         self.scroll_start     = 0
         self.header_offset    = (0, 0)
+        self.v_file_exist=False
 
     def _prepare_lines(self):
         """Pre-render title/subtitle/sections into self.lines."""
@@ -172,7 +158,7 @@ class ReleaseNotesPopup:
 
             # Close button
             if (rx - self.cancel_center[0])**2 + (ry - self.cancel_center[1])**2 <= self.btn_radius**2:
-                self.on_close()
+                self.on_close(self.v_file_exist)
                 self.active = False
                 return
 
@@ -294,6 +280,7 @@ class ReleaseNotesPopup:
         # Read existing version
         stored = None
         if os.path.isfile(version_path):
+            self.v_file_exist=True
             try:
                 with open(version_path, "r") as f:
                     stored = float(f.read().strip())

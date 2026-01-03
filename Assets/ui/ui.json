@@ -149,6 +149,12 @@
     },
     {
         "type": "ImageButton",
+        "rect": [880, 350, 32, 32],
+        "image": "./Assets/ui/icones/vfx.png",
+        "action": "VFX"
+    },
+    {
+        "type": "ImageButton",
         "rect": [940, 92, 24, 24],
         "image": "./Assets/ui/icones/eyesopen.png",
         "action": "show"

@@ -27,6 +27,7 @@ class Tools(Enum):
     Selection = "selection"
     LocationPoint = "location_point"
     Light = "light"
+    VFX = "VFX"
     
 class ActionType(Enum):
     AddTile = 1

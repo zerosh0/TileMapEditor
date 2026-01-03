@@ -10,6 +10,8 @@ import random
 from typing import List
 import pygame
 
+from editor.vfx.vfx import ParticleEmitter
+
 
 
 class DataManager():
@@ -33,6 +35,7 @@ class DataManager():
         self.animation=animation
         self.load_backgrounds("./Assets/backgrounds.json")
         self.game_engine=None
+        self.emitters: list[ParticleEmitter] = []
 
     def load_backgrounds(self, json_path: str):
         try:
@@ -161,6 +164,20 @@ class DataManager():
 
         self.currentTiles = TempTiles
 
+
+    def AddVFXEmitter(self, viewport):
+        x, y = viewport.toMapCoords(pygame.mouse.get_pos())
+        new_emitter = ParticleEmitter(x, y, f"vfx_{len(self.emitters)}")
+        self.emitters.append(new_emitter)
+        self.selectedElement = new_emitter
+        self.history.RegisterAddElement(new_emitter)
+
+    def ChangeSelectedVFX(self, viewport):
+        for emitter in self.emitters:
+            if emitter.collidePoint(pygame.mouse.get_pos(), viewport.panningOffset, viewport.zoom):
+                self.selectedElement = emitter
+                return True
+        return False
 
     def ChangeCurrentTilesSelection(self, tilePalette):
         tileMap = tilePalette.GetCurrentTileMap()
