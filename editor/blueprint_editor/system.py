@@ -4,7 +4,7 @@ from pygame.locals import *
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type
 from editor.ui.Font import FontManager
 from editor.ui.Input import InputField
-from editor.blueprint_editor.node import CATEGORY_ORDER, NODE_REGISTRY, Node,Pin
+from editor.blueprint_editor.node import CATEGORY_ORDER, NODE_REGISTRY, Node, Pin, DropdownButton
 from editor.blueprint_editor.blueprints.b_events import *
 from editor.blueprint_editor.blueprints.b_logic import *
 from editor.blueprint_editor.blueprints.b_debug import *
@@ -16,6 +16,7 @@ from editor.blueprint_editor.blueprints.b_audio import *
 from editor.blueprint_editor.blueprints.b_others import *
 from editor.blueprint_editor.blueprints.b_operators import *
 from editor.blueprint_editor.blueprints.b_custom import *
+from editor.blueprint_editor.blueprints.b_vfx import *
 
 #LevelGraph
 class BlueprintEditor:
@@ -61,6 +62,57 @@ class BlueprintEditor:
         self.selection_rect = pygame.Rect(0, 0, 0, 0)
         self.dragging_selection = False
         self.drag_offset = {}
+
+        # Tutorial state
+        import os
+        nodal_tuto_flag_path = os.path.join("Assets", "ui", ".nodal_tutorial_done")
+        self.tutorial_active = False
+        self.tutorial_prompt = not os.path.exists(nodal_tuto_flag_path)
+        self.tutorial_step = 0
+        self.btn_tut_yes = pygame.Rect(0, 0, 0, 0)
+        self.btn_tut_no = pygame.Rect(0, 0, 0, 0)
+        self.btn_tut_next = pygame.Rect(0, 0, 0, 0)
+        self.btn_tut_skip = pygame.Rect(0, 0, 0, 0)
+
+    def mark_nodal_tutorial_as_done(self):
+        import os
+        flag_path = os.path.join("Assets", "ui", ".nodal_tutorial_done")
+        try:
+            os.makedirs(os.path.dirname(flag_path), exist_ok=True)
+            with open(flag_path, "w") as f:
+                f.write("done")
+        except Exception:
+            pass
+
+    def spawn_demo_nodes(self):
+        # Clear existing nodes first to make the tutorial clean
+        self.nodes.clear()
+        self.connections.clear()
+        
+        try:
+            from editor.blueprint_editor.blueprints.b_events import OnStart
+            from editor.blueprint_editor.blueprints.b_logic import SetVariableNode
+            
+            # Center of screen offsets
+            ox, oy = self.offset
+            w, h = self.screen.get_size()
+            cx, cy = w // 2 + ox, h // 2 + oy - 100
+            
+            start_node = OnStart((cx - 160, cy), self, {})
+            var_node = SetVariableNode((cx + 100, cy), self, {"var_name": "score", "value": "10"})
+            
+            self.add_node(start_node)
+            self.add_node(var_node)
+            
+            out_pin = next((p for p in start_node.outputs if p.pin_type == 'exec'), None)
+            in_pin = next((p for p in var_node.inputs if p.pin_type == 'exec'), None)
+            if out_pin and in_pin:
+                out_pin.connect(in_pin)
+                self.connections.append((out_pin, in_pin))
+                
+            self.selected = [start_node, var_node]
+        except Exception as e:
+            print("Failed to spawn demo nodes:", e)
 
 
 
@@ -287,37 +339,72 @@ class BlueprintEditor:
     def run_logic(self, context: Dict[str, Any]):
         node = self.start_node
         while node:
-            # on injecte les propriétés du node dans le contexte
             context['properties'] = node.properties
             node = node.execute(context)
                 
     def handle_event(self, e: pygame.event.Event):
             mx, my = pygame.mouse.get_pos()
+
+            if getattr(self, "tutorial_prompt", False):
+                if e.type == MOUSEBUTTONDOWN and e.button == 1:
+                    if self.btn_tut_yes.collidepoint(e.pos):
+                        self.tutorial_prompt = False
+                        self.tutorial_active = True
+                        self.tutorial_step = 0
+                    elif self.btn_tut_no.collidepoint(e.pos):
+                        self.tutorial_prompt = False
+                        self.mark_nodal_tutorial_as_done()
+                return
+
+            if getattr(self, "tutorial_active", False):
+                if e.type == MOUSEBUTTONDOWN and e.button == 1:
+                    if self.btn_tut_next.collidepoint(e.pos):
+                        if self.tutorial_step < 3:
+                            self.tutorial_step += 1
+                            if self.tutorial_step == 1:
+                                self.sidebar_visible = True
+                            if self.tutorial_step == 3:
+                                self.spawn_demo_nodes()
+                        else:
+                            self.tutorial_active = False
+                            self.mark_nodal_tutorial_as_done()
+                        return
+                    elif self.btn_tut_skip.collidepoint(e.pos):
+                        self.tutorial_active = False
+                        self.mark_nodal_tutorial_as_done()
+                        return
+
+                if self.tutorial_step == 2:
+                    if e.type == MOUSEBUTTONDOWN and e.button == 3:
+                        pass
+                    elif self.show_menu:
+                        pass
+                    elif self.search_field.active:
+                        pass
+                    else:
+                        return
+                else:
+                    return
+
             for n in self.nodes:
                 n.handle_event(e)
 
-            # Copier (Ctrl+C)
             if e.type == KEYDOWN and e.key == K_c and (e.mod & KMOD_CTRL):
-                # on ne copie que si on a au moins un nœud sélectionné
                 if not self.selected:
                     return
 
-                # construire la liste de nœuds et leur index
                 node_list = list(self.selected)
                 idx_map   = {node: i for i, node in enumerate(node_list)}
 
-                # données simples des nœuds
                 nodes_data = []
                 ox, oy = self.offset
                 for node in node_list:
                     nodes_data.append({
                         'cls':  type(node),
                         'props': dict(node.properties),
-                        # position *relative* au point d'ancrage (ici (0,0) de l'éditeur)
                         'pos': (node.x - ox, node.y - oy)
                     })
 
-                # connexions internes
                 conns_data = []
                 for out_p, in_p in self.connections:
                     n0, n1 = out_p.node, in_p.node
@@ -329,7 +416,6 @@ class BlueprintEditor:
                             'dst_pin':   in_p.name
                         })
 
-                # stocker dans le niveau
                 self.LevelEditor.clipboard = {
                     'nodes':  nodes_data,
                     'conns':  conns_data
@@ -337,8 +423,6 @@ class BlueprintEditor:
                 return
 
 
-            # Coller (Ctrl+V)
-            # Coller (Ctrl+V), centré sur le curseur
             if e.type == KEYDOWN and e.key == K_v and (e.mod & KMOD_CTRL):
                 cb = getattr(self.LevelEditor, 'clipboard', None)
                 if not cb or not cb.get('nodes'):
@@ -347,7 +431,6 @@ class BlueprintEditor:
                 mx, my = pygame.mouse.get_pos()
                 ox, oy = self.offset
 
-                # 1) Calcul du centre de la sélection d’après les positions relatives
                 xs = [px for data in cb['nodes'] for px, _ in [data['pos']]]
                 ys = [py for data in cb['nodes'] for _, py in [data['pos']]]
                 min_x, max_x = min(xs), max(xs)
@@ -356,19 +439,16 @@ class BlueprintEditor:
                 center_y = (min_y + max_y) / 2
 
                 new_nodes = []
-                # 2) Recréer chaque nœud en décalant par rapport au centre
                 for data in cb['nodes']:
                     cls    = data['cls']
                     props  = dict(data['props'])
                     px, py = data['pos']
-                    # on retire le centre pour récentrer
                     adj_x = px - center_x
                     adj_y = py - center_y
                     node  = cls((mx + ox + adj_x, my + oy + adj_y), self, properties=props)
                     self.add_node(node)
                     new_nodes.append(node)
 
-                # 3) Refaire les connexions internes
                 for c in cb['conns']:
                     src_node = new_nodes[c['src_idx']]
                     dst_node = new_nodes[c['dst_idx']]
@@ -379,7 +459,6 @@ class BlueprintEditor:
                         out_pin.connect(in_pin)
                         self.connections.append((out_pin, in_pin))
 
-                # 4) Sélectionner les nouveaux nœuds
                 self.selected = new_nodes
                 return
 
@@ -406,7 +485,6 @@ class BlueprintEditor:
                     return
 
             if e.type == MOUSEWHEEL and pygame.mouse.get_pos()[0] < self.sidebar_width:
-                # on déplace de 20 pixels par cran
                 self.sidebar_scroll = max(0, self.sidebar_scroll - e.y * 20)
                 return
 
@@ -444,12 +522,7 @@ class BlueprintEditor:
 
 
             if e.type == MOUSEBUTTONDOWN and e.button == 1:
-                # on ne veut pas démarrer de cadre si :
-                # - on est sur un pin, 
-                # - on drague un seul noeud (cf. plus bas),
-                # - le menu est ouvert
                 if not self.show_menu and not self.connecting:
-                    # calculer si on clique sur un noeud
                     mx, my = e.pos
                     ox, oy = self.offset
                     over_node = any(
@@ -461,7 +534,6 @@ class BlueprintEditor:
                         self.selection_start = (mx, my)
                         self.selection_rect = pygame.Rect(mx, my, 0, 0)
                         self.selected.clear()
-                        # on continue vers les autres conditions (ne pas return)
 
             if e.type == MOUSEMOTION and self.selecting:
                 mx, my = e.pos
@@ -470,11 +542,10 @@ class BlueprintEditor:
                 self.selection_rect.y = min(y0, my)
                 self.selection_rect.width  = abs(mx - x0)
                 self.selection_rect.height = abs(my - y0)
-                return  # on stoppe là pour ne pas interférer
+                return
 
 
             if e.type == MOUSEBUTTONUP and e.button == 1 and self.selecting:
-                # on sélectionne tous les nodes dans le cadre
                 ox, oy = self.offset
                 for n in self.nodes:
                     nr = pygame.Rect(n.x-ox, n.y-oy, Node.WIDTH, n.height)
@@ -484,15 +555,12 @@ class BlueprintEditor:
                 return
 
             if e.type == MOUSEBUTTONDOWN and e.button == 1:
-                # si on clique dans un noeud déjà sélectionné ET qu'on a plusieurs
                 mx, my = e.pos
                 ox, oy = self.offset
                 for n in self.selected:
                     nr = pygame.Rect(n.x-ox, n.y-oy, Node.WIDTH, n.height)
                     if nr.collidepoint((mx,my)) and len(self.selected) > 1:
-                        # on passe en mode drag de sélection
                         self.dragging_selection = True
-                        # calculer les offsets de chaque node
                         self.drag_offset = {
                             node: (node.x - (mx+ox), node.y - (my+oy))
                             for node in self.selected
@@ -528,13 +596,11 @@ class BlueprintEditor:
                 mx, my = e.pos
                 ox, oy = self.offset
 
-                # 1) est-ce sur un nœud ? → petit menu Supprimer
                 for node in reversed(self.nodes):
                     node_rect = pygame.Rect(node.x-ox, node.y-oy, Node.WIDTH, node.height)
                     if node_rect.collidepoint((mx, my)):
                         self.show_menu = True
                         self.delete_target = node
-                        # on définit un seul item "Supprimer" sans barre de recherche
                         self.menu_pos = (mx, my)
                         self.menu_items = [ 
                             ( pygame.Rect(mx, my, 120, 24),
@@ -543,7 +609,6 @@ class BlueprintEditor:
                         ]
                         return
 
-                # 2) sinon → menu classique de création
                 self.delete_target = None
                 self.show_menu = True
                 self.search_field.active = True
@@ -567,9 +632,7 @@ class BlueprintEditor:
                     self._build_menu()
                 return  
             if e.type == MOUSEBUTTONUP and e.button == 1 and self.dragging_factory:
-                # n’ajoute que si on lâche hors du sidebar
                 if mx > self.sidebar_width:
-                    # centre le nœud sur le curseur
                     x = mx + self.offset[0] - Node.WIDTH  // 2
                     y = my + self.offset[1] - Node.HEIGHT // 2
                     node = self.dragging_factory((x, y))
@@ -635,21 +698,47 @@ class BlueprintEditor:
 
 
     def draw(self):
-        self.screen.fill((25, 25, 35))
+        self.screen.fill((20, 20, 28))
         w, h = self.screen.get_size()
-        step = 32
-        for x in range(-self.offset[0] % step, w, step):
-            pygame.draw.line(self.screen, (50,50,70), (x, 0), (x, h))
-        for y in range(-self.offset[1] % step, h, step):
-            pygame.draw.line(self.screen, (50,50,70), (0, y), (w, y))
+        
+        # Minor Grid
+        step_min = 32
+        for x in range(-self.offset[0] % step_min, w, step_min):
+            pygame.draw.line(self.screen, (32, 32, 44), (x, 0), (x, h))
+        for y in range(-self.offset[1] % step_min, h, step_min):
+            pygame.draw.line(self.screen, (32, 32, 44), (0, y), (w, y))
+            
+        # Major Grid
+        step_maj = 128
+        for x in range(-self.offset[0] % step_maj, w, step_maj):
+            pygame.draw.line(self.screen, (45, 45, 60), (x, 0), (x, h), 2)
+        for y in range(-self.offset[1] % step_maj, h, step_maj):
+            pygame.draw.line(self.screen, (45, 45, 60), (0, y), (w, y), 2)
 
-
+        # Draw Connections with Shadows and Color Coding
         for out_p, in_p in self.connections:
-            self._draw_bezier(out_p.pos, in_p.pos, (200,200,200))
+            color = (235, 235, 240) if out_p.pin_type == 'exec' else (110, 150, 235)
+            # Shadow
+            self._draw_bezier((out_p.pos[0], out_p.pos[1] + 2), (in_p.pos[0], in_p.pos[1] + 2), (10, 10, 15), width=2)
+            # Wire
+            self._draw_bezier(out_p.pos, in_p.pos, color, width=2)
+            
         if self.connecting and not self.show_menu:
-            self._draw_bezier(self.connecting.pos, pygame.mouse.get_pos(), (120,120,120))
+            self._draw_bezier((self.connecting.pos[0], self.connecting.pos[1] + 2), (pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1] + 2), (10, 10, 15), width=2)
+            self._draw_bezier(self.connecting.pos, pygame.mouse.get_pos(), (120, 120, 130), width=2)
+            
         for n in self.nodes:
             n.draw(self.screen, n in self.selected)
+
+        # Draw open dropdowns on top of everything
+        for n in self.nodes:
+            for el in getattr(n, 'ui_elements', []):
+                if isinstance(el, DropdownButton) and el.is_open:
+                    pin_name = getattr(el, "pin_name", "")
+                    pin = next((p for p in n.inputs if p.name == pin_name), None)
+                    if pin is None or not pin.connection:
+                        el.update_position(n.x, n.y)
+                        el.draw(self.screen)
         if self.error_node:
             font = FontManager().get(size=20)
             text_surf = font.render(self.error_message, True, (220, 50, 50))
@@ -756,9 +845,124 @@ class BlueprintEditor:
         if self.selecting:
             pygame.draw.rect(self.screen, (100,200,250), self.selection_rect, 2)
 
+        # Draw Tutorial Modal Overlays
+        if getattr(self, 'tutorial_prompt', False):
+            # Dim background
+            overlay = pygame.Surface((w, h), pygame.SRCALPHA)
+            overlay.fill((10, 10, 15, 160))
+            self.screen.blit(overlay, (0, 0))
+            
+            # Dialog box
+            dialog_w, dialog_h = 420, 160
+            dialog_x = (w - dialog_w) // 2
+            dialog_y = (h - dialog_h) // 2
+            dialog_rect = pygame.Rect(dialog_x, dialog_y, dialog_w, dialog_h)
+            
+            pygame.draw.rect(self.screen, (10, 11, 16), dialog_rect, border_radius=10)
+            pygame.draw.rect(self.screen, (180, 80, 220), dialog_rect, width=2, border_radius=10)
+            
+            font_title = FontManager().get(size=20)
+            font_body = FontManager().get(size=16)
+            font_heading = FontManager().get(size=18)
+            
+            title_surf = font_title.render("TUTORIEL EDITEUR NODAL", True, (245, 190, 80))
+            body_line1 = font_heading.render("Bienvenue dans l'editeur de logique visuelle !", True, (255, 255, 255))
+            body_line2 = font_body.render("Souhaitez-vous suivre un court guide interactif", True, (255, 255, 255))
+            body_line3 = font_body.render("pour apprendre a creer vos scripts ?", True, (255, 255, 255))
+            
+            self.screen.blit(title_surf, (dialog_x + 20, dialog_y + 15))
+            self.screen.blit(body_line1, (dialog_x + 20, dialog_y + 45))
+            self.screen.blit(body_line2, (dialog_x + 20, dialog_y + 72))
+            self.screen.blit(body_line3, (dialog_x + 20, dialog_y + 92))
+            
+            self.btn_tut_yes = pygame.Rect(dialog_x + 20, dialog_y + 120, 170, 26)
+            self.btn_tut_no = pygame.Rect(dialog_x + 230, dialog_y + 120, 170, 26)
+            
+            mx, my = pygame.mouse.get_pos()
+            is_hover_yes = self.btn_tut_yes.collidepoint((mx, my))
+            yes_col = (30, 80, 45) if is_hover_yes else (22, 48, 36)
+            pygame.draw.rect(self.screen, yes_col, self.btn_tut_yes, border_radius=4)
+            yes_txt = font_heading.render("Commencer le guide", True, (60, 220, 130))
+            self.screen.blit(yes_txt, yes_txt.get_rect(center=self.btn_tut_yes.center))
+            
+            is_hover_no = self.btn_tut_no.collidepoint((mx, my))
+            no_col = (80, 30, 45) if is_hover_no else (42, 24, 28)
+            pygame.draw.rect(self.screen, no_col, self.btn_tut_no, border_radius=4)
+            no_txt = font_heading.render("Plus tard", True, (230, 100, 100))
+            self.screen.blit(no_txt, no_txt.get_rect(center=self.btn_tut_no.center))
+            
+        elif getattr(self, 'tutorial_active', False):
+            # Highlight target area if needed
+            highlight_rect = None
+            if self.tutorial_step == 1:
+                highlight_rect = pygame.Rect(0, 0, self.sidebar_width + 16, h) if self.sidebar_visible else pygame.Rect(0, h//2 - 32, 16, 64)
+            
+            if highlight_rect:
+                import math, time
+                pulse = int(127 + 127 * math.sin(time.time() * 7))
+                pygame.draw.rect(self.screen, (pulse, 200, pulse), highlight_rect, width=3, border_radius=5)
+                
+            # Dialogue box
+            box_w, box_h = 520, 180
+            box_x = (w - box_w) // 2
+            box_y = h - 220
+            box_rect = pygame.Rect(box_x, box_y, box_w, box_h)
+            
+            pygame.draw.rect(self.screen, (10, 11, 16), box_rect, border_radius=8)
+            pygame.draw.rect(self.screen, (180, 80, 220), box_rect, width=2, border_radius=8)
+            
+            font_title = FontManager().get(size=18)
+            font_body = FontManager().get(size=16)
+            
+            steps_desc = [
+                ("1/4 - LE GRAPHE DE LOGIQUE",
+                 "Cet espace vous permet de lier des evenements (rouges)",
+                 "a des actions (audio, VFX, joueur) pour scripter le niveau.",
+                 "Glissez avec le clic milieu ou Alt+Clic pour vous deplacer."),
+                ("2/4 - BIBLIOTHEQUE DES NOEUDS",
+                 "Cliquez sur la fleche a gauche pour ouvrir le menu.",
+                 "Glissez-deposez les noeuds dans la grille pour les ajouter.",
+                 "Les categories (VFX, Player, Audio) ont des couleurs uniques."),
+                ("3/4 - RECHERCHE RAPIDE",
+                 "Faites un clic droit sur la grille pour ouvrir la recherche.",
+                 "Vous pouvez y taper le nom d'un noeud pour l'ajouter.",
+                 "Essayez de faire un clic droit maintenant pour tester !"),
+                ("4/4 - LOGIQUE SEQUENTIELLE & EXECUTION",
+                 "Les evenements (ex: OnStart) lancent l'execution.",
+                 "Les cables blancs lient le flux sequentiel de gauche a droite.",
+                 "Les cables bleus transmettent les variables et donnees.")
+            ]
+            
+            title, line1, line2, line3 = steps_desc[self.tutorial_step]
+            title_surf = font_title.render(title, True, (245, 190, 80))
+            l1_surf = font_body.render(line1, True, (255, 255, 255))
+            l2_surf = font_body.render(line2, True, (255, 255, 255))
+            l3_surf = font_body.render(line3, True, (255, 255, 255))
+            
+            self.screen.blit(title_surf, (box_x + 15, box_y + 12))
+            self.screen.blit(l1_surf, (box_x + 15, box_y + 42))
+            self.screen.blit(l2_surf, (box_x + 15, box_y + 68))
+            self.screen.blit(l3_surf, (box_x + 15, box_y + 94))
+            
+            self.btn_tut_next = pygame.Rect(box_x + box_w - 105, box_y + box_h - 36, 90, 26)
+            mx, my = pygame.mouse.get_pos()
+            is_hover_next = self.btn_tut_next.collidepoint((mx, my))
+            next_col = (30, 80, 45) if is_hover_next else (22, 48, 36)
+            pygame.draw.rect(self.screen, next_col, self.btn_tut_next, border_radius=4)
+            btn_txt = "Fermer" if self.tutorial_step == 3 else "Suivant"
+            txt_surf = FontManager().get(size=14).render(btn_txt, True, (60, 220, 130))
+            self.screen.blit(txt_surf, txt_surf.get_rect(center=self.btn_tut_next.center))
+            
+            self.btn_tut_skip = pygame.Rect(box_x + 15, box_y + box_h - 36, 90, 26)
+            is_hover_skip = self.btn_tut_skip.collidepoint((mx, my))
+            skip_col = (80, 30, 45) if is_hover_skip else (42, 24, 28)
+            pygame.draw.rect(self.screen, skip_col, self.btn_tut_skip, border_radius=4)
+            skip_surf = FontManager().get(size=14).render("Passer", True, (230, 100, 100))
+            self.screen.blit(skip_surf, skip_surf.get_rect(center=self.btn_tut_skip.center))
+
         pygame.display.flip()
 
-    def _draw_bezier(self, p0, p3, color):
+    def _draw_bezier(self, p0, p3, color, width=1):
         midx = (p0[0] + p3[0]) // 2
         pts = [
             (
@@ -767,7 +971,12 @@ class BlueprintEditor:
             )
             for t in [i/20 for i in range(21)]
         ]
-        pygame.draw.aalines(self.screen, color, False, pts)
+        if width > 1:
+            for offset in range(-width//2 + 1, width//2 + 1):
+                offset_pts = [(x + offset, y) for x, y in pts]
+                pygame.draw.aalines(self.screen, color, False, offset_pts)
+        else:
+            pygame.draw.aalines(self.screen, color, False, pts)
 
     def run(self):
         self.running = True

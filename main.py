@@ -24,11 +24,12 @@ import pygame
 
 from editor.ui.Release import ReleaseNotesPopup
 from editor.vfx.play_ground import ParticleEditor
+from editor.vfx.vfx import ParticleEmitter
 
 class LevelDesign:
     def __init__(self, screen: pygame.surface.Surface):
         self.running = True
-        self.version=1.2
+        self.version=1.3
         self.screen = screen
         self.zoom_sensitivity = 0.25
         self.move_sensitivity = 1
@@ -106,7 +107,7 @@ class LevelDesign:
         self.settings.load_settings()
         self.popup = ReleaseNotesPopup(
             screen_size=screen.get_size(),
-            on_close=self.tutorial
+            on_close=lambda x: None
         )
         
         
@@ -240,6 +241,7 @@ class LevelDesign:
                                 Collisionrect.graph.run_logic_from_event(start)
 
     def openGraph(self):
+        self.eventHandler.discard_current_event = True
         if isinstance(self.dataManager.selectedElement,CollisionRect):
             if self.dataManager.selectedElement.graph is not None:
                 self.dataManager.selectedElement.graph.run()
@@ -247,6 +249,8 @@ class LevelDesign:
                 self.dataManager.selectedElement.graph=BlueprintEditor(self)
                 self.dataManager.selectedElement.graph.run()
             self.eventHandler.ResizeWindow()
+        elif isinstance(self.dataManager.selectedElement, ParticleEmitter):
+            self.openParticleEditor(self.dataManager.selectedElement)
 
     def toogleAnimPanel(self):
         self.animations._toggle_panel()
@@ -254,12 +258,16 @@ class LevelDesign:
             self.settings.active_section=Section.HIDDEN
 
     def vfx(self):
-        ok = self.DialogController.ask_confirmation(
-            "Le système de particules est en phase expérimentale. Voulez-vous ouvrir la sandbox ?",150
-        )
-        if not ok: return
         self.setTool(Tools.VFX)
-        ParticleEditor(self.screen,self.clock).run()
+        if isinstance(self.dataManager.selectedElement, ParticleEmitter):
+            self.openParticleEditor(self.dataManager.selectedElement)
+        else:
+            self.nm.notify('info', 'Outil VFX', 'Cliquez sur la carte pour placer un émetteur, ou faites un clic droit sur un émetteur existant pour le sélectionner et l\'éditer.', duration=3.0)
+        
+    def openParticleEditor(self, emitter):
+        self.eventHandler.discard_current_event = True
+        from editor.vfx.play_ground import ParticleEditor
+        ParticleEditor(self.screen, self.clock, emitter, self.nm).run()
         self.eventHandler.ResizeWindow()
         
 

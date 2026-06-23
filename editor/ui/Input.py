@@ -1,6 +1,206 @@
+import platform
+import subprocess
 import pygame
 
 from editor.ui.Font import FontManager
+
+
+IS_WINDOWS = platform.system() == "Windows"
+IS_MAC = platform.system() == "Darwin"
+IS_LINUX = platform.system() == "Linux"
+
+
+def safe_get_clipboard():
+    """Gets text from the clipboard safely, without crashing on any pygame version/OS."""
+    try:
+        if hasattr(pygame, 'scrap'):
+            try:
+                if hasattr(pygame.scrap, 'get_init') and not pygame.scrap.get_init():
+                    pygame.scrap.init()
+            except Exception:
+                try:
+                    pygame.scrap.init()
+                except Exception:
+                    pass
+            
+            if hasattr(pygame.scrap, 'get_text'):
+                val = pygame.scrap.get_text()
+                if val is not None:
+                    if isinstance(val, bytes):
+                        return val.decode('utf-8', errors='ignore')
+                    return str(val)
+            
+            if hasattr(pygame.scrap, 'get'):
+                val = pygame.scrap.get("text/plain;charset=utf-8")
+                if val is None and hasattr(pygame, 'SCRAP_TEXT'):
+                    val = pygame.scrap.get(pygame.SCRAP_TEXT)
+                if val is not None:
+                    if isinstance(val, bytes):
+                        val = val.split(b'\x00')[0]
+                        return val.decode('utf-8', errors='ignore')
+                    return str(val).split('\x00')[0]
+    except Exception:
+        pass
+    
+
+    if IS_WINDOWS:
+        try:
+            import ctypes
+            from ctypes import wintypes
+            CF_UNICODETEXT = 13
+            user32 = ctypes.windll.user32
+            kernel32 = ctypes.windll.kernel32
+            
+            user32.OpenClipboard.argtypes = [wintypes.HWND]
+            user32.OpenClipboard.restype = wintypes.BOOL
+            user32.GetClipboardData.argtypes = [wintypes.UINT]
+            user32.GetClipboardData.restype = wintypes.HANDLE
+            user32.CloseClipboard.argtypes = []
+            user32.CloseClipboard.restype = wintypes.BOOL
+            
+            if not user32.OpenClipboard(None):
+                return ""
+            try:
+                handle = user32.GetClipboardData(CF_UNICODETEXT)
+                if not handle:
+                    return ""
+                kernel32.GlobalLock.argtypes = [wintypes.HGLOBAL]
+                kernel32.GlobalLock.restype = ctypes.c_void_p
+                ptr = kernel32.GlobalLock(handle)
+                if not ptr:
+                    return ""
+                try:
+                    text = ctypes.c_wchar_p(ptr).value
+                    return text or ""
+                finally:
+                    kernel32.GlobalUnlock.argtypes = [wintypes.HGLOBAL]
+                    kernel32.GlobalUnlock(handle)
+            finally:
+                user32.CloseClipboard()
+        except Exception:
+            pass
+            
+    elif IS_MAC:
+        try:
+            proc = subprocess.Popen(["pbpaste"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            out, _ = proc.communicate(timeout=1.0)
+            return out
+        except Exception:
+            pass
+            
+    elif IS_LINUX:
+        try:
+            proc = subprocess.Popen(["xclip", "-selection", "clipboard", "-o"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            out, _ = proc.communicate(timeout=1.0)
+            if proc.returncode == 0:
+                return out
+        except Exception:
+            pass
+        try:
+            proc = subprocess.Popen(["xsel", "--clipboard", "--output"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            out, _ = proc.communicate(timeout=1.0)
+            if proc.returncode == 0:
+                return out
+        except Exception:
+            pass
+            
+    return ""
+
+
+def safe_set_clipboard(text):
+    """Sets text in the clipboard safely, without crashing on any pygame version/OS."""
+    try:
+        if hasattr(pygame, 'scrap'):
+            try:
+                if hasattr(pygame.scrap, 'get_init') and not pygame.scrap.get_init():
+                    pygame.scrap.init()
+            except Exception:
+                try:
+                    pygame.scrap.init()
+                except Exception:
+                    pass
+            
+            if hasattr(pygame.scrap, 'put_text'):
+                pygame.scrap.put_text(text)
+                return
+            
+            if hasattr(pygame.scrap, 'put') and hasattr(pygame, 'SCRAP_TEXT'):
+                pygame.scrap.put(pygame.SCRAP_TEXT, text.encode('utf-8'))
+                return
+    except Exception:
+        pass
+    
+
+    if IS_WINDOWS:
+        try:
+            import ctypes
+            from ctypes import wintypes
+            CF_UNICODETEXT = 13
+            user32 = ctypes.windll.user32
+            kernel32 = ctypes.windll.kernel32
+            
+            user32.OpenClipboard.argtypes = [wintypes.HWND]
+            user32.OpenClipboard.restype = wintypes.BOOL
+            user32.EmptyClipboard.argtypes = []
+            user32.EmptyClipboard.restype = wintypes.BOOL
+            user32.SetClipboardData.argtypes = [wintypes.UINT, wintypes.HANDLE]
+            user32.SetClipboardData.restype = wintypes.HANDLE
+            user32.CloseClipboard.argtypes = []
+            user32.CloseClipboard.restype = wintypes.BOOL
+            
+            if not user32.OpenClipboard(None):
+                return False
+            try:
+                user32.EmptyClipboard()
+                text_bytes = (text + "\0").encode("utf-16-le")
+                GMEM_MOVEABLE = 0x0002
+                kernel32.GlobalAlloc.argtypes = [wintypes.UINT, ctypes.c_size_t]
+                kernel32.GlobalAlloc.restype = wintypes.HGLOBAL
+                h_mem = kernel32.GlobalAlloc(GMEM_MOVEABLE, len(text_bytes))
+                if not h_mem:
+                    return False
+                kernel32.GlobalLock.argtypes = [wintypes.HGLOBAL]
+                kernel32.GlobalLock.restype = ctypes.c_void_p
+                ptr = kernel32.GlobalLock(h_mem)
+                if not ptr:
+                    return False
+                try:
+                    ctypes.memmove(ptr, text_bytes, len(text_bytes))
+                finally:
+                    kernel32.GlobalUnlock.argtypes = [wintypes.HGLOBAL]
+                    kernel32.GlobalUnlock(h_mem)
+                user32.SetClipboardData(CF_UNICODETEXT, h_mem)
+                return True
+            finally:
+                user32.CloseClipboard()
+        except Exception:
+            pass
+            
+    elif IS_MAC:
+        try:
+            proc = subprocess.Popen(["pbcopy"], stdin=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            proc.communicate(input=text, timeout=1.0)
+            return True
+        except Exception:
+            pass
+            
+    elif IS_LINUX:
+        try:
+            proc = subprocess.Popen(["xclip", "-selection", "clipboard"], stdin=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            proc.communicate(input=text, timeout=1.0)
+            if proc.returncode == 0:
+                return True
+        except Exception:
+            pass
+        try:
+            proc = subprocess.Popen(["xsel", "--clipboard", "--input"], stdin=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            proc.communicate(input=text, timeout=1.0)
+            if proc.returncode == 0:
+                return True
+        except Exception:
+            pass
+            
+    return False
 
 
 class InputField:
@@ -108,7 +308,7 @@ class InputField:
 
             # 5a) Collage (Ctrl+V) tout en haut
             if (mods & pygame.KMOD_CTRL) and event.key == pygame.K_v:
-                s = pygame.scrap.get_text() or ""
+                s = safe_get_clipboard()
                 s = ''.join(ch for ch in s if ch.isprintable())
                 if self.has_selection():
                     self._delete_selection()
@@ -121,13 +321,13 @@ class InputField:
                 self._ensure_cursor_visible()
                 return
             
-                        # --- Copie (Ctrl+C) ---
+            # --- Copie (Ctrl+C) ---
             if (mods & pygame.KMOD_CTRL) and event.key == pygame.K_c:
                 if self.has_selection():
                     start = min(self.sel_start, self.sel_end)
                     end   = max(self.sel_start, self.sel_end)
                     to_copy = self.text[start:end]
-                    pygame.scrap.put_text(to_copy)
+                    safe_set_clipboard(to_copy)
                 return
             
             if (mods & pygame.KMOD_CTRL) and event.key == pygame.K_a:

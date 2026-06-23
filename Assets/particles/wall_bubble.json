@@ -1,0 +1,49 @@
+{
+  "frames": {
+    "bubble_wall_0": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 32,
+        "h": 19
+      },
+      "duration": 100
+    },
+    "bubble_wall_1": {
+      "frame": {
+        "x": 32,
+        "y": 0,
+        "w": 32,
+        "h": 19
+      },
+      "duration": 100
+    },
+    "bubble_wall_2": {
+      "frame": {
+        "x": 64,
+        "y": 0,
+        "w": 32,
+        "h": 19
+      },
+      "duration": 100
+    },
+    "bubble_wall_3": {
+      "frame": {
+        "x": 96,
+        "y": 0,
+        "w": 32,
+        "h": 19
+      },
+      "duration": 100
+    },
+    "bubble_wall_4": {
+      "frame": {
+        "x": 128,
+        "y": 0,
+        "w": 32,
+        "h": 19
+      },
+      "duration": 100
+    }
+  }
+}

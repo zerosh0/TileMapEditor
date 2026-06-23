@@ -19,7 +19,8 @@ class Level:
                  offset_x: int = 0,
                  offset_y: int = 0,
                  standard_tile_size: int = STANDARD_TILE_SIZE,
-                 performance_monitor=None):
+                 performance_monitor=None,
+                 vfx_emitters=None):
         self.performance_monitor = performance_monitor
         self.layers            = layers
         self.collision_rects   = collision_rects
@@ -31,6 +32,7 @@ class Level:
         self.offset_x          = offset_x
         self.offset_y          = offset_y
         self.standard_tile_size = standard_tile_size
+        self.vfx_emitters      = vfx_emitters if vfx_emitters else []
         self.shadow_alpha=255
         self.tile_maps         = {}
         self.tile_sizes        = {}
@@ -41,6 +43,15 @@ class Level:
         self._prepare_background()
         self.init_lightning()
         self.load_tile_maps()
+        first_size = next(iter(self.tile_sizes.values()), 16)
+        scale = self.standard_tile_size / first_size
+        for emitter in self.vfx_emitters:
+            emitter.x = int(emitter.x * scale) + self.offset_x
+            emitter.y = int(emitter.y * scale) + self.offset_y
+            emitter.speed *= scale
+            emitter.size *= scale
+            emitter.gravity *= scale
+
         self.scaled_collision_rects = self.get_scaled_collision_rects()
         self._transition_duration = 0.0
         self._transition_timer    = 0.0
@@ -60,6 +71,33 @@ class Level:
         Construit un Level directement à partir d'une instance de DataManager,
         sans passer par un JSON.
         """
+        from editor.vfx.vfx import ParticleEmitter
+        cloned_emitters = []
+        for e in data_manager.emitters:
+            new_e = ParticleEmitter(e.x, e.y, e.name)
+            new_e.rate = e.rate
+            new_e.spread = e.spread
+            new_e.speed = e.speed
+            new_e.size = e.size
+            new_e.gravity = e.gravity
+            new_e.friction = e.friction
+            new_e.colors = [dict(c) for c in getattr(e, "colors", [])] if hasattr(e, "colors") else [{"pos": 0.0, "color": e.color_start}, {"pos": 1.0, "color": e.color_end}]
+            new_e.lifetime = getattr(e, "lifetime", 60)
+            new_e.active = getattr(e, "active", True)
+            new_e.vortex = getattr(e, "vortex", 0.0)
+            new_e.color_mode = getattr(e, "color_mode", "Lerp")
+            new_e.spawn_mode = getattr(e, "spawn_mode", "Continuous")
+            new_e.particle_style = getattr(e, "particle_style", "circle")
+            new_e.custom_sprite = getattr(e, "custom_sprite", "")
+            new_e.burst_interval = getattr(e, "burst_interval", 45)
+            new_e.chaos = getattr(e, "chaos", 0.0)
+            new_e.size_mode = getattr(e, "size_mode", "Constant")
+            new_e.overall_scale = getattr(e, "overall_scale", 1.0)
+            new_e.preview_scale = getattr(e, "preview_scale", 1.0)
+            new_e.is_preview = getattr(e, "is_preview", False)
+            new_e.active_modules = [dict(m) for m in getattr(e, "active_modules", [])]
+            cloned_emitters.append(new_e)
+
         return cls(
             layers           = data_manager.layers.copy(),
             collision_rects  = data_manager.collisionRects.copy(),
@@ -71,7 +109,8 @@ class Level:
             offset_y         = 0,
             standard_tile_size = data_manager.settings.tile_size if hasattr(data_manager.settings, 'tile_size') else STANDARD_TILE_SIZE,
             performance_monitor = performance_monitor,
-            animation_manager = data_manager.animation
+            animation_manager = data_manager.animation,
+            vfx_emitters     = cloned_emitters
         )
 
     def start_background_transition(self, new_bg, duration):

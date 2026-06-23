@@ -70,14 +70,22 @@ class DropdownMenu:
             item.rect.width = parent_w
         self.item_height = self.items[0].rect.height if self.items else 0
 
+        self.full_height = len(self.items) * self.item_height
+        self.visible_height = min(self.full_height, self.MAX_VISIBLE * self.item_height)
+
         x = self.parent.rect.x
         y = self.parent.rect.bottom
+        
+        surf = pygame.display.get_surface()
+        if surf:
+            screen_h = surf.get_height()
+            if y + self.visible_height > screen_h - 20:
+                y = self.parent.rect.top - self.visible_height
+
+        start_y = y
         for item in self.items:
             item.set_position(x, y)
             y += self.item_height
-
-        self.full_height = len(self.items) * self.item_height
-        self.visible_height = min(self.full_height, self.MAX_VISIBLE * self.item_height)
 
         base_w = parent_w + 2*self.border_width
         if self.full_height > self.visible_height:
@@ -87,7 +95,7 @@ class DropdownMenu:
 
         self.panel_rect = pygame.Rect(
             x - self.border_width,
-            self.parent.rect.bottom - self.border_width,
+            start_y - self.border_width,
             total_w,
             self.visible_height + 2*self.border_width
         )
@@ -119,8 +127,15 @@ class DropdownMenu:
             for it in self.items:
                 top = it.rect.y - self.offset
                 bottom = top + self.item_height
-                panel_top = self.parent.rect.bottom
-                panel_bottom = panel_top + self.visible_height
+                
+                # Check direction to set event bounds
+                if self.panel_rect.y < self.parent.rect.y:
+                    panel_top = self.panel_rect.y
+                    panel_bottom = self.parent.rect.top
+                else:
+                    panel_top = self.parent.rect.bottom
+                    panel_bottom = panel_top + self.visible_height
+                    
                 if bottom > panel_top and top < panel_bottom:
                     it.handle_event(event, offset_y=self.offset)
 
@@ -132,12 +147,21 @@ class DropdownMenu:
         t = min(elapsed / self.ANIM_DURATION, 1)
         anim_h = int(lerp(0, self.visible_height, t))
 
-        anim_rect = pygame.Rect(
-            self.panel_rect.x,
-            self.panel_rect.y,
-            self.panel_rect.width,
-            anim_h + 2*self.border_width
-        )
+        # Adjust anim_rect if drawing upwards
+        if self.panel_rect.y < self.parent.rect.y:
+            anim_rect = pygame.Rect(
+                self.panel_rect.x,
+                self.parent.rect.top - anim_h - self.border_width,
+                self.panel_rect.width,
+                anim_h + 2*self.border_width
+            )
+        else:
+            anim_rect = pygame.Rect(
+                self.panel_rect.x,
+                self.panel_rect.y,
+                self.panel_rect.width,
+                anim_h + 2*self.border_width
+            )
 
         shadow = pygame.Surface((anim_rect.width+4, anim_rect.height+4), pygame.SRCALPHA)
         pygame.draw.rect(shadow, (0, 0, 0, 80), shadow.get_rect(), border_radius=6)
@@ -157,9 +181,16 @@ class DropdownMenu:
 
         for it in self.items:
             y0 = it.rect.y - self.offset
-            if (y0 + self.item_height > self.parent.rect.bottom and
-                y0 < self.parent.rect.bottom + anim_h):
-                it.draw(surface, offset_y=self.offset)
+            if self.panel_rect.y < self.parent.rect.y:
+                # Upward drawing
+                if (y0 + self.item_height > anim_rect.y and
+                    y0 < self.parent.rect.top):
+                    it.draw(surface, offset_y=self.offset)
+            else:
+                # Downward drawing
+                if (y0 + self.item_height > self.parent.rect.bottom and
+                    y0 < self.parent.rect.bottom + anim_h):
+                    it.draw(surface, offset_y=self.offset)
 
         surface.set_clip(clip)
 
@@ -180,9 +211,9 @@ class DropdownMenu:
 class MenuButton(Button):
     def __init__(self, rect, text, submenu_items, action=None, font=None,
                  bg_color=(70, 70, 70), text_color=(230, 230, 230), hover_color=(90, 90, 90),
-                 item_font_size=18, border_radius=-1):
+                 item_font_size=18, border_radius=-1, size=16):
         super().__init__(rect, text, action or (lambda: None), font,
-                         bg_color, text_color, hover_color, border_radius=border_radius)
+                         bg_color, text_color, hover_color, size=size, border_radius=border_radius)
         font_manager = FontManager()
         item_font = font_manager.get(size=item_font_size)
         item_font.set_bold(False)

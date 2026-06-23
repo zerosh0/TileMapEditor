@@ -36,6 +36,8 @@ class DataManager():
         self.load_backgrounds("./Assets/backgrounds.json")
         self.game_engine=None
         self.emitters: list[ParticleEmitter] = []
+        self.show_vfx_placement_tip = False
+        self.show_collision_placement_tip = False
 
     def load_backgrounds(self, json_path: str):
         try:
@@ -115,6 +117,9 @@ class DataManager():
         for point in self.locationPoints:
             if point.collidePoint(pygame.mouse.get_pos(),viewport.panningOffset,viewport.zoom,locationPointImage):
                 self.selectedElement=point
+        for emitter in self.emitters:
+            if emitter.collidePoint(pygame.mouse.get_pos(),viewport.panningOffset,viewport.zoom):
+                self.selectedElement=emitter
 
 
     def getCenterSelectionViewport(self):
@@ -171,6 +176,17 @@ class DataManager():
         self.emitters.append(new_emitter)
         self.selectedElement = new_emitter
         self.history.RegisterAddElement(new_emitter)
+        
+        import os
+        flag_path = os.path.join("Assets", "ui", ".vfx_placed_done")
+        if not os.path.exists(flag_path):
+            try:
+                os.makedirs(os.path.dirname(flag_path), exist_ok=True)
+                with open(flag_path, "w") as f:
+                    f.write("done")
+                self.show_vfx_placement_tip = True
+            except Exception:
+                pass
 
     def ChangeSelectedVFX(self, viewport):
         for emitter in self.emitters:
@@ -478,6 +494,17 @@ class DataManager():
         self.collisionRects.append(new_collision_rect)
         self.selectedElement=self.collisionRects[-1]
 
+        import os
+        flag_path = os.path.join("Assets", "ui", ".collision_placed_done")
+        if not os.path.exists(flag_path):
+            try:
+                os.makedirs(os.path.dirname(flag_path), exist_ok=True)
+                with open(flag_path, "w") as f:
+                    f.write("done")
+                self.show_collision_placement_tip = True
+            except Exception:
+                pass
+
 
     def changeCurrentLayer(self,change: int):
         self.currentLayer = (self.currentLayer + change) % 9
@@ -488,7 +515,12 @@ class DataManager():
         if self.currentTool in [Tools.LocationPoint,Tools.Light]:
             self.currentTool=Tools.Draw
         self.currentTiles=[]
-        self.selectedElement.color = new_color
+        if isinstance(self.selectedElement, ParticleEmitter):
+            self.selectedElement.color_start = list(new_color)
+            if self.selectedElement.colors:
+                self.selectedElement.colors[0]["color"] = list(new_color)
+        else:
+            self.selectedElement.color = new_color
 
     def toogle_settings_display(self):
         self.show_settings= not self.show_settings

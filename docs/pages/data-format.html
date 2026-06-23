@@ -105,6 +105,7 @@
           <li><a href="#level">Niveau</a></li>
           <li><a href="#tilemaps">TileMaps</a></li>
           <li><a href="#animations">Animations</a></li>
+          <li><a href="#vfx">Particules (VFX)</a></li>
           <li><a href="#nodes">Nodes</a></li>
           <li><a href="#parameters">Paramètres</a></li>
         </ul>
@@ -276,6 +277,61 @@
           <strong>Attention :</strong> Si <code>globalIllumination</code> est à 1.0, les lights ne sont pas actives – baissez la valeur dans <code>settings.globalIllumination</code>.
         </div>
       </div>
+
+      <h2 id="vfx">✨ Émetteurs VFX (Particules)</h2>
+      <p>
+        Les émetteurs de particules placés sur la carte sont sauvegardés dans la liste <code>vfx_emitters</code> :
+      </p>
+      <pre><code class="language-json">
+"vfx_emitters": [
+  {
+    "x": 250.0,
+    "y": 180.0,
+    "name": "vfx_0",
+    "active": true,
+    "spawn_mode": "Continuous",
+    "rate": 3.0,
+    "burst_interval": 45,
+    "lifetime": 60,
+    "speed": 1.5,
+    "spread": 0.5,
+    "size": 5.0,
+    "size_mode": "Constant",
+    "overall_scale": 0.5,
+    "particle_style": "circle",
+    "custom_sprite": "",
+    "color_mode": "Lerp",
+    "colors": [
+      {"pos": 0.0, "color": [0, 175, 240]},
+      {"pos": 1.0, "color": [0, 80, 120]}
+    ],
+    "active_modules": [
+      {"id": "gravity", "enabled": true, "gravity": 0.1},
+      {"id": "chaos", "enabled": true, "chaos": 0.05}
+    ]
+  }
+]
+      </code></pre>
+      <ul>
+        <li><code>x, y</code> : coordonnées de l'émetteur dans le monde.</li>
+        <li><code>name</code> : nom unique de l'émetteur.</li>
+        <li><code>active</code> : état de l'émetteur (activé/désactivé).</li>
+        <li><code>spawn_mode</code> : mode d'émission (<code>"Continuous"</code> ou <code>"Burst"</code>).</li>
+        <li><code>rate</code> : nombre de particules générées par cycle.</li>
+        <li><code>burst_interval</code> : intervalle entre deux vagues en mode Burst (en frames).</li>
+        <li><code>lifetime</code> : durée de vie des particules générées (en frames).</li>
+        <li><code>speed</code> : vitesse de projection initiale.</li>
+        <li><code>spread</code> : dispersion de l'angle d'émission (en radians).</li>
+        <li><code>size</code> : taille des particules.</li>
+        <li><code>size_mode</code> : évolution de taille (<code>"Constant"</code>, <code>"Shrink"</code>, <code>"Grow"</code>, <code>"Grow & Shrink"</code>).</li>
+        <li><code>overall_scale</code> : facteur d'échelle dans le monde.</li>
+        <li><code>particle_style</code> : rendu (<code>"circle"</code>, <code>"spark"</code>, <code>"bubble"</code>, <code>"snow"</code>, <code>"fireball"</code>, <code>"star"</code>).</li>
+        <li><code>custom_sprite</code> : nom d'une spritesheet personnalisée.</li>
+        <li><code>color_mode</code> : couleur (<code>"Static"</code>, <code>"Rainbow"</code> ou <code>"Lerp"</code>).</li>
+        <li><code>colors</code> : arrêts de couleur pour l'interpolation.</li>
+        <li><code>active_modules</code> : liste des modules de forces actifs (gravité, vent, vortex, chaos, collisions, traînées, explosions).</li>
+      </ul>
+
       <h2 id="nodes">LevelGraph (Nodes)</h2>
       <p>
         Le chemin vers le fichier <code>.lvg</code> du graphe nodal est indiqué en fin de JSON :
@@ -499,6 +555,7 @@
       <li><a href="#level">Niveau</a></li>
       <li><a href="#tilemaps">TileMaps</a></li>
       <li><a href="#animations">Animations</a></li>
+      <li><a href="#vfx">Particules (VFX)</a></li>
       <li><a href="#nodes">nodes</a></li>
       <li><a href="#parameters">Paramètres</a></li>
     </ul>

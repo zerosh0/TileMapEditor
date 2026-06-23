@@ -20,6 +20,7 @@ from editor.ui.Slider import Slider
 from editor.ui.TextButton import Button
 from editor.core.utils import CollisionRect, Light
 from editor.render.viewport import ViewPort
+from editor.vfx.vfx import ParticleEmitter
 
 class DrawManager:
     def __init__(self, screen: pygame.surface.Surface,update: UpdateAndCrashHandler,nm : NotificationManager,settings : SettingsManager):
@@ -49,6 +50,11 @@ class DrawManager:
         self.fps_color  = (255, 255, 255)
         self.fps_margin = 10
         self.macOsBlendingProblem = False #Si viewport noir lors de la pose de tuile
+        self.viewport_fps_throttled = False
+        self.last_viewport_throttle_time = 0
+        self.viewport_particle_cap = 600
+        self.last_viewport_warn_time = 0
+        self.last_viewport_restore_time = 0
 
     def loadAssets(self,actions):
         self.actions=actions
@@ -65,6 +71,9 @@ class DrawManager:
         self.slider = Slider(rect=(self.screen.get_width() - 220, 70, 185, 13), 
                              min_value=0, max_value=1, initial_value=1,
                              progress_color=(109, 132, 165),bar_color=(83, 89, 98))
+        self.scale_slider = Slider(rect=(self.screen.get_width() - 120, 162, 90, 13),
+                                   min_value=0.1, max_value=2.0, initial_value=0.5,
+                                   progress_color=(109, 132, 165), bar_color=(83, 89, 98))
         self.playButton=Checkbox(rect=(450, 0, 89, 29),checked_image_path="./Assets/ui/icones/stop.png",unchecked_image_path="./Assets/ui/icones/play.png",action=self.actions.get("play"))
         self.colorPick=ColorButton(rect=(self.screen.get_width() - 70, 195, 40, 20),initial_color=(255, 0, 0),action=self.actions.get("editColor"))
         self.locationPointImage=pygame.image.load('./Assets/ui/LocationPoint.png')
@@ -163,6 +172,64 @@ class DrawManager:
         self.drawFps()
         self.update.display_update_notification(self.nm)
 
+        if getattr(self.dataManager, "show_vfx_placement_tip", False) and self.dataManager.selectedElement and isinstance(self.dataManager.selectedElement, ParticleEmitter):
+            graph_button = None
+            for btn in self.buttons:
+                if getattr(btn, "action_name", "") == "graph":
+                    graph_button = btn
+                    break
+            if graph_button:
+                import math
+                import time
+                pulse = int(127 + 127 * math.sin(time.time() * 10))
+                pygame.draw.rect(self.screen, (pulse, 200, pulse), graph_button.rect.inflate(6, 6), width=3, border_radius=4)
+                
+                tooltip_w, tooltip_h = 320, 95
+                tooltip_x = graph_button.rect.x - tooltip_w - 10
+                tooltip_y = graph_button.rect.y - 20
+                tooltip_rect = pygame.Rect(tooltip_x, tooltip_y, tooltip_w, tooltip_h)
+                
+                pygame.draw.rect(self.screen, (10, 11, 16), tooltip_rect, border_radius=8)
+                pygame.draw.rect(self.screen, (0, 175, 240), tooltip_rect, width=2, border_radius=8)
+                
+                tip_font = self.font_manager.get(size=18)
+                line1 = tip_font.render("Nouveau VFX placé !", True, (245, 185, 45))
+                line2 = tip_font.render("Cliquez sur l'icône de rouage", True, (255, 255, 255))
+                line3 = tip_font.render("ci-contre pour le configurer.", True, (255, 255, 255))
+                
+                self.screen.blit(line1, (tooltip_x + 15, tooltip_y + 12))
+                self.screen.blit(line2, (tooltip_x + 15, tooltip_y + 38))
+                self.screen.blit(line3, (tooltip_x + 15, tooltip_y + 64))
+
+        if getattr(self.dataManager, "show_collision_placement_tip", False) and self.dataManager.selectedElement and isinstance(self.dataManager.selectedElement, CollisionRect):
+            graph_button = None
+            for btn in self.buttons:
+                if getattr(btn, "action_name", "") == "graph":
+                    graph_button = btn
+                    break
+            if graph_button:
+                import math
+                import time
+                pulse = int(127 + 127 * math.sin(time.time() * 10))
+                pygame.draw.rect(self.screen, (pulse, 200, pulse), graph_button.rect.inflate(6, 6), width=3, border_radius=4)
+                
+                tooltip_w, tooltip_h = 320, 95
+                tooltip_x = graph_button.rect.x - tooltip_w - 10
+                tooltip_y = graph_button.rect.y - 20
+                tooltip_rect = pygame.Rect(tooltip_x, tooltip_y, tooltip_w, tooltip_h)
+                
+                pygame.draw.rect(self.screen, (10, 11, 16), tooltip_rect, border_radius=8)
+                pygame.draw.rect(self.screen, (180, 80, 220), tooltip_rect, width=2, border_radius=8) # Purple border for Nodal
+                
+                tip_font = self.font_manager.get(size=18)
+                line1 = tip_font.render("Zone de collision placée !", True, (245, 185, 45))
+                line2 = tip_font.render("Cliquez sur l'icône de rouage", True, (255, 255, 255))
+                line3 = tip_font.render("ci-contre pour la scripter.", True, (255, 255, 255))
+                
+                self.screen.blit(line1, (tooltip_x + 15, tooltip_y + 12))
+                self.screen.blit(line2, (tooltip_x + 15, tooltip_y + 38))
+                self.screen.blit(line3, (tooltip_x + 15, tooltip_y + 64))
+
 
     def drawFps(self):
         if self.settings.fps:
@@ -210,14 +277,23 @@ class DrawManager:
         
     def UpdateCollisionText(self):
         if self.dataManager.selectedElement:
-            if not isinstance(self.dataManager.selectedElement,Light):
-                self.NameText=self.font.render(f"Name: {self.dataManager.selectedElement.name}", True, (255, 255, 255))
-                self.TypeText=self.font.render(f"Type: {self.dataManager.selectedElement.type}", True, (255, 255, 255))
-            else:
+            if isinstance(self.dataManager.selectedElement, Light):
                 self.TypeText=self.font.render(f"Blink", True, (255, 255, 255))
                 self.NameText=self.font.render(f"Radius: {round(self.dataManager.selectedElement.radius,1)}", True, (255, 255, 255))
-            self.ColorText=self.font.render("Color: ", True, (255, 255, 255))
-            self.colorPick.color=self.dataManager.selectedElement.color
+                self.ColorText=self.font.render("Color: ", True, (255, 255, 255))
+                self.colorPick.color=self.dataManager.selectedElement.color
+            elif isinstance(self.dataManager.selectedElement, ParticleEmitter):
+                self.NameText=self.font.render("", True, (255, 255, 255))
+                self.TypeText=self.font.render(f"Type: VFX ({self.dataManager.selectedElement.name})", True, (255, 255, 255))
+                self.ColorText=self.font.render("Color: ", True, (255, 255, 255))
+                self.colorPick.color=self.dataManager.selectedElement.color_start
+                if not self.scale_slider.dragging:
+                    self.scale_slider.value = self.dataManager.selectedElement.overall_scale
+            else:
+                self.NameText=self.font.render(f"Name: {self.dataManager.selectedElement.name}", True, (255, 255, 255))
+                self.TypeText=self.font.render(f"Type: {self.dataManager.selectedElement.type}", True, (255, 255, 255))
+                self.ColorText=self.font.render("Color: ", True, (255, 255, 255))
+                self.colorPick.color=self.dataManager.selectedElement.color
         else:
             self.NameText=self.font.render("", True, (255, 255, 255))
             self.TypeText=self.font.render("", True, (255, 255, 255))
@@ -258,6 +334,34 @@ class DrawManager:
                             self.viewportData.zoom,
                             light == self.dataManager.selectedElement and not self.colorPick.picker_visible)
             self.screen.blit(self.light_mask, (0, 30))
+
+        total_particles = sum(len(emitter.particles) for emitter in self.dataManager.emitters)
+        fps = self.fps
+        import time
+        now = time.time()
+        
+        if fps > 0 and fps < 20 and total_particles > 150:
+            if not self.viewport_fps_throttled:
+                self.viewport_fps_throttled = True
+                self.last_viewport_throttle_time = now
+                if self.nm and (now - self.last_viewport_warn_time > 45.0):
+                    self.nm.notify('warning', 'Perf Regulation', 'High load: capping to 150 active particles in viewport.', duration=3.0)
+                    self.last_viewport_warn_time = now
+            self.viewport_particle_cap = 150
+        elif fps > 35 and self.viewport_fps_throttled and now - self.last_viewport_throttle_time > 2.0:
+            self.viewport_fps_throttled = False
+            self.viewport_particle_cap = 600
+            self.last_viewport_throttle_time = now
+            if self.nm and (now - self.last_viewport_restore_time > 45.0):
+                self.nm.notify('success', 'Perf Restored', 'FPS stabilized: viewport cap restored to 600 particles.', duration=2.0)
+                self.last_viewport_restore_time = now
+
+        for emitter in self.dataManager.emitters:
+            emitter.particle_cap = self.viewport_particle_cap
+            emitter.update()
+            if self.settings.display_particles:
+                emitter.draw(self.screen, self.viewportData.panningOffset, self.viewportData.zoom)
+            emitter.draw_icon(self.screen, self.viewportData.panningOffset, self.viewportData.zoom, emitter == self.dataManager.selectedElement)
 
 
 
@@ -458,6 +562,8 @@ class DrawManager:
         self.barRect.centerx = self.screen.get_width() // 2
         self.barRect.bottom = self.screen.get_height()
         self.slider.rect=pygame.Rect(self.screen.get_width() - 220, 70, 185, 13)
+        self.scale_slider.rect.x = self.screen.get_width() - 120
+        self.scale_slider.rect.y = 162
         self.viewport=pygame.surface.Surface((self.screen.get_width() - 250,self.screen.get_height()-30))
         self.viewportRect = self.viewport.get_rect()
         self.viewportRect.top = 30
@@ -503,6 +609,11 @@ class DrawManager:
         self.screen.blit(self.TypeText,(screen_width - 220, 125))
         self.screen.blit(self.NameText,(screen_width - 220, 160))
         self.screen.blit(self.ColorText,(screen_width - 220, 195))
+        if self.dataManager.selectedElement and isinstance(self.dataManager.selectedElement, ParticleEmitter):
+            scale_val = self.dataManager.selectedElement.overall_scale
+            scale_text = self.font.render(f"Scale: {scale_val:.2f}", True, (255, 255, 255))
+            self.screen.blit(scale_text, (screen_width - 220, 158))
+            self.scale_slider.draw(self.screen)
         #self.screen.blit(self.bar, self.barRect)
         edit=0
         for button in self.buttons:
@@ -510,6 +621,8 @@ class DrawManager:
             if hasattr(button, "image_path") and "edit" in button.image_path:
                 if self.dataManager.selectedElement:
                     edit+=1
+                    if isinstance(self.dataManager.selectedElement, ParticleEmitter) and button.action_name == "editName":
+                        continue
                     if isinstance(self.dataManager.selectedElement,Light) and edit==1:
                         if self.dataManager.selectedElement.blink:
                             button.init_image("./Assets/ui/icones/checked.png")
@@ -522,7 +635,7 @@ class DrawManager:
             elif hasattr(button, "image_path") and self.dataManager.currentTool and button.action_name==self.dataManager.currentTool._value_:
                 button.draw(self.screen,is_tinted=True)
             elif hasattr(button, "image_path") and "graph" in button.image_path:
-                if isinstance(self.dataManager.selectedElement,CollisionRect):
+                if isinstance(self.dataManager.selectedElement, (CollisionRect, ParticleEmitter)):
                     button.draw(self.screen)
             else:
                 button.draw(self.screen)

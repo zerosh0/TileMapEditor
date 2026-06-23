@@ -24,6 +24,7 @@
 |----------------------------------------|-------------|
 | 🧱 Éditeur de tilemaps                 | Interface visuelle multi-calques pour dessiner vos niveaux |
 | 🎞️ Animations intégrées               | Timeline, keyframes, preview en temps réel |
+| ✨ Émetteurs de particules (VFX)       | Moteur de particules paramétrable avec forces, collisions et presets |
 | 🧠 Éditeur nodal de gameplay           | Plus de 80 nœuds pour créer de la logique interactive |
 | 🕹️ Mode Play                         | Test de niveau avec collisions, sauts, gravité, etc. |
 | 🎯 Outils de dessin                    | Remplissage, pinceau, random, collisions, marqueurs |
@@ -69,13 +70,28 @@ TileMapEditor/
 │   ├── core/                      # Données, settings, historique, événements
 │   ├── blueprint_editor/          # Éditeur nodal
 │   ├── animations/                # Timeline, keyframes, animation preview
+│   ├── vfx/                       # Moteur de particules (Playground, forces, presets)
 │   ├── render/                    # Affichage, layers, parallax, zoom
 │   ├── services/                  # Chargement/sauvegarde/export des fichiers
 ├── Assets/                        # Tuiles, images, icônes, backgrounds
 ├── docs/                # Site de documentation complet (HTML)
 ├── README.md
 ```
+
 ---
+
+## ✨ Système de Particules VFX
+
+Un moteur d'effets visuels complet et entièrement paramétrable :
+
+- **Éditeur Dédié (Playground)** : Clic droit sur un émetteur pour le configurer dans une interface interactive.
+- **Rendu Personnalisable** : Choix des styles de particules (Cercle, Étincelle, Bulle animée, Flocon de neige, Boule de feu, Étoile).
+- **Forces Physiques Modulaires** : Application et réglage de forces comme la Gravité, le Vent, le Vortex, le Chaos et la Friction.
+- **Collisions & Débris** : Les particules peuvent rebondir sur les collisions du niveau et sur le joueur, en générant des étincelles.
+- **Galerie de Presets** : Choix parmi des configurations prêtes à l'emploi (Fire, Snow, Spark, Bubble, Portal, Fireball, Cosmic Starfield) avec aperçu animé.
+
+---
+
 ## 🎮 Mode Play intégré
 
 Prototypez vos niveaux directement dans l’éditeur, sans coder une seule ligne :
@@ -106,6 +122,7 @@ Créez des logiques interactives sans coder :
 
 - 🔴 Événements : `OnStart`, `OnEnter`, `OnExit`, `OnTick`, `OnOverlap`  
 - ⚪ Actions : `Play Animation`, `Teleport`, `Emit Sound`  
+- ✨ Particules (VFX) : `Set Emitter Active`, `Set Emitter Rate`, `Trigger Emitter Burst`  
 - 🔧 Setters/Getters : `Set Speed`, `Get Health`, `Set Variable`  
 - 🔁 Logique : `If`, `For`, `Sequence`, `Once`, `FlipFlop`  
 - 💥 Debug intégré, gestion d’erreurs en temps réel  
@@ -132,7 +149,7 @@ Créez des logiques interactives sans coder :
 
 ## 💡 Statut du projet
 
-🎉 **Version actuelle : 1.1**  
-✅ Le cœur des fonctionnalités est en place.  
+🎉 **Version actuelle : 1.3**  
+Base des fonctionnalités stabilisée avec système VFX, éditeur nodal amélioré et régulation de performances.
 
 📢 Contributions, idées, bugs et feedbacks sont les bienvenus !

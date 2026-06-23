@@ -4,6 +4,7 @@ from editor.core.data_manager import DataManager
 from editor.core.history_manager import HistoryManager
 from editor.core.settings import Section, SettingsManager
 from editor.core.utils import CollisionRect, Light, LocationPoint, Tile, Tools
+from editor.vfx.vfx import ParticleEmitter
 from editor.game_engine.game_manager import Game
 from editor.render import viewport
 from editor.render.draw_manager import DrawManager
@@ -38,10 +39,19 @@ class EventHandlerManager:
         self.RightViewPortDragActive = False
         self.MapDragActive = self.tilePalette.InRegion()
         self.LeftViewPortDragActive = self.viewport.InRegion() and self.tilePalette.GetCurrentTileMap()
+        self.discard_current_event = False
 
     def HandleEvents(self):
         for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if getattr(self.dataManager, "show_vfx_placement_tip", False):
+                    self.dataManager.show_vfx_placement_tip = False
+                if getattr(self.dataManager, "show_collision_placement_tip", False):
+                    self.dataManager.show_collision_placement_tip = False
+            self.discard_current_event = False
             self.HandleUiEvents(event)
+            if self.discard_current_event:
+                continue
             self.editor.game_engine.handle_events(event)
             match event.type:
                 case pygame.QUIT:
@@ -71,15 +81,23 @@ class EventHandlerManager:
 
     def HandleUiEvents(self, event):
         if self.dataManager.selectedElement and self.settings.active_section==Section.HIDDEN and not self.animations.panel_visible and not self.game_engine.running:
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.DrawManager.colorPick.rect.collidepoint(event.pos):
+                self.discard_current_event = True
             self.DrawManager.colorPick.handle_event(event)
         if self.DrawManager.colorPick.picker_visible:
             return
         self.animations.handle_event(event)
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.DrawManager.playButton.rect.collidepoint(event.pos):
+            self.discard_current_event = True
         self.DrawManager.playButton.handle_event(event)
         if self.animations.get_current_anim() and not self.game_engine.running:
             self.animations.get_current_anim().timeline.handle_event(event)
         for button in self.DrawManager.buttons:
+            if isinstance(self.dataManager.selectedElement, ParticleEmitter) and getattr(button, "action_name", "") == "editName":
+                continue
             if self.settings.active_section==Section.HIDDEN or isinstance(button,MenuButton):
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and button.rect.collidepoint(event.pos):
+                    self.discard_current_event = True
                 if not self.animations.panel_visible:
                     button.handle_event(event)
                 elif not hasattr(button, "image_path"):
@@ -88,7 +106,14 @@ class EventHandlerManager:
                     button.handle_event(event)
         if self.settings.active_section==Section.HIDDEN:
             if not self.animations.panel_visible:
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.DrawManager.slider.rect.inflate(10, 10).collidepoint(event.pos):
+                    self.discard_current_event = True
                 self.DrawManager.slider.handle_event(event)
+                if self.dataManager.selectedElement and isinstance(self.dataManager.selectedElement, ParticleEmitter):
+                    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.DrawManager.scale_slider.rect.inflate(10, 10).collidepoint(event.pos):
+                        self.discard_current_event = True
+                    self.DrawManager.scale_slider.handle_event(event)
+                    self.dataManager.selectedElement.overall_scale = self.DrawManager.scale_slider.value
         else:
             self.settings.handle_event(event)
         self.dataManager.getCurrentLayer().opacity=self.DrawManager.slider.value
@@ -119,6 +144,8 @@ class EventHandlerManager:
             self.LeftViewPortDragActive = self.viewport.InRegion() and self.tilePalette.GetCurrentTileMap()
             if self.dataManager.currentTool == Tools.LocationPoint and self.LeftViewPortDragActive:
                 self.dataManager.AddLocationPoint(self.viewport,self.DrawManager.locationPointImage)
+            if self.dataManager.currentTool == Tools.VFX and self.LeftViewPortDragActive:
+                self.dataManager.AddVFXEmitter(self.viewport)
             if self.dataManager.currentTool == Tools.Light and not self.viewport.light_preview and  \
                 self.viewport.InRegion() and self.tilePalette.GetCurrentTileMap():
                 self.viewport.light_origin = event.pos
@@ -247,6 +274,9 @@ class EventHandlerManager:
                 elif isinstance(self.dataManager.selectedElement,Light):
                     self.dataManager.lights.remove(self.dataManager.selectedElement)
                     self.HistoryManager.RegisterRemoveLight(self.dataManager.selectedElement)
+                elif isinstance(self.dataManager.selectedElement,ParticleEmitter):
+                    self.dataManager.emitters.remove(self.dataManager.selectedElement)
+                    self.HistoryManager.RegisterRemoveElement(self.dataManager.selectedElement)
                 
                 self.dataManager.selectedElement=None
         elif event.key == pygame.K_z and event.mod & pygame.KMOD_LCTRL:

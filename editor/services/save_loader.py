@@ -9,6 +9,7 @@ from editor.blueprint_editor.node import NODE_REGISTRY, Node
 from editor.blueprint_editor.system import BlueprintEditor
 from editor.ui.FileDialog import FileDialog
 from editor.core.utils import AnimatedTile, Colors, Light, LocationPoint, TileMap, Tools, Tile, Layer, CollisionRect
+from editor.vfx.vfx import ParticleEmitter
 from dataclasses import is_dataclass
 
 class SaveLoadManager:
@@ -139,6 +140,34 @@ class SaveLoadManager:
             }
             light_data.append(light_dict)
 
+        # Sauvegarde des émetteurs VFX
+        vfx_data = []
+        for emitter in level_design.dataManager.emitters:
+            vfx_data.append({
+                "x": emitter.x,
+                "y": emitter.y,
+                "name": emitter.name,
+                "rate": emitter.rate,
+                "spread": emitter.spread,
+                "speed": emitter.speed,
+                "size": emitter.size,
+                "gravity": emitter.gravity,
+                "friction": emitter.friction,
+                "colors": [dict(c) for c in getattr(emitter, "colors", [])] if hasattr(emitter, "colors") else [{"pos": 0.0, "color": emitter.color_start}, {"pos": 1.0, "color": emitter.color_end}],
+                "lifetime": emitter.lifetime,
+                "active": emitter.active,
+                "vortex": emitter.vortex,
+                "color_mode": emitter.color_mode,
+                "spawn_mode": emitter.spawn_mode,
+                "particle_style": getattr(emitter, "particle_style", "circle"),
+                "custom_sprite": getattr(emitter, "custom_sprite", ""),
+                "burst_interval": getattr(emitter, "burst_interval", 45),
+                "chaos": getattr(emitter, "chaos", 0.0),
+                "size_mode": getattr(emitter, "size_mode", "Constant"),
+                "overall_scale": getattr(emitter, "overall_scale", 1.0),
+                "active_modules": [dict(m) for m in getattr(emitter, "active_modules", [])]
+            })
+
         # Sauvegarde des TileMap de la palette
         tilemaps_data = []
         for tilemap in level_design.tilePalette.Maps:
@@ -164,7 +193,8 @@ class SaveLoadManager:
             "showLights": level_design.settings.display_lights,
             "showCollisions": level_design.settings.show_collisions,
             "showLocationPoints": level_design.settings.show_location_points,
-            "playerSpawnPoint": level_design.settings.player_spawn_point
+            "playerSpawnPoint": level_design.settings.player_spawn_point,
+            "displayParticles": level_design.settings.display_particles
         }
         animations_data = []
         for name, anim in level_design.animations.animations.items():
@@ -201,6 +231,7 @@ class SaveLoadManager:
             "collisionRects": collision_rects_data,
             "locationPoint":location_point_data,
             "lights":light_data,
+            "vfx_emitters": vfx_data,
             "currentTool": level_design.dataManager.currentTool.name,
             "viewport": {
                 "panningOffset": level_design.viewport.panningOffset,
@@ -268,8 +299,8 @@ class SaveLoadManager:
             # écriture du fichier de graph
             with open(graph_fp, "w") as gf:
                 json.dump(graph_data, gf, indent=4)
-            print(f"✅ Sauvegarde graph → {file_path}, {graph_fp}")
-            print("✅ Sauvegarde réussie !")
+            print(f"[OK] Sauvegarde graph -> {file_path}, {graph_fp}")
+            print("[OK] Sauvegarde réussie !")
             level_design.nm.notify('success', 'Success', 'Sauvegarde réussie !',duration=1.0)
             level_design.settings.path=file_path
         except Exception as e:
@@ -369,6 +400,50 @@ class SaveLoadManager:
                 )
                 lights.append(new_light)
             level_design.dataManager.lights = lights
+
+        emitters = []
+        if data.get("vfx_emitters"):
+            for e_data in data["vfx_emitters"]:
+                emitter = ParticleEmitter(e_data["x"], e_data["y"], e_data["name"])
+                emitter.rate = e_data.get("rate", 5.0)
+                emitter.spread = e_data.get("spread", 1.5)
+                emitter.speed = e_data.get("speed", 3.0)
+                emitter.size = e_data.get("size", 5.0)
+                emitter.gravity = e_data.get("gravity", 0.1)
+                emitter.friction = e_data.get("friction", 0.97)
+                
+                raw_colors = e_data.get("colors")
+                if raw_colors:
+                    if isinstance(raw_colors[0], dict):
+                        emitter.colors = [dict(c) for c in raw_colors]
+                    else:
+                        emitter.colors = []
+                        n_colors = len(raw_colors)
+                        for idx, c in enumerate(raw_colors):
+                            pos = idx / max(1, n_colors - 1)
+                            emitter.colors.append({"pos": pos, "color": list(c)})
+                else:
+                    color_start = e_data.get("color_start", [255, 255, 255])
+                    color_end = e_data.get("color_end", [200, 200, 200])
+                    emitter.colors = [{"pos": 0.0, "color": color_start}, {"pos": 1.0, "color": color_end}]
+                
+                emitter.lifetime = e_data.get("lifetime", 60)
+                emitter.active = e_data.get("active", True)
+                emitter.vortex = e_data.get("vortex", 0.0)
+                emitter.color_mode = e_data.get("color_mode", "Lerp")
+                emitter.spawn_mode = e_data.get("spawn_mode", "Continuous")
+                emitter.particle_style = e_data.get("particle_style", "circle")
+                
+                emitter.custom_sprite = e_data.get("custom_sprite", "")
+                emitter.burst_interval = e_data.get("burst_interval", 45)
+                emitter.chaos = e_data.get("chaos", 0.0)
+                emitter.size_mode = e_data.get("size_mode", "Constant")
+                emitter.overall_scale = e_data.get("overall_scale", 1.0)
+                emitter.active_modules = [dict(m) for m in e_data.get("active_modules", [])]
+                
+                emitters.append(emitter)
+        level_design.dataManager.emitters = emitters
+
         level_design.dataManager.currentTool = Tools[data["currentTool"]]
 
         level_design.viewport.panningOffset = data["viewport"]["panningOffset"]
@@ -414,9 +489,11 @@ class SaveLoadManager:
         lights = settings.get("showLights")
         coll  = settings.get("showCollisions")
         locs  = settings.get("showLocationPoints")
+        display_part = settings.get("displayParticles")
         if lights is not None:   level_design.settings.display_lights = lights
         if coll is not None:     level_design.settings.show_collisions = coll
         if locs is not None:     level_design.settings.show_location_points = locs
+        if display_part is not None: level_design.settings.display_particles = display_part
 
 
         level_design.animations.animations.clear()
@@ -553,12 +630,12 @@ class SaveLoadManager:
             print(f"⚠️ Pas de fichier graph trouvé à {graph_fp}")
             level_design.nm.notify('warning', 'Attention', f"Pas de fichier graph trouvé à {graph_fp}",duration=1.5)
         elif raw_graph_fp!=None:
-            print(f"⚠️ Pas de fichier graph trouvé (abs. ou relatif) : {raw_graph_fp}")
+            print(f"[WARNING] Pas de fichier graph trouvé (abs. ou relatif) : {raw_graph_fp}")
             level_design.nm.notify(
                 'warning', 'Attention',
                 f"Pas de fichier graph trouvé : {raw_graph_fp}", duration=1.5
             )
-        print("✅ Chargement réussi !")
+        print("[OK] Chargement réussi !")
         level_design.DrawManager.last_bg_index = None
         level_design.settings.load_settings()
         level_design.DrawManager.settings=level_design.settings

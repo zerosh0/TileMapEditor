@@ -42,9 +42,15 @@ class Pin:
 NODE_REGISTRY: Dict[str, Tuple[Type['Node'], str]] = {}
 CATEGORY_ORDER: List[str] = []
 CATEGORY_COLORS = {
-    "Events"   : (180,100,100),
-    "Logic"    : (100,180,100),
-    "Debug"    : (100,100,180),
+    "Events"     : (180, 100, 100),
+    "Logic"      : (100, 180, 100),
+    "Debug"      : (100, 100, 180),
+    "Player"     : (180, 140, 60),
+    "Input"      : (60, 160, 180),
+    "Animations" : (160, 100, 180),
+    "World"      : (100, 160, 100),
+    "Audio"      : (140, 100, 160),
+    "VFX"        : (180, 80, 220),
 }
 
 
@@ -132,7 +138,17 @@ class Node:
         pygame.draw.rect(surf, border_color, rect, 2, border_radius=4)
         # header
         hdr = pygame.Rect(x, y, w, self.HEADER_HEIGHT)
-        hdr_color = (200,100,100) if self.is_event else (100,100,200)
+        category = None
+        for key, (cls, cat) in NODE_REGISTRY.items():
+            if isinstance(self, cls):
+                category = cat
+                break
+        if self.is_event:
+            hdr_color = (200, 100, 100)
+        elif category and category in CATEGORY_COLORS:
+            hdr_color = CATEGORY_COLORS[category]
+        else:
+            hdr_color = (100, 100, 200)
         pygame.draw.rect(surf, hdr_color, hdr, border_top_left_radius=4, border_top_right_radius=4)
         if getattr(self, 'has_error', False):
             badge_w, badge_h = 52, 16
@@ -152,6 +168,8 @@ class Node:
         surf.blit(font.render(self.title, True, (20,20,20)), (x + 6, y + 4))
         if draw_ui:
             for el in self.ui_elements:
+                if isinstance(el, DropdownButton) and el.is_open:
+                    continue
                 el.draw(surf)
         for pin in self.inputs + self.outputs:
             col = (230, 230, 230) if pin.pin_type == 'exec' else (100, 100, 200)

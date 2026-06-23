@@ -57,6 +57,7 @@ class Game:
 
 
     def update_settings(self,settings: SettingsManager):
+        self.settings = settings
         if settings.can_fly != self._applied_settings['can_fly']:
             self.player.fly_mode = settings.can_fly
             self._applied_settings['can_fly'] = settings.can_fly
@@ -111,6 +112,12 @@ class Game:
             ennemi.draw(self.screen)
         # self.player.draw(self.screen)
         self.level.draw_lights(self.camera,self.screen)
+        
+        for emitter in self.level.vfx_emitters:
+            emitter.update(collision_rects=self.level.get_scaled_collision_rects(), player_rect=self.player.rect)
+            if getattr(self, "settings", None) is None or getattr(self.settings, "display_particles", True):
+                emitter.draw_in_game(self.screen, self.camera)
+            
         pygame.display.flip()
 
 

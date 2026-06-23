@@ -174,3 +174,9 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Tutorial and VFX Placement onboarding state flags
+Assets/ui/.tutorial_done
+Assets/ui/.vfx_placed_done
+Assets/ui/.nodal_tutorial_done
+Assets/ui/.collision_placed_done

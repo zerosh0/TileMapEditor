@@ -1,0 +1,49 @@
+{
+  "frames": {
+    "bubble_0": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 40,
+        "h": 38
+      },
+      "duration": 100
+    },
+    "bubble_1": {
+      "frame": {
+        "x": 40,
+        "y": 0,
+        "w": 40,
+        "h": 38
+      },
+      "duration": 100
+    },
+    "bubble_2": {
+      "frame": {
+        "x": 80,
+        "y": 0,
+        "w": 40,
+        "h": 38
+      },
+      "duration": 100
+    },
+    "bubble_3": {
+      "frame": {
+        "x": 120,
+        "y": 0,
+        "w": 40,
+        "h": 38
+      },
+      "duration": 100
+    },
+    "bubble_4": {
+      "frame": {
+        "x": 160,
+        "y": 0,
+        "w": 40,
+        "h": 38
+      },
+      "duration": 100
+    }
+  }
+}

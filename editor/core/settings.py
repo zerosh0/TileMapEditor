@@ -61,6 +61,7 @@ class SettingsManager:
         self.keyframe_overlay: bool = True
         self.player_spawn_point: str | None = None
         self.can_fly: bool = False
+        self.display_particles: bool = True
         # Widgets container per section:
         # Section -> List of tuples(label, widget, setting, base_rect)
         self.widgets: dict[Section, List[Tuple[str, Any, str, pygame.Rect]]] = {

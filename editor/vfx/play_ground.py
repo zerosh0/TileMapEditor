@@ -1,169 +1,1421 @@
 import pygame
 import random
 import math
+import time
+from editor.vfx.vfx import ParticleEmitter, Particle
+from editor.ui.ColorPicker import ColorPicker
+from editor.ui.DropDownMenu import MenuButton
 
-WIDTH, HEIGHT = 1100, 700
-BG_COLOR = (12, 12, 18)
-ACCENT_COLOR = (0, 200, 255)
+# Color Palette (Dark Theme / Slate & Cyan Accent)
+BG_COLOR = (14, 14, 22)
+PANEL_COLOR = (22, 22, 32)
+PANEL_BORDER_COLOR = (42, 44, 58)
+TEXT_COLOR = (210, 215, 230)
+TEXT_MUTED = (130, 135, 150)
+ACCENT_BLUE = (0, 175, 240)
+ACCENT_GREEN = (40, 200, 110)
+ACCENT_RED = (230, 70, 70)
+ACCENT_GOLD = (245, 185, 45)
+BUTTON_COLOR = (32, 34, 48)
+BUTTON_HOVER = (45, 48, 68)
 
-
-def lerp_color(c1, c2, t):
-    return tuple(int(c1[i] + (c2[i] - c1[i]) * t) for i in range(3))
 
 class Slider:
-    def __init__(self, rel_x, rel_y, w, label, min_v, max_v, cur_v):
-        self.rect = pygame.Rect(0, 0, w, 10)
-        self.rel_x, self.rel_y = rel_x, rel_y
-        self.label, self.min_v, self.max_v, self.val = label, min_v, max_v, cur_v
+    def __init__(self, x, y, w, label, min_v, max_v, cur_v, is_int=False):
+        self.rect = pygame.Rect(x, y, w, 8)
+        self.label = label
+        self.min_v = min_v
+        self.max_v = max_v
+        self.val = cur_v
+        self.is_int = is_int
         self.grabbed = False
-
-    def draw(self, surf, font, ox, oy):
-        self.rect.topleft = (ox + self.rel_x, oy + self.rel_y)
-        pygame.draw.rect(surf, (60, 60, 75), self.rect, border_radius=5)
-        px = self.rect.x + (self.val - self.min_v) / (self.max_v - self.min_v + 0.001) * self.rect.w
-        pygame.draw.circle(surf, ACCENT_COLOR, (int(px), self.rect.y + 5), 7)
-        txt = font.render(f"{self.label}: {self.val:.2f}", True, (200, 200, 200))
-        surf.blit(txt, (self.rect.x, self.rect.y - 18))
-
-    def handle(self, event, ox, oy):
-        self.rect.topleft = (ox + self.rel_x, oy + self.rel_y)
-        if event.type == pygame.MOUSEBUTTONDOWN and self.rect.inflate(10, 20).collidepoint(event.pos):
-            self.grabbed = True
-        if event.type == pygame.MOUSEBUTTONUP: self.grabbed = False
-        if self.grabbed:
-            mx = max(self.rect.x, min(pygame.mouse.get_pos()[0], self.rect.x + self.rect.w))
-            self.val = self.min_v + (mx - self.rect.x) / self.rect.w * (self.max_v - self.min_v)
-
-class Window:
-    def __init__(self, title, x, y, w, h):
-        self.rect = pygame.Rect(x, y, w, h)
-        self.title = title
-        self.elements = []
-        self.drag = False
-        self.offset = (0,0)
+        self.hovered = False
 
     def draw(self, surf, font):
-        pygame.draw.rect(surf, (30, 30, 40), self.rect, border_radius=8)
-        pygame.draw.rect(surf, (45, 45, 55), (self.rect.x, self.rect.y, self.rect.w, 25), border_top_left_radius=8, border_top_right_radius=8)
-        surf.blit(font.render(self.title, True, (255, 255, 255)), (self.rect.x + 10, self.rect.y + 4))
-        for el in self.elements: el.draw(surf, font, self.rect.x, self.rect.y)
+        # Draw track
+        pygame.draw.rect(surf, (38, 40, 54), self.rect, border_radius=4)
+        
+        # Draw progress bar fill
+        factor = (self.val - self.min_v) / (self.max_v - self.min_v + 0.0001)
+        factor = max(0.0, min(1.0, factor))
+        fill_w = int(self.rect.w * factor)
+        if fill_w > 0:
+            fill_rect = pygame.Rect(self.rect.x, self.rect.y, fill_w, self.rect.h)
+            pygame.draw.rect(surf, ACCENT_BLUE, fill_rect, border_radius=4)
+        
+        # Draw thumb circle
+        px = self.rect.x + fill_w
+        thumb_color = (255, 255, 255) if (self.grabbed or self.hovered) else ACCENT_BLUE
+        pygame.draw.circle(surf, thumb_color, (px, self.rect.y + 4), 6)
+        if self.grabbed or self.hovered:
+            pygame.draw.circle(surf, (*ACCENT_BLUE, 60), (px, self.rect.y + 4), 10, 2)
+            
+        # Labels
+        val_str = f"{int(self.val)}" if self.is_int else f"{self.val:.2f}"
+        lbl_surf = font.render(f"{self.label}:", True, TEXT_MUTED)
+        val_surf = font.render(val_str, True, (255, 255, 255))
+        
+        surf.blit(lbl_surf, (self.rect.x, self.rect.y - 18))
+        surf.blit(val_surf, (self.rect.x + self.rect.w - val_surf.get_width(), self.rect.y - 18))
 
     def handle(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if pygame.Rect(self.rect.x, self.rect.y, self.rect.w, 25).collidepoint(event.pos):
-                self.drag = True
-                self.offset = (self.rect.x - event.pos[0], self.rect.y - event.pos[1])
-                return "FOCUS"
-        if event.type == pygame.MOUSEBUTTONUP: self.drag = False
-        if self.drag:
-            self.rect.x, self.rect.y = pygame.mouse.get_pos()[0] + self.offset[0], pygame.mouse.get_pos()[1] + self.offset[1]
-        for el in self.elements: el.handle(event, self.rect.x, self.rect.y)
-        return self.rect.collidepoint(pygame.mouse.get_pos())
+        mx, my = pygame.mouse.get_pos()
+        self.hovered = self.rect.inflate(10, 20).collidepoint(mx, my)
+        
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            if self.rect.inflate(15, 25).collidepoint(event.pos):
+                self.grabbed = True
+        elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+            self.grabbed = False
+            
+        if self.grabbed:
+            rel_x = max(0, min(mx - self.rect.x, self.rect.w))
+            raw_val = self.min_v + (rel_x / self.rect.w) * (self.max_v - self.min_v)
+            self.val = int(round(raw_val)) if self.is_int else raw_val
 
-class Particle:
-    def __init__(self, x, y, vx, vy, life, size, c1, c2):
-        self.x, self.y = x, y
-        self.vx, self.vy = vx, vy
-        self.life = self.max_life = life
-        self.size = size
-        self.c1, self.c2 = c1, c2
 
-    def update(self, grav, fric):
-        self.vy += grav
-        self.vx *= fric
-        self.vy *= fric
-        self.x += self.vx
-        self.y += self.vy
-        self.life -= 1
+class SimpleButton:
+    def __init__(self, x, y, w, h, text, color=BUTTON_COLOR, hover_color=BUTTON_HOVER, text_color=(255, 255, 255)):
+        self.rect = pygame.Rect(x, y, w, h)
+        self.text = text
+        self.color = color
+        self.hover_color = hover_color
+        self.text_color = text_color
+        self.hovered = False
 
-    def draw(self, surf):
-        t = 1.0 - (self.life / self.max_life)
-        color = lerp_color(self.c1, self.c2, t)
-        alpha = int(255 * (self.life / self.max_life))
-        s = pygame.Surface((self.size*2, self.size*2), pygame.SRCALPHA)
-        pygame.draw.circle(s, (*color, alpha), (self.size, self.size), self.size)
-        surf.blit(s, (self.x - self.size, self.y - self.size))
+    def draw(self, surf, font):
+        bg = self.hover_color if self.hovered else self.color
+        pygame.draw.rect(surf, bg, self.rect, border_radius=5)
+        pygame.draw.rect(surf, PANEL_BORDER_COLOR, self.rect, width=1, border_radius=5)
+        
+        txt_surf = font.render(self.text, True, self.text_color)
+        tx = self.rect.x + (self.rect.w - txt_surf.get_width()) // 2
+        ty = self.rect.y + (self.rect.h - txt_surf.get_height()) // 2
+        surf.blit(txt_surf, (tx, ty))
+
+    def handle(self, event):
+        mx, my = pygame.mouse.get_pos()
+        self.hovered = self.rect.collidepoint(mx, my)
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            if self.hovered:
+                return True
+        return False
+
+
+class TextInput:
+    def __init__(self, x, y, w, h, initial_val=""):
+        self.rect = pygame.Rect(x, y, w, h)
+        self.val = initial_val
+        self.active = False
+
+    def draw(self, surf, font):
+        bg = (28, 28, 42) if self.active else (18, 18, 26)
+        border = ACCENT_BLUE if self.active else PANEL_BORDER_COLOR
+        pygame.draw.rect(surf, bg, self.rect, border_radius=5)
+        pygame.draw.rect(surf, border, self.rect, width=1, border_radius=5)
+        
+        display_text = self.val + ("|" if (self.active and (int(time.time() * 2) % 2 == 0)) else "")
+        txt_surf = font.render(display_text, True, (255, 255, 255))
+        surf.blit(txt_surf, (self.rect.x + 8, self.rect.y + (self.rect.h - txt_surf.get_height()) // 2))
+
+    def handle(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            self.active = self.rect.collidepoint(event.pos)
+        
+        if self.active and event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_BACKSPACE:
+                self.val = self.val[:-1]
+            elif event.key == pygame.K_RETURN or event.key == pygame.K_ESCAPE:
+                self.active = False
+            elif event.unicode.isprintable():
+                self.val += event.unicode
+
 
 class ParticleEditor:
-    def __init__(self,screen,clock):
-        self.screen=screen
-        self.clock=clock
-        self.font = pygame.font.SysFont("Consolas", 13)
-        self.particles = []
+    def __init__(self, screen, clock, emitter=None, nm=None):
+        self.screen = screen
+        self.clock = clock
+        self.emitter = emitter if emitter else ParticleEmitter(0, 0, "sandbox_vfx")
+        self.nm = nm
+        
+        self.font_title = pygame.font.SysFont("Segoe UI", 15, bold=True)
+        self.font_normal = pygame.font.SysFont("Segoe UI", 11)
+        self.font_heading = pygame.font.SysFont("Segoe UI", 12, bold=True)
+        self.font_dropdown = pygame.font.SysFont("Segoe UI", 15, bold=True)
+        self.font_tutorial_body = pygame.font.SysFont("Segoe UI", 14)
+        self.font_tutorial_title = pygame.font.SysFont("Segoe UI", 15, bold=True)
+        
+        # ColorPicker state
+        self.color_picker = None
+        self.picker_stop_idx = 0
+        
+        # Drag stops state
+        self.dragged_stop_idx = None
+        self.dragged_stop_moved = False
+        
+        # Add Module Search Modal state
+        self.add_module_open = False
+        self.txt_module_search = None
+        self.modules_info = [
+            {"id": "gravity", "name": "Gravity", "desc": "Applies Y gravity acceleration."},
+            {"id": "wind", "name": "Wind", "desc": "Applies X lateral wind force."},
+            {"id": "vortex", "name": "Vortex", "desc": "Swirls particles around source."},
+            {"id": "chaos", "name": "Chaos", "desc": "Applies random turbulence noise."},
+            {"id": "collision", "name": "Collision", "desc": "Bounces off walls & player."},
+            {"id": "trail", "name": "Trail", "desc": "Spawns sub-particles trails."},
+            {"id": "explosion", "name": "Explosion", "desc": "Detonates spark ring on death."}
+        ]
+        
+        self.preview_emitter = ParticleEmitter(0, 0, "preview")
+        self.preview_emitter.is_preview = True
+        self.copy_properties(self.emitter, self.preview_emitter)
+        
+        self.dragging_mod_slider = None
+        
+        self.gallery_open = False
+        self.gallery_emitters = {}
+        for name in ["fire", "snow", "spark", "bubble", "portal", "fireball", "starfield"]:
+            em = ParticleEmitter(0, 0, name)
+            em.is_preview = True
+            self.load_preset_to_emitter(name, em)
+            self.gallery_emitters[name] = em
+            
+        self.running = True
+        self.drag_origin = False
+        self.active_module = 0
+        
+        sw, sh = self.screen.get_size()
+        self.preview_x = sw // 2
+        self.preview_y = sh // 2 - 40
+        
+        self.fps_throttled = False
+        self.last_throttle_time = 0
+        self.particle_cap = 600
+        self.last_warn_time = 0
+        self.last_restore_time = 0
+
+        import os
+        tuto_flag_path = os.path.join("Assets", "ui", ".tutorial_done")
+        self.tutorial_active = False
+        self.tutorial_prompt = not os.path.exists(tuto_flag_path)
+        self.tutorial_step = 0
+        self.btn_tut_yes = pygame.Rect(0, 0, 0, 0)
+        self.btn_tut_no = pygame.Rect(0, 0, 0, 0)
+        self.btn_tut_next = pygame.Rect(0, 0, 0, 0)
+        self.btn_tut_skip = pygame.Rect(0, 0, 0, 0)
+        
         self.setup_ui()
+        
+    def mark_tutorial_as_done(self):
+        import os
+        tuto_flag_path = os.path.join("Assets", "ui", ".tutorial_done")
+        try:
+            os.makedirs(os.path.dirname(tuto_flag_path), exist_ok=True)
+            with open(tuto_flag_path, "w") as f:
+                f.write("done")
+        except Exception:
+            pass
+
+    def copy_properties(self, src, dest):
+        dest.name = src.name
+        dest.rate = src.rate
+        dest.spread = src.spread
+        dest.speed = src.speed
+        dest.size = src.size
+        dest.gravity = src.gravity
+        dest.friction = src.friction
+        dest.colors = [dict(c) for c in src.colors]
+        dest.lifetime = src.lifetime
+        dest.active = src.active
+        dest.vortex = getattr(src, "vortex", 0.0)
+        dest.color_mode = getattr(src, "color_mode", "Lerp")
+        dest.spawn_mode = getattr(src, "spawn_mode", "Continuous")
+        dest.particle_style = getattr(src, "particle_style", "circle")
+        dest.custom_sprite = getattr(src, "custom_sprite", "")
+        dest.burst_interval = getattr(src, "burst_interval", 45)
+        dest.chaos = getattr(src, "chaos", 0.0)
+        dest.size_mode = getattr(src, "size_mode", "Constant")
+        dest.overall_scale = getattr(src, "overall_scale", 0.5)
+        dest.preview_scale = getattr(src, "preview_scale", 1.0)
+        dest.active_modules = [dict(m) for m in getattr(src, "active_modules", [])]
 
     def setup_ui(self):
-        self.quit_rect = pygame.Rect(self.screen.get_width() - 40, 10, 30, 30)
-        self.w_spawn = Window("EMITTER: SPAWN", 20, 20, 250, 150)
-        self.s_rate = Slider(20, 50, 200, "Spawn Rate", 0, 20, 5)
-        self.s_spread = Slider(20, 100, 200, "Angle Spread", 0, 6.28, 1.5)
-        self.w_spawn.elements += [self.s_rate, self.s_spread]
+        sw, sh = self.screen.get_size()
+        px = 20
+        
+        self.txt_name = TextInput(px, 45, 140, 26, self.preview_emitter.name)
+        
+        self.btn_active = SimpleButton(
+            px + 150, 45, 60, 26,
+            "Active" if self.preview_emitter.active else "Inactive",
+            color=(22, 48, 36) if self.preview_emitter.active else (42, 24, 28),
+            hover_color=(32, 68, 48) if self.preview_emitter.active else (62, 34, 40),
+            text_color=(60, 220, 130) if self.preview_emitter.active else (230, 100, 100)
+        )
+        
+        self.module_tabs = [
+            SimpleButton(px, 115, 210, 30, "Spawn Module"),
+            SimpleButton(px, 150, 210, 30, "Particle Initialization"),
+            SimpleButton(px, 185, 210, 30, "Physics & Forces Update"),
+            SimpleButton(px, 220, 210, 30, "Color Over Life Module")
+        ]
 
-        self.w_init = Window("PARTICLE: INIT", 20, 180, 250, 150)
-        self.s_speed = Slider(20, 50, 200, "Initial Speed", 0, 10, 3)
-        self.s_size = Slider(20, 100, 200, "Start Size", 1, 20, 1.5)
-        self.w_init.elements += [self.s_speed, self.s_size]
+        self.sliders = {
+            # Spawn
+            "rate": Slider(px, 345, 210, "Spawn Rate", 0.1, 25.0, self.preview_emitter.rate),
+            "burst_interval": Slider(px, 405, 210, "Burst Interval (frames)", 10, 180, self.preview_emitter.burst_interval, is_int=True),
+            
+            # Init
+            "life": Slider(px, 305, 210, "Lifetime (frames)", 10, 180, self.preview_emitter.lifetime, is_int=True),
+            "speed": Slider(px, 350, 210, "Initial Speed", 0.0, 15.0, self.preview_emitter.speed),
+            "spread": Slider(px, 395, 210, "Spread Angle (rad)", 0.0, 6.28, self.preview_emitter.spread),
+            "size": Slider(px, 440, 210, "Start Size", 1.0, 25.0, self.preview_emitter.size),
+            "preview_scale": Slider(px, 485, 210, "Preview Scale Factor", 0.1, 4.0, self.preview_emitter.preview_scale),
+            
+            "friction": Slider(px, 300, 210, "Base Friction", 0.90, 1.00, self.preview_emitter.friction),
+        }
 
-        self.w_phys = Window("PARTICLE: UPDATE", 20, 340, 250, 150)
-        self.s_grav = Slider(20, 50, 200, "Gravity", -0.5, 0.5, 0.1)
-        self.s_fric = Slider(20, 100, 200, "Friction", 0.9, 1.0, 0.97)
-        self.w_phys.elements += [self.s_grav, self.s_fric]
+        self.btn_spawn_mode = SimpleButton(px, 295, 210, 28, f"Spawn Mode: {self.preview_emitter.spawn_mode}")
+        self.btn_color_mode = SimpleButton(px, 295, 210, 28, f"Color Mode: {self.preview_emitter.color_mode}")
+        
+        self.btn_style = MenuButton(
+            rect=(px, 530, 150, 28),
+            text=f"Style: {self.preview_emitter.particle_style.capitalize()}",
+            submenu_items=[
+                ("Circle", lambda: self.set_style("circle")),
+                ("Spark", lambda: self.set_style("spark")),
+                ("Bubble", lambda: self.set_style("bubble")),
+                ("Snow", lambda: self.set_style("snow")),
+                ("Fireball", lambda: self.set_style("fireball")),
+                ("Star", lambda: self.set_style("star")),
+            ],
+            font=self.font_dropdown,
+            item_font_size=14,
+            bg_color=BUTTON_COLOR,
+            text_color=TEXT_COLOR,
+            hover_color=BUTTON_HOVER
+        )
+        self.btn_size_mode = MenuButton(
+            rect=(px, 565, 150, 28),
+            text=f"Size: {self.preview_emitter.size_mode}",
+            submenu_items=[
+                ("Constant", lambda: self.set_size_mode("Constant")),
+                ("Shrink", lambda: self.set_size_mode("Shrink")),
+                ("Grow", lambda: self.set_size_mode("Grow")),
+                ("Grow & Shrink", lambda: self.set_size_mode("Grow & Shrink")),
+            ],
+            font=self.font_dropdown,
+            item_font_size=14,
+            bg_color=BUTTON_COLOR,
+            text_color=TEXT_COLOR,
+            hover_color=BUTTON_HOVER
+        )
+        self.txt_sprite = TextInput(px, 620, 210, 26, self.preview_emitter.custom_sprite)
+        
+        self.btn_open_add_module = SimpleButton(px, 330, 210, 28, "+ Add Module", color=BUTTON_COLOR, hover_color=BUTTON_HOVER)
+        
+        self.btn_static_color = SimpleButton(px, 345, 210, 28, "Set Color Stop", color=BUTTON_COLOR)
+        
+        self.btn_add_stop = SimpleButton(px, 410, 100, 28, "Add Color", color=(40,55,80))
+        self.btn_remove_stop = SimpleButton(px + 110, 410, 100, 28, "Remove Color", color=(80,45,45))
+        
+        self.btn_grad_flame = SimpleButton(px, 455, 48, 20, "Flame", color=(120,40,20), hover_color=(160,50,25))
+        self.btn_grad_glacier = SimpleButton(px + 53, 455, 48, 20, "Frost", color=(20,70,120), hover_color=(25,90,160))
+        self.btn_grad_nebula = SimpleButton(px + 106, 455, 48, 20, "Void", color=(80,30,120), hover_color=(110,40,160))
+        self.btn_grad_acid = SimpleButton(px + 159, 455, 48, 20, "Toxic", color=(30,100,40), hover_color=(40,130,50))
+        
+        rx = sw - 230
+        self.btn_presets_gallery = SimpleButton(rx, 80, 210, 32, "Presets Gallery", color=ACCENT_BLUE)
+        self.btn_replay_tutorial = SimpleButton(rx, 125, 210, 32, "Rejouer le Guide", color=BUTTON_COLOR, hover_color=BUTTON_HOVER)
+        bx = sw // 2 - 160
+        by = sh - 45
+        self.btn_apply = SimpleButton(bx, by, 150, 32, "Apply to Level", color=ACCENT_BLUE, text_color=(255, 255, 255))
+        self.btn_cancel = SimpleButton(bx + 170, by, 150, 32, "Cancel & Exit", color=(40, 42, 54))
 
-        self.w_color = Window("PARTICLE: COLOR", 20, 500, 250, 180)
-        self.s_r1 = Slider(20, 50, 200, "Start R", 0, 255, 255)
-        self.s_g1 = Slider(20, 80, 200, "Start G", 0, 255, 150)
-        self.s_r2 = Slider(20, 130, 200, "End R", 0, 255, 50)
-        self.s_g2 = Slider(20, 160, 200, "End G", 0, 255, 255)
-        self.w_color.elements += [self.s_r1, self.s_g1, self.s_r2, self.s_g2]
+    def set_style(self, style_name):
+        self.preview_emitter.particle_style = style_name
+        self.btn_style.text = f"Style: {style_name.capitalize()}"
 
-        self.windows = [self.w_spawn, self.w_init, self.w_phys, self.w_color]
+    def set_size_mode(self, size_mode):
+        self.preview_emitter.size_mode = size_mode
+        self.btn_size_mode.text = f"Size: {size_mode}"
+
+    def add_module(self, mod_id):
+        if any(m["id"] == mod_id for m in self.preview_emitter.active_modules):
+            return
+        
+        defaults = {
+            "gravity": {"id": "gravity", "enabled": True, "gravity": -0.1},
+            "wind": {"id": "wind", "enabled": True, "wind": 0.05},
+            "vortex": {"id": "vortex", "enabled": True, "vortex": 0.1},
+            "chaos": {"id": "chaos", "enabled": True, "chaos": 0.08},
+            "collision": {"id": "collision", "enabled": True, "target": "All"},
+            "trail": {"id": "trail", "enabled": True},
+            "explosion": {"id": "explosion", "enabled": True}
+        }
+        self.preview_emitter.active_modules.append(defaults[mod_id])
+
+    def load_preset_to_emitter(self, p_name, em):
+        preset_values = {
+            "fire": {
+                "rate": 10.0, "life": 45, "speed": 3.8, "spread": 0.35, "size": 9.0,
+                "friction": 0.98, "color_mode": "Lerp", "spawn_mode": "Continuous",
+                "colors": [
+                    {"pos": 0.0, "color": [255, 255, 200]},
+                    {"pos": 0.3, "color": [255, 140, 0]},
+                    {"pos": 0.7, "color": [255, 50, 0]},
+                    {"pos": 1.0, "color": [40, 10, 10]}
+                ],
+                "style": "circle", "size_mode": "Shrink", "overall_scale": 0.5, "preview_scale": 1.0,
+                "active_modules": [
+                    {"id": "gravity", "enabled": True, "gravity": -0.15},
+                    {"id": "chaos", "enabled": True, "chaos": 0.20}
+                ]
+            },
+            "snow": {
+                "rate": 2.0, "life": 150, "speed": 1.0, "spread": 3.14, "size": 3.0,
+                "friction": 0.99, "color_mode": "Lerp", "spawn_mode": "Continuous",
+                "colors": [
+                    {"pos": 0.0, "color": [255, 255, 255]},
+                    {"pos": 1.0, "color": [190, 220, 255]}
+                ],
+                "style": "snow", "size_mode": "Constant", "overall_scale": 0.5, "preview_scale": 1.0,
+                "active_modules": [
+                    {"id": "gravity", "enabled": True, "gravity": 0.04},
+                    {"id": "chaos", "enabled": True, "chaos": 0.05}
+                ]
+            },
+            "spark": {
+                "rate": 12.0, "life": 25, "speed": 6.0, "spread": 3.14, "size": 2.5,
+                "friction": 0.94, "color_mode": "Lerp", "spawn_mode": "Burst", "burst_interval": 45,
+                "colors": [
+                    {"pos": 0.0, "color": [255, 255, 255]},
+                    {"pos": 0.5, "color": [0, 220, 255]},
+                    {"pos": 1.0, "color": [255, 0, 150]}
+                ],
+                "style": "spark", "size_mode": "Shrink", "overall_scale": 0.5, "preview_scale": 1.0,
+                "active_modules": [
+                    {"id": "gravity", "enabled": True, "gravity": 0.15},
+                    {"id": "chaos", "enabled": True, "chaos": 0.10}
+                ]
+            },
+            "bubble": {
+                "rate": 3.0, "life": 100, "speed": 1.8, "spread": 0.6, "size": 12.0,
+                "friction": 0.97, "color_mode": "Lerp", "spawn_mode": "Continuous",
+                "colors": [
+                    {"pos": 0.0, "color": [120, 255, 120]},
+                    {"pos": 0.5, "color": [0, 200, 160]},
+                    {"pos": 1.0, "color": [0, 80, 40]}
+                ],
+                "style": "bubble", "size_mode": "Grow & Shrink", "overall_scale": 0.5, "preview_scale": 1.0,
+                "active_modules": [
+                    {"id": "gravity", "enabled": True, "gravity": -0.05},
+                    {"id": "chaos", "enabled": True, "chaos": 0.05},
+                    {"id": "collision", "enabled": True, "target": "All"}
+                ]
+            },
+            "portal": {
+                "rate": 7.0, "life": 60, "speed": 2.4, "spread": 6.28, "size": 5.0,
+                "friction": 0.98, "color_mode": "Lerp", "spawn_mode": "Continuous",
+                "colors": [
+                    {"pos": 0.0, "color": [255, 255, 255]},
+                    {"pos": 0.5, "color": [180, 50, 255]},
+                    {"pos": 1.0, "color": [30, 0, 120]}
+                ],
+                "style": "circle", "size_mode": "Shrink", "overall_scale": 0.5, "preview_scale": 1.0,
+                "active_modules": [
+                    {"id": "vortex", "enabled": True, "vortex": 0.22}
+                ]
+            },
+            "fireball": {
+                "rate": 8.0, "life": 45, "speed": 4.2, "spread": 0.15, "size": 11.0,
+                "friction": 0.98, "color_mode": "Lerp", "spawn_mode": "Continuous",
+                "colors": [
+                    {"pos": 0.0, "color": [255, 255, 255]},
+                    {"pos": 0.2, "color": [255, 220, 0]},
+                    {"pos": 0.6, "color": [255, 60, 0]},
+                    {"pos": 1.0, "color": [60, 0, 0]}
+                ],
+                "style": "fireball", "size_mode": "Shrink", "overall_scale": 0.5, "preview_scale": 1.0,
+                "active_modules": [
+                    {"id": "chaos", "enabled": True, "chaos": 0.12}
+                ]
+            },
+            "starfield": {
+                "rate": 5.0, "life": 80, "speed": 0.6, "spread": 6.28, "size": 6.0,
+                "friction": 1.0, "color_mode": "Lerp", "spawn_mode": "Continuous",
+                "colors": [
+                    {"pos": 0.0, "color": [255, 255, 255]},
+                    {"pos": 0.4, "color": [130, 210, 255]},
+                    {"pos": 1.0, "color": [80, 0, 150]}
+                ],
+                "style": "star", "size_mode": "Shrink", "overall_scale": 0.5, "preview_scale": 1.0,
+                "active_modules": [
+                    {"id": "wind", "enabled": True, "wind": 0.12},
+                    {"id": "chaos", "enabled": True, "chaos": 0.02}
+                ]
+            }
+        }
+        p = preset_values.get(p_name, preset_values["fire"])
+        em.rate = p["rate"]
+        em.burst_interval = p.get("burst_interval", 45)
+        em.lifetime = p.get("life", 60)
+        em.speed = p["speed"]
+        em.spread = p.get("spread", 0.5)
+        em.size = p.get("size", 6.0)
+        em.friction = p["friction"]
+        em.color_mode = p.get("color_mode", "Lerp")
+        em.spawn_mode = p.get("spawn_mode", "Continuous")
+        em.particle_style = p.get("style", "circle")
+        em.size_mode = p.get("size_mode", "Constant")
+        em.custom_sprite = p.get("custom_sprite", "")
+        em.overall_scale = p.get("overall_scale", 0.5)
+        em.preview_scale = p.get("preview_scale", 1.0)
+        em.colors = [dict(c) for c in p["colors"]]
+        em.active_modules = [dict(m) for m in p["active_modules"]]
+        em.particles.clear()
+
+    def load_preset(self, p_name):
+        self.load_preset_to_emitter(p_name, self.preview_emitter)
+        
+        # Sync simple sliders
+        self.sliders["rate"].val = self.preview_emitter.rate
+        self.sliders["burst_interval"].val = self.preview_emitter.burst_interval
+        self.sliders["life"].val = self.preview_emitter.lifetime
+        self.sliders["speed"].val = self.preview_emitter.speed
+        self.sliders["spread"].val = self.preview_emitter.spread
+        self.sliders["size"].val = self.preview_emitter.size
+        self.sliders["friction"].val = self.preview_emitter.friction
+        self.sliders["preview_scale"].val = self.preview_emitter.preview_scale
+        
+        # Sync dropdown labels
+        self.btn_spawn_mode.text = f"Spawn Mode: {self.preview_emitter.spawn_mode}"
+        self.btn_color_mode.text = f"Color Mode: {self.preview_emitter.color_mode}"
+        self.btn_style.text = f"Style: {self.preview_emitter.particle_style.capitalize()}"
+        self.btn_size_mode.text = f"Size: {self.preview_emitter.size_mode}"
+        self.txt_sprite.val = self.preview_emitter.custom_sprite
+
+    def update_from_sliders(self):
+        self.preview_emitter.name = self.txt_name.val
+        self.preview_emitter.rate = self.sliders["rate"].val
+        self.preview_emitter.burst_interval = int(self.sliders["burst_interval"].val)
+        self.preview_emitter.lifetime = int(self.sliders["life"].val)
+        self.preview_emitter.speed = self.sliders["speed"].val
+        self.preview_emitter.spread = self.sliders["spread"].val
+        self.preview_emitter.size = self.sliders["size"].val
+        self.preview_emitter.friction = self.sliders["friction"].val
+        self.preview_emitter.preview_scale = self.sliders["preview_scale"].val
+        self.preview_emitter.custom_sprite = self.txt_sprite.val
+
+    def confirm_color_picker(self, color):
+        self.preview_emitter.colors[self.picker_stop_idx]["color"] = list(color)
+        self.color_picker = None
+
+    def close_color_picker(self):
+        self.color_picker = None
+
+    def interpolate_color_stops(self, stops, t):
+        n = len(stops)
+        if n == 0:
+            return (255, 255, 255)
+        if n == 1:
+            return tuple(stops[0]["color"])
+        if t <= stops[0]["pos"]:
+            return tuple(stops[0]["color"])
+        if t >= stops[-1]["pos"]:
+            return tuple(stops[-1]["color"])
+        for i in range(n - 1):
+            s1 = stops[i]
+            s2 = stops[i + 1]
+            if s1["pos"] <= t <= s2["pos"]:
+                span = s2["pos"] - s1["pos"] + 0.0001
+                factor = (t - s1["pos"]) / span
+                c1 = s1["color"]
+                c2 = s2["color"]
+                return tuple(int(c1[j] + (c2[j] - c1[j]) * factor) for j in range(3))
+        return tuple(stops[-1]["color"])
 
     def run(self):
-        while True:
+        sw, sh = self.screen.get_size()
+        preview_area = pygame.Rect(250, 0, sw - 500, sh - 60)
+        
+        while self.running:
+            sw, sh = self.screen.get_size()
             mx, my = pygame.mouse.get_pos()
+            preview_area = pygame.Rect(250, 0, sw - 500, sh - 60)
+            
+            # Performance FPS regulation cap check
+            fps = self.clock.get_fps()
+            now = time.time()
+            if fps > 0 and fps < 20 and len(self.preview_emitter.particles) > 150:
+                if not self.fps_throttled:
+                    self.fps_throttled = True
+                    self.last_throttle_time = now
+                    if self.nm and (now - self.last_warn_time > 45.0):
+                        self.nm.notify('warning', 'Perf Regulation', 'High load: capping to 150 active particles.', duration=3.0)
+                        self.last_warn_time = now
+                self.particle_cap = 150
+            elif fps > 35 and self.fps_throttled and now - self.last_throttle_time > 2.0:
+                self.fps_throttled = False
+                self.particle_cap = 600
+                self.last_throttle_time = now
+                if self.nm and (now - self.last_restore_time > 45.0):
+                    self.nm.notify('success', 'Perf Restored', 'FPS stabilized: cap restored to 600 particles.', duration=2.0)
+                    self.last_restore_time = now
+            
+            self.preview_emitter.particle_cap = self.particle_cap
+            
             for event in pygame.event.get():
-                if event.type == pygame.QUIT: return
-                for i, w in enumerate(reversed(self.windows)):
-                    res = w.handle(event)
-                    if res:
-                        if res == "FOCUS": self.windows.append(self.windows.pop(len(self.windows)-1-i))
-                        break
+                if event.type == pygame.QUIT:
+                    self.running = False
+                    return
                 
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                        if self.quit_rect.collidepoint(event.pos):
-                            return
+                if self.tutorial_prompt:
+                    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                        if self.btn_tut_yes.collidepoint(event.pos):
+                            self.tutorial_prompt = False
+                            self.tutorial_active = True
+                            self.tutorial_step = 0
+                            self.mark_tutorial_as_done()
+                        elif self.btn_tut_no.collidepoint(event.pos):
+                            self.tutorial_prompt = False
+                            self.mark_tutorial_as_done()
+                    continue
+
+                if self.tutorial_active:
+                    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                        if self.btn_tut_next.collidepoint(event.pos):
+                            if self.tutorial_step < 7:
+                                self.tutorial_step += 1
+                                if self.tutorial_step == 6:
+                                    self.gallery_open = True
+                                else:
+                                    self.gallery_open = False
+                            else:
+                                self.tutorial_active = False
+                                self.gallery_open = False
+                            continue
+                        elif self.btn_tut_skip.collidepoint(event.pos):
+                            self.tutorial_active = False
+                            self.gallery_open = False
+                            continue
+                            
+                        is_tab_click = False
+                        for tab_idx, tab_btn in enumerate(self.module_tabs):
+                            if tab_btn.rect.collidepoint(event.pos):
+                                is_tab_click = True
+                                break
+                        if is_tab_click:
+                            if self.nm:
+                                self.nm.notify('info', 'Tutoriel', "Veuillez utiliser le bouton SUIVANT pour changer d'onglet.", duration=1.5)
+                            continue
+                            
+                        x, y = event.pos
+                        allowed = False
+                        reason = ""
+                        
+                        if self.tutorial_step == 0:
+                            if preview_area.collidepoint(event.pos):
+                                allowed = True
+                            else:
+                                reason = "Déplacez l'émetteur en glissant la souris dans la zone centrale."
+                                
+                        elif self.tutorial_step == 1:
+                            if x < 250:
+                                allowed = True
+                            else:
+                                reason = "Utilisez les contrôles de Spawn dans le panneau de gauche."
+                                
+                        elif self.tutorial_step == 2:
+                            if preview_area.collidepoint(event.pos):
+                                allowed = True
+                            else:
+                                reason = "Consultez les informations de performance en haut à gauche."
+                                
+                        elif self.tutorial_step == 3:
+                            if x < 250:
+                                allowed = True
+                            else:
+                                reason = "Utilisez les contrôles d'Initialisation dans le panneau de gauche."
+                                
+                        elif self.tutorial_step == 4:
+                            if x < 250 or self.add_module_open:
+                                allowed = True
+                            else:
+                                reason = "Utilisez les contrôles de Physique dans le panneau de gauche."
+                                
+                        elif self.tutorial_step == 5:
+                            if x < 250:
+                                allowed = True
+                            else:
+                                reason = "Utilisez les contrôles de Couleur dans le panneau de gauche."
+                                
+                        elif self.tutorial_step == 6:
+                            if (x > sw - 250) or self.gallery_open:
+                                allowed = True
+                            else:
+                                reason = "Cliquez sur 'Presets Gallery' en haut à droite."
+                                
+                        elif self.tutorial_step == 7:
+                            if y > sh - 60:
+                                allowed = True
+                            else:
+                                reason = "Cliquez sur 'Apply to Level' ou 'Cancel & Exit' pour terminer."
+                                
+                        if not allowed:
+                            if self.nm and reason:
+                                self.nm.notify('info', 'Action Bloquée', reason, duration=2.0)
+                            continue
+
+                if self.color_picker is not None:
+                    self.color_picker.handle_event(event)
+                    continue
+                
+                if self.gallery_open:
+                    modal_w, modal_h = 740, 360
+                    modal_x = (sw - modal_w) // 2
+                    modal_y = (sh - modal_h) // 2
+                    close_rect = pygame.Rect(modal_x + modal_w - 35, modal_y + 12, 22, 22)
+                    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                        if close_rect.collidepoint(event.pos):
+                            self.gallery_open = False
+                            continue
+                        
+                        for idx, p_name in enumerate(["fire", "snow", "spark", "bubble", "portal", "fireball", "starfield"]):
+                            card_x = modal_x + 20 + idx * 98
+                            card_y = modal_y + 60
+                            card_rect = pygame.Rect(card_x, card_y, 90, 270)
+                            if card_rect.collidepoint(event.pos):
+                                self.load_preset(p_name)
+                                self.gallery_open = False
+                                break
+                    continue
+
+                if self.add_module_open:
+                    modal_w, modal_h = 400, 450
+                    modal_x = (sw - modal_w) // 2
+                    modal_y = (sh - modal_h) // 2
+                    close_rect = pygame.Rect(modal_x + modal_w - 35, modal_y + 12, 22, 22)
                     
-            if pygame.mouse.get_pressed()[0] and not any(w.rect.collidepoint(mx, my) for w in self.windows):
-                for _ in range(int(self.s_rate.val)):
-                    angle = random.uniform(-self.s_spread.val, self.s_spread.val) - 1.57 # -90 deg
-                    spd = self.s_speed.val * random.uniform(0.5, 1.2)
-                    c1 = (self.s_r1.val, self.s_g1.val, 200)
-                    c2 = (self.s_r2.val, self.s_g2.val, 100)
-                    self.particles.append(Particle(mx, my, math.cos(angle)*spd, math.sin(angle)*spd, 60, self.s_size.val, c1, c2))
+                    self.txt_module_search.handle(event)
+                    
+                    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                        if close_rect.collidepoint(event.pos):
+                            self.add_module_open = False
+                            self.txt_module_search.active = False
+                            continue
+                        
+                        query = self.txt_module_search.val.lower()
+                        filtered = [m for m in self.modules_info if query in m["name"].lower() or query in m["desc"].lower()]
+                        row_y = modal_y + 90
+                        for mod in filtered:
+                            add_btn = pygame.Rect(modal_x + 300, row_y + 11, 70, 20)
+                            if add_btn.collidepoint(event.pos):
+                                is_added = any(m["id"] == mod["id"] for m in self.preview_emitter.active_modules)
+                                if not is_added:
+                                    self.add_module(mod["id"])
+                                    self.add_module_open = False
+                                    self.txt_module_search.active = False
+                                    break
+                            row_y += 50
+                    continue
 
-            for p in self.particles[:]:
-                p.update(self.s_grav.val, self.s_fric.val)
-                if p.life <= 0: self.particles.remove(p)
+                active_dropdown = None
+                if self.active_module == 1:
+                    if self.btn_style.dropdown.is_open:
+                        active_dropdown = self.btn_style.dropdown
+                    elif self.btn_size_mode.dropdown.is_open:
+                        active_dropdown = self.btn_size_mode.dropdown
+                
+                if active_dropdown is not None:
+                    active_dropdown.handle_event(event)
+                    continue
 
-
+                self.txt_name.handle(event)
+                
+                if self.btn_active.handle(event):
+                    self.preview_emitter.active = not self.preview_emitter.active
+                    self.btn_active.text = "Active" if self.preview_emitter.active else "Inactive"
+                    self.btn_active.color = (22, 48, 36) if self.preview_emitter.active else (42, 24, 28)
+                    self.btn_active.hover_color = (32, 68, 48) if self.preview_emitter.active else (62, 34, 40)
+                    self.btn_active.text_color = (60, 220, 130) if self.preview_emitter.active else (230, 100, 100)
+                
+                for i, tab in enumerate(self.module_tabs):
+                    if tab.handle(event):
+                        self.active_module = i
+                
+                if self.active_module == 0: # Spawn
+                    if self.btn_spawn_mode.handle(event):
+                        next_mode = "Burst" if self.preview_emitter.spawn_mode == "Continuous" else "Continuous"
+                        self.preview_emitter.spawn_mode = next_mode
+                        self.btn_spawn_mode.text = f"Spawn Mode: {next_mode}"
+                    self.sliders["rate"].handle(event)
+                    if self.preview_emitter.spawn_mode == "Burst":
+                        self.sliders["burst_interval"].handle(event)
+                        
+                elif self.active_module == 1: # Init
+                    self.txt_sprite.handle(event)
+                    self.sliders["life"].handle(event)
+                    self.sliders["speed"].handle(event)
+                    self.sliders["spread"].handle(event)
+                    self.sliders["size"].handle(event)
+                    self.sliders["preview_scale"].handle(event)
+                    self.btn_style.handle_event(event)
+                    self.btn_size_mode.handle_event(event)
+                    
+                elif self.active_module == 2: # Physics Component Stack
+                    self.sliders["friction"].handle(event)
+                    
+                    if self.btn_open_add_module.handle(event):
+                        self.add_module_open = True
+                        modal_w, modal_h = 400, 450
+                        modal_x = (sw - modal_w) // 2
+                        modal_y = (sh - modal_h) // 2
+                        self.txt_module_search = TextInput(modal_x + 20, modal_y + 50, 360, 26, "")
+                        self.txt_module_search.active = True
+                    
+                    y_offset = 375
+                    modules_to_remove = []
+                    for idx, mod in enumerate(self.preview_emitter.active_modules):
+                        m_id = mod["id"]
+                        has_slider = m_id in ["gravity", "wind", "vortex", "chaos"]
+                        has_target = m_id == "collision"
+                        h = 48 if (has_slider or has_target) else 30
+                        
+                        # Bypass checkbox click
+                        cb_rect = pygame.Rect(25, y_offset + 8, 14, 14)
+                        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                            if cb_rect.collidepoint(event.pos):
+                                mod["enabled"] = not mod["enabled"]
+                        
+                        del_rect = pygame.Rect(205, y_offset + 6, 18, 18)
+                        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                            if del_rect.collidepoint(event.pos):
+                                modules_to_remove.append(mod)
+                        
+                        if has_slider:
+                            track_rect = pygame.Rect(45, y_offset + 28, 120, 6)
+                            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                                if track_rect.inflate(10, 15).collidepoint(event.pos):
+                                    self.dragging_mod_slider = (idx, m_id)
+                            elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+                                self.dragging_mod_slider = None
+                            
+                            if event.type == pygame.MOUSEMOTION and self.dragging_mod_slider == (idx, m_id):
+                                p = max(0.0, min(1.0, (mx - track_rect.x) / track_rect.w))
+                                if m_id in ["gravity", "wind", "vortex"]:
+                                    val = -0.5 + p * 1.0 # range [-0.5, 0.5]
+                                else: # chaos
+                                    val = p # range [0.0, 1.0]
+                                mod[m_id] = val
+                        
+                        if m_id == "collision":
+                            btn_rect = pygame.Rect(45, y_offset + 24, 150, 18)
+                            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                                if btn_rect.collidepoint(event.pos):
+                                    cur = mod.get("target", "All")
+                                    if cur == "All":
+                                        mod["target"] = "Collisions Only"
+                                    elif cur == "Collisions Only":
+                                        mod["target"] = "Player Only"
+                                    else:
+                                        mod["target"] = "All"
+                        
+                        y_offset += h + 8
+                    
+                    for r_mod in modules_to_remove:
+                        if r_mod in self.preview_emitter.active_modules:
+                            self.preview_emitter.active_modules.remove(r_mod)
+                        
+                elif self.active_module == 3: # Color
+                    if self.btn_color_mode.handle(event):
+                        modes = ["Lerp", "Static", "Rainbow"]
+                        idx = (modes.index(self.preview_emitter.color_mode) + 1) % len(modes)
+                        next_mode = modes[idx]
+                        self.preview_emitter.color_mode = next_mode
+                        self.btn_color_mode.text = f"Color Mode: {next_mode}"
+                        
+                    if self.preview_emitter.color_mode == "Lerp":
+                        # Color stop handles drag logic (fixed coordinates mismatch, checking at y = 375)
+                        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                            for idx, stop in enumerate(self.preview_emitter.colors):
+                                p = stop["pos"]
+                                px = 20 + p * 210
+                                handle_rect = pygame.Rect(px - 10, 365, 20, 20)
+                                if handle_rect.collidepoint(event.pos):
+                                    self.dragged_stop_idx = idx
+                                    self.dragged_stop_moved = False
+                                    break
+                                    
+                        elif event.type == pygame.MOUSEMOTION and self.dragged_stop_idx is not None:
+                            new_p = max(0.0, min(1.0, (mx - 20) / 210.0))
+                            self.preview_emitter.colors[self.dragged_stop_idx]["pos"] = new_p
+                            self.dragged_stop_moved = True
+                            
+                        elif event.type == pygame.MOUSEBUTTONUP and event.button == 1 and self.dragged_stop_idx is not None:
+                            if not self.dragged_stop_moved:
+                                self.picker_stop_idx = self.dragged_stop_idx
+                                self.color_picker = ColorPicker(
+                                    rect=(260, 100, 220, 330),
+                                    initial_color=tuple(self.preview_emitter.colors[self.picker_stop_idx]["color"]),
+                                    on_confirm=self.confirm_color_picker,
+                                    on_cancel=self.close_color_picker
+                                )
+                            self.dragged_stop_idx = None
+                            self.preview_emitter.colors.sort(key=lambda s: s["pos"])
+                                    
+                        # Add / Remove stops
+                        if self.btn_add_stop.handle(event) and len(self.preview_emitter.colors) < 5:
+                            existing_positions = [s["pos"] for s in self.preview_emitter.colors]
+                            new_pos = 0.5
+                            while new_pos in existing_positions and new_pos < 0.90:
+                                new_pos += 0.10
+                            self.preview_emitter.colors.append({"pos": new_pos, "color": [255, 255, 255]})
+                            self.preview_emitter.colors.sort(key=lambda s: s["pos"])
+                        if self.btn_remove_stop.handle(event) and len(self.preview_emitter.colors) > 2:
+                            self.preview_emitter.colors.pop()
+                            
+                        # Quick Gradients click handlers
+                        if self.btn_grad_flame.handle(event):
+                            self.preview_emitter.colors = [
+                                {"pos": 0.0, "color": [255, 255, 180]},
+                                {"pos": 0.4, "color": [255, 120, 0]},
+                                {"pos": 1.0, "color": [150, 20, 0]}
+                            ]
+                        elif self.btn_grad_glacier.handle(event):
+                            self.preview_emitter.colors = [
+                                {"pos": 0.0, "color": [200, 255, 255]},
+                                {"pos": 0.5, "color": [50, 150, 255]},
+                                {"pos": 1.0, "color": [10, 30, 120]}
+                            ]
+                        elif self.btn_grad_nebula.handle(event):
+                            self.preview_emitter.colors = [
+                                {"pos": 0.0, "color": [255, 200, 255]},
+                                {"pos": 0.5, "color": [180, 50, 255]},
+                                {"pos": 1.0, "color": [30, 0, 100]}
+                            ]
+                        elif self.btn_grad_acid.handle(event):
+                            self.preview_emitter.colors = [
+                                {"pos": 0.0, "color": [220, 255, 100]},
+                                {"pos": 0.5, "color": [50, 200, 50]},
+                                {"pos": 1.0, "color": [20, 60, 20]}
+                            ]
+                            
+                    elif self.preview_emitter.color_mode == "Static":
+                        if self.btn_static_color.handle(event):
+                            self.picker_stop_idx = 0
+                            self.color_picker = ColorPicker(
+                                rect=(260, 100, 220, 330),
+                                initial_color=tuple(self.preview_emitter.colors[0]["color"]),
+                                on_confirm=self.confirm_color_picker,
+                                on_cancel=self.close_color_picker
+                            )
+                
+                if self.btn_presets_gallery.handle(event):
+                    self.gallery_open = True
+                
+                if self.btn_replay_tutorial.handle(event):
+                    self.tutorial_active = True
+                    self.tutorial_step = 0
+                    self.tutorial_prompt = False
+                    self.gallery_open = False
+                
+                if self.btn_apply.handle(event):
+                    self.update_from_sliders()
+                    self.copy_properties(self.preview_emitter, self.emitter)
+                    self.running = False
+                elif self.btn_cancel.handle(event):
+                    self.running = False
+                
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if preview_area.collidepoint(event.pos):
+                        self.drag_origin = True
+                elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+                    self.drag_origin = False
+                    
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+                    self.preview_x = sw // 2
+                    self.preview_y = sh // 2 - 40
+            
+            if self.drag_origin:
+                self.preview_x = max(265, min(mx, sw - 265))
+                self.preview_y = max(40, min(my, sh - 80))
+            
+            self.update_from_sliders()
+            self.preview_emitter.x = self.preview_x
+            self.preview_emitter.y = self.preview_y - 30
+            
+            self.preview_emitter.update()
+            
             self.screen.fill(BG_COLOR)
-            for x in range(0, self.screen.get_width(), 25): pygame.draw.line(self.screen, (20,20,30), (x,0), (x,HEIGHT))
-            for y in range(0, HEIGHT, 25): pygame.draw.line(self.screen, (20,20,30), (0,y), (self.screen.get_width(),y))
             
-            for p in self.particles: p.draw(self.screen)
-            for w in self.windows: w.draw(self.screen, self.font)
+            pygame.draw.rect(self.screen, (12, 12, 18), preview_area)
+            for gx in range(250, sw - 250, 40):
+                pygame.draw.line(self.screen, (20, 20, 28), (gx, 0), (gx, sh - 60))
+            for gy in range(0, sh - 60, 40):
+                pygame.draw.line(self.screen, (20, 20, 28), (250, gy), (sw - 250, gy))
+                
+            self.preview_emitter.draw(self.screen, (0, -30), 1.0)
             
-            pygame.draw.rect(self.screen, (20,20,30), (self.screen.get_width()-150, HEIGHT-40, 140, 30), border_radius=5)
-            self.screen.blit(self.font.render(f"Particles: {len(self.particles)}", True, (150,150,150)), (self.screen.get_width()-140, HEIGHT-30))
-            try:
-                pygame.draw.aacircle(self.screen, (200, 71, 88), self.quit_rect.center, 5)
-            except:
-                pygame.draw.circle(self.screen, (200, 71, 88), self.quit_rect.center, 5)
-            pygame.display.flip()
-            self.clock.tick(60)
+            pygame.draw.circle(self.screen, (255, 255, 255), (self.preview_x, self.preview_y), 3)
+            pygame.draw.circle(self.screen, ACCENT_BLUE, (self.preview_x, self.preview_y), 7, 1)
+            
+            pygame.draw.rect(self.screen, PANEL_COLOR, (0, 0, 250, sh))
+            pygame.draw.line(self.screen, PANEL_BORDER_COLOR, (250, 0), (250, sh))
+            
+            self.screen.blit(self.font_title.render("NIAGARA SFX EMITTER", True, (255, 255, 255)), (20, 15))
+            self.txt_name.draw(self.screen, self.font_normal)
+            self.btn_active.draw(self.screen, self.font_normal)
+            
+            self.screen.blit(self.font_heading.render("EMITTER MODULES", True, ACCENT_GOLD), (20, 88))
+            for i, tab in enumerate(self.module_tabs):
+                if self.active_module == i:
+                    tab.color = (35, 55, 80)
+                    tab.hover_color = (35, 55, 80)
+                    tab.text_color = (255, 255, 255)
+                else:
+                    tab.color = BUTTON_COLOR
+                    tab.hover_color = BUTTON_HOVER
+                    tab.text_color = TEXT_MUTED
+                tab.draw(self.screen, self.font_heading)
+                
+            pygame.draw.line(self.screen, PANEL_BORDER_COLOR, (20, 260), (230, 260))
+            self.screen.blit(self.font_heading.render("MODULE PROPERTIES", True, ACCENT_GOLD), (20, 272))
+            
+            if self.active_module == 0: # Spawn Module
+                self.btn_spawn_mode.draw(self.screen, self.font_heading)
+                self.sliders["rate"].draw(self.screen, self.font_normal)
+                if self.preview_emitter.spawn_mode == "Burst":
+                    self.sliders["burst_interval"].draw(self.screen, self.font_normal)
+            elif self.active_module == 1: # Particle Init Module (Compact)
+                self.sliders["life"].draw(self.screen, self.font_normal)
+                self.sliders["speed"].draw(self.screen, self.font_normal)
+                self.sliders["spread"].draw(self.screen, self.font_normal)
+                self.sliders["size"].draw(self.screen, self.font_normal)
+                self.sliders["preview_scale"].draw(self.screen, self.font_normal)
+                
+                
+                self.screen.blit(self.font_normal.render("Custom Sprite Asset Name:", True, TEXT_MUTED), (20, 605))
+                self.txt_sprite.draw(self.screen, self.font_normal)
+                
+            elif self.active_module == 2: 
+                self.sliders["friction"].draw(self.screen, self.font_normal)
+                self.btn_open_add_module.draw(self.screen, self.font_heading)
+                
+                y_offset = 375
+                for idx, mod in enumerate(self.preview_emitter.active_modules):
+                    m_id = mod["id"]
+                    enabled = mod["enabled"]
+                    has_slider = m_id in ["gravity", "wind", "vortex", "chaos"]
+                    has_target = m_id == "collision"
+                    card_h = 48 if (has_slider or has_target) else 30
+                    
+                    card_rect = pygame.Rect(20, y_offset, 210, card_h)
+                    pygame.draw.rect(self.screen, (26, 28, 38), card_rect, border_radius=4)
+                    border_color = ACCENT_BLUE if enabled else PANEL_BORDER_COLOR
+                    pygame.draw.rect(self.screen, border_color, card_rect, width=1, border_radius=4)
+                    
+                    cb_rect = pygame.Rect(25, y_offset + 8, 14, 14)
+                    pygame.draw.rect(self.screen, (16, 16, 24), cb_rect, border_radius=3)
+                    if enabled:
+                        pygame.draw.rect(self.screen, ACCENT_GREEN, cb_rect.inflate(-4, -4), border_radius=2)
+                        
+                    self.screen.blit(self.font_heading.render(m_id.capitalize(), True, TEXT_COLOR if enabled else TEXT_MUTED), (45, y_offset + 6))
+                    
+                    del_rect = pygame.Rect(205, y_offset + 6, 18, 18)
+                    pygame.draw.rect(self.screen, (40, 24, 28), del_rect, border_radius=3)
+                    self.screen.blit(self.font_normal.render("x", True, ACCENT_RED), (211, y_offset + 2))
+                    
+                    if has_slider:
+                        val = mod.get(m_id, 0.0)
+                        if m_id in ["gravity", "wind", "vortex"]:
+                            factor = (val - (-0.5)) / (0.5 - (-0.5))
+                        else: # chaos
+                            factor = val
+                        factor = max(0.0, min(1.0, factor))
+                        
+                        track_rect = pygame.Rect(45, y_offset + 28, 120, 6)
+                        pygame.draw.rect(self.screen, (16, 16, 24), track_rect, border_radius=3)
+                        
+                        progress_w = int(track_rect.w * factor)
+                        if progress_w > 0:
+                            pygame.draw.rect(self.screen, ACCENT_BLUE if enabled else TEXT_MUTED, (track_rect.x, track_rect.y, progress_w, track_rect.h), border_radius=3)
+                        
+                        tx = track_rect.x + progress_w
+                        pygame.draw.circle(self.screen, (255, 255, 255) if enabled else TEXT_MUTED, (tx, track_rect.y + 3), 4)
+                        
+                        val_txt = self.font_normal.render(f"{val:.2f}", True, TEXT_COLOR if enabled else TEXT_MUTED)
+                        self.screen.blit(val_txt, (180, y_offset + 24))
+                        
+                    if m_id == "collision":
+                        target_val = mod.get("target", "All")
+                        btn_rect = pygame.Rect(45, y_offset + 24, 150, 18)
+                        pygame.draw.rect(self.screen, (32, 34, 48), btn_rect, border_radius=4)
+                        pygame.draw.rect(self.screen, PANEL_BORDER_COLOR, btn_rect, width=1, border_radius=4)
+                        btn_txt = self.font_normal.render(f"Target: {target_val}", True, TEXT_COLOR if enabled else TEXT_MUTED)
+                        self.screen.blit(btn_txt, (btn_rect.x + 8, btn_rect.y + 3))
+                        
+                    y_offset += card_h + 8
+                    
+            elif self.active_module == 3: # Color Module
+                self.btn_color_mode.draw(self.screen, self.font_heading)
+                if self.preview_emitter.color_mode == "Lerp":
+                    pygame.draw.rect(self.screen, PANEL_BORDER_COLOR, (20, 345, 210, 20), border_radius=4)
+                    if len(self.preview_emitter.colors) >= 2:
+                        grad_surf = pygame.Surface((100, 1))
+                        stops = sorted(self.preview_emitter.colors, key=lambda s: s["pos"])
+                        for x_pixel in range(100):
+                            t = x_pixel / 99.0
+                            col = self.interpolate_color_stops(stops, t)
+                            grad_surf.set_at((x_pixel, 0), col)
+                        scaled_grad = pygame.transform.smoothscale(grad_surf, (210, 20))
+                        self.screen.blit(scaled_grad, (20, 345))
+                        pygame.draw.rect(self.screen, PANEL_BORDER_COLOR, (20, 345, 210, 20), width=1, border_radius=4)
+                    
+                    for idx, stop in enumerate(self.preview_emitter.colors):
+                        p = stop["pos"]
+                        px = 20 + p * 210
+                        pygame.draw.circle(self.screen, tuple(stop["color"]), (px, 375), 6)
+                        border_c = (255, 255, 255) if idx == self.dragged_stop_idx else PANEL_BORDER_COLOR
+                        pygame.draw.circle(self.screen, border_c, (px, 375), 6, 1)
+                        
+                    self.btn_add_stop.draw(self.screen, self.font_heading)
+                    self.btn_remove_stop.draw(self.screen, self.font_heading)
+                    
+                    self.screen.blit(self.font_normal.render("Quick Gradient Presets:", True, TEXT_MUTED), (20, 440))
+                    self.btn_grad_flame.draw(self.screen, self.font_normal)
+                    self.btn_grad_glacier.draw(self.screen, self.font_normal)
+                    self.btn_grad_nebula.draw(self.screen, self.font_normal)
+                    self.btn_grad_acid.draw(self.screen, self.font_normal)
+                    
+                elif self.preview_emitter.color_mode == "Static":
+                    static_col = tuple(self.preview_emitter.colors[0]["color"])
+                    self.btn_static_color.color = static_col
+                    self.btn_static_color.hover_color = static_col
+                    self.btn_static_color.text = "Set Static Color"
+                    self.btn_static_color.draw(self.screen, self.font_heading)
+            
+            if self.active_module == 1:
+                self.btn_style.draw(self.screen)
+                self.btn_size_mode.draw(self.screen)
+            
+            rx = sw - 250
+            pygame.draw.rect(self.screen, PANEL_COLOR, (rx, 0, 250, sh))
+            pygame.draw.line(self.screen, PANEL_BORDER_COLOR, (rx, 0), (rx, sh))
+            
+            self.screen.blit(self.font_title.render("SYSTEM PRESETS", True, (255, 255, 255)), (rx + 20, 15))
+            self.screen.blit(self.font_normal.render("Launch visual presets selector gallery:", True, TEXT_MUTED), (rx + 20, 42))
+            
+            self.btn_presets_gallery.draw(self.screen, self.font_heading)
+            self.btn_replay_tutorial.draw(self.screen, self.font_heading)
+                
+            guide_y = sh - 170
+            pygame.draw.rect(self.screen, (16, 16, 24), (rx + 20, guide_y, 210, 100), border_radius=6)
+            pygame.draw.rect(self.screen, PANEL_BORDER_COLOR, (rx + 20, guide_y, 210, 100), width=1, border_radius=6)
+            self.screen.blit(self.font_heading.render("VIEWPORT CONTROLS", True, ACCENT_GOLD), (rx + 30, guide_y + 10))
+            self.screen.blit(self.font_normal.render("- Left-Click + Drag inside viewport:", True, TEXT_COLOR), (rx + 30, guide_y + 35))
+            self.screen.blit(self.font_normal.render("  Move Emitter source location", True, TEXT_MUTED), (rx + 30, guide_y + 50))
+            self.screen.blit(self.font_normal.render("- Press [R]: Reset to center", True, TEXT_COLOR), (rx + 30, guide_y + 75))
+            
+            by = sh - 60
+            pygame.draw.rect(self.screen, PANEL_COLOR, (250, by, sw - 500, 60))
+            pygame.draw.line(self.screen, PANEL_BORDER_COLOR, (250, by), (sw - 250, by))
+            
+            self.btn_apply.draw(self.screen, self.font_heading)
+            self.btn_cancel.draw(self.screen, self.font_heading)
+            
+            reg_str = " | REGULE" if self.fps_throttled else " | PERF OK"
+            reg_color = (230, 100, 100) if self.fps_throttled else (60, 220, 130)
+            stats_surf = self.font_normal.render(f"Particles: {len(self.preview_emitter.particles)} | FPS: {fps:.0f}", True, TEXT_MUTED)
+            reg_surf = self.font_normal.render(reg_str, True, reg_color)
+            self.screen.blit(stats_surf, (260, 10))
+            self.screen.blit(reg_surf, (260 + stats_surf.get_width(), 10))
+            
+            if self.color_picker is not None:
+                self.color_picker.draw(self.screen)
+                
+            if self.gallery_open:
+                overlay = pygame.Surface((sw, sh), pygame.SRCALPHA)
+                overlay.fill((10, 10, 15, 200))
+                self.screen.blit(overlay, (0, 0))
+                
+                modal_w, modal_h = 740, 360
+                modal_x = (sw - modal_w) // 2
+                modal_y = (sh - modal_h) // 2
+                modal_rect = pygame.Rect(modal_x, modal_y, modal_w, modal_h)
+                
+                s_surf = pygame.Surface((modal_w + 10, modal_h + 10), pygame.SRCALPHA)
+                s_surf.fill((0, 0, 0, 60))
+                self.screen.blit(s_surf, (modal_x - 5, modal_y - 5))
+                
+                pygame.draw.rect(self.screen, (18, 18, 28), modal_rect, border_radius=12)
+                pygame.draw.rect(self.screen, (60, 62, 85), modal_rect, width=2, border_radius=12)
+                
+                self.screen.blit(self.font_title.render("PRESETS GALLERY - LIVE SIMULATIONS", True, (255, 255, 255)), (modal_x + 20, modal_y + 15))
+                
+                close_rect = pygame.Rect(modal_x + modal_w - 35, modal_y + 12, 22, 22)
+                pygame.draw.rect(self.screen, (40, 24, 28), close_rect, border_radius=4)
+                self.screen.blit(self.font_heading.render("X", True, ACCENT_RED), (modal_x + modal_w - 28, modal_y + 14))
+                
+                for idx, p_name in enumerate(["fire", "snow", "spark", "bubble", "portal", "fireball", "starfield"]):
+                    card_x = modal_x + 20 + idx * 98
+                    card_y = modal_y + 60
+                    card_rect = pygame.Rect(card_x, card_y, 90, 270)
+                    
+                    is_hover = card_rect.collidepoint((mx, my))
+                    bg_col = (26, 28, 42) if is_hover else (22, 23, 34)
+                    border_col = ACCENT_BLUE if is_hover else PANEL_BORDER_COLOR
+                    
+                    pygame.draw.rect(self.screen, bg_col, card_rect, border_radius=8)
+                    pygame.draw.rect(self.screen, border_col, card_rect, width=2 if is_hover else 1, border_radius=8)
+                    
+                    clip_rect = pygame.Rect(card_x + 2, card_y + 2, 86, 190)
+                    
+                    em = self.gallery_emitters[p_name]
+                    em.x = card_x + 45
+                    em.y = card_y + 160
+                    em.update()
+                    
+                    old_clip = self.screen.get_clip()
+                    self.screen.set_clip(clip_rect)
+                    em.draw(self.screen, (0, -30), 1.0)
+                    self.screen.set_clip(old_clip)
+                    
+                    pygame.draw.line(self.screen, PANEL_BORDER_COLOR, (card_x, card_y + 195), (card_x + 90, card_y + 195))
+                    
+                    label_titles = {
+                        "fire": "Fire/Flame",
+                        "snow": "Snow/Bliz",
+                        "spark": "Neon Spark",
+                        "bubble": "Tox Bubble",
+                        "portal": "Portal E.",
+                        "fireball": "Fireball",
+                        "starfield": "Starfield"
+                    }
+                    lbl_text = label_titles.get(p_name, p_name.capitalize())
+                    lbl_surf = self.font_heading.render(lbl_text, True, (255, 255, 255) if is_hover else TEXT_COLOR)
+                    self.screen.blit(lbl_surf, (card_x + (90 - lbl_surf.get_width()) // 2, card_y + 206))
+                    
+                    desc_dict = {
+                        "fire": "Flame drift",
+                        "snow": "Snow drift",
+                        "spark": "Gravity line",
+                        "bubble": "Colliding",
+                        "portal": "Vortex field",
+                        "fireball": "Comet trail",
+                        "starfield": "Cosmic twink"
+                    }
+                    desc_surf = self.font_normal.render(desc_dict.get(p_name, ""), True, TEXT_MUTED)
+                    self.screen.blit(desc_surf, (card_x + (90 - desc_surf.get_width()) // 2, card_y + 226))
+                    
+                    load_btn = pygame.Rect(card_x + 6, card_y + 242, 78, 20)
+                    pygame.draw.rect(self.screen, (32, 45, 68) if is_hover else (30, 32, 45), load_btn, border_radius=4)
+                    btn_text_surf = self.font_normal.render("Load Preset", True, ACCENT_GOLD)
+                    btn_text_rect = btn_text_surf.get_rect(center=load_btn.center)
+                    self.screen.blit(btn_text_surf, btn_text_rect)
 
-if __name__ == "__main__":
-    pygame.init()
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    clock = pygame.time.Clock()
-    ParticleEditor(screen,clock).run()
+            if self.add_module_open:
+                overlay = pygame.Surface((sw, sh), pygame.SRCALPHA)
+                overlay.fill((10, 10, 15, 200))
+                self.screen.blit(overlay, (0, 0))
+                
+                modal_w, modal_h = 400, 450
+                modal_x = (sw - modal_w) // 2
+                modal_y = (sh - modal_h) // 2
+                modal_rect = pygame.Rect(modal_x, modal_y, modal_w, modal_h)
+                
+                s_surf = pygame.Surface((modal_w + 10, modal_h + 10), pygame.SRCALPHA)
+                s_surf.fill((0, 0, 0, 60))
+                self.screen.blit(s_surf, (modal_x - 5, modal_y - 5))
+                
+                pygame.draw.rect(self.screen, (18, 18, 28), modal_rect, border_radius=10)
+                pygame.draw.rect(self.screen, (60, 62, 85), modal_rect, width=2, border_radius=10)
+                
+                self.screen.blit(self.font_title.render("ADD FORCE MODULE", True, (255, 255, 255)), (modal_x + 20, modal_y + 15))
+                
+                close_rect = pygame.Rect(modal_x + modal_w - 35, modal_y + 12, 22, 22)
+                pygame.draw.rect(self.screen, (40, 24, 28), close_rect, border_radius=4)
+                self.screen.blit(self.font_heading.render("X", True, ACCENT_RED), (modal_x + modal_w - 28, modal_y + 14))
+                
+                self.txt_module_search.draw(self.screen, self.font_normal)
+                if self.txt_module_search.val == "" and not self.txt_module_search.active:
+                    watermark = self.font_normal.render("Search forces (e.g. gravity, collision)...", True, TEXT_MUTED)
+                    self.screen.blit(watermark, (self.txt_module_search.rect.x + 8, self.txt_module_search.rect.y + 6))
+                
+                query = self.txt_module_search.val.lower()
+                filtered = [m for m in self.modules_info if query in m["name"].lower() or query in m["desc"].lower()]
+                
+                row_y = modal_y + 90
+                for mod in filtered:
+                    is_added = any(m["id"] == mod["id"] for m in self.preview_emitter.active_modules)
+                    
+                    row_rect = pygame.Rect(modal_x + 20, row_y, 360, 42)
+                    pygame.draw.rect(self.screen, (24, 25, 37), row_rect, border_radius=6)
+                    pygame.draw.rect(self.screen, PANEL_BORDER_COLOR, row_rect, width=1, border_radius=6)
+                    
+                    self.screen.blit(self.font_heading.render(mod["name"], True, (255, 255, 255)), (modal_x + 32, row_y + 4))
+                    self.screen.blit(self.font_normal.render(mod["desc"], True, TEXT_MUTED), (modal_x + 32, row_y + 22))
+                    
+                    add_btn = pygame.Rect(modal_x + 300, row_y + 11, 70, 20)
+                    if is_added:
+                        pygame.draw.rect(self.screen, (32, 34, 48), add_btn, border_radius=4)
+                        btn_txt = self.font_normal.render("Added", True, TEXT_MUTED)
+                    else:
+                        is_hover = add_btn.collidepoint((mx, my))
+                        bg_c = ACCENT_GREEN if is_hover else (32, 45, 68)
+                        pygame.draw.rect(self.screen, bg_c, add_btn, border_radius=4)
+                        btn_txt = self.font_normal.render("+ Add", True, (15, 30, 20) if is_hover else ACCENT_GREEN)
+                        
+                    self.screen.blit(btn_txt, (add_btn.x + (70 - btn_txt.get_width()) // 2, add_btn.y + 3))
+                    
+                    row_y += 50
+
+            if self.tutorial_prompt:
+                overlay = pygame.Surface((sw, sh), pygame.SRCALPHA)
+                overlay.fill((10, 10, 15, 160))
+                self.screen.blit(overlay, (0, 0))
+                
+                dialog_w, dialog_h = 420, 160
+                dialog_x = (sw - dialog_w) // 2
+                dialog_y = (sh - dialog_h) // 2
+                dialog_rect = pygame.Rect(dialog_x, dialog_y, dialog_w, dialog_h)
+                
+                pygame.draw.rect(self.screen, (10, 11, 16), dialog_rect, border_radius=10)
+                pygame.draw.rect(self.screen, ACCENT_BLUE, dialog_rect, width=2, border_radius=10)
+                
+                title_surf = self.font_title.render("TUTORIEL PARTICULES", True, ACCENT_GOLD)
+                body_line1 = self.font_heading.render("Bienvenue dans le Playground VFX !", True, (255, 255, 255))
+                body_line2 = self.font_tutorial_body.render("Souhaitez-vous suivre un court guide interactif", True, (255, 255, 255))
+                body_line3 = self.font_tutorial_body.render("pour apprendre à configurer vos effets ?", True, (255, 255, 255))
+                
+                self.screen.blit(title_surf, (dialog_x + 20, dialog_y + 15))
+                self.screen.blit(body_line1, (dialog_x + 20, dialog_y + 45))
+                self.screen.blit(body_line2, (dialog_x + 20, dialog_y + 72))
+                self.screen.blit(body_line3, (dialog_x + 20, dialog_y + 92))
+                
+                self.btn_tut_yes = pygame.Rect(dialog_x + 20, dialog_y + 120, 170, 26)
+                self.btn_tut_no = pygame.Rect(dialog_x + 230, dialog_y + 120, 170, 26)
+                
+                is_hover_yes = self.btn_tut_yes.collidepoint((mx, my))
+                yes_col = (30, 80, 45) if is_hover_yes else (22, 48, 36)
+                pygame.draw.rect(self.screen, yes_col, self.btn_tut_yes, border_radius=4)
+                yes_txt = self.font_heading.render("Commencer le guide", True, (60, 220, 130))
+                self.screen.blit(yes_txt, yes_txt.get_rect(center=self.btn_tut_yes.center))
+                
+                is_hover_no = self.btn_tut_no.collidepoint((mx, my))
+                no_col = (80, 30, 45) if is_hover_no else (42, 24, 28)
+                pygame.draw.rect(self.screen, no_col, self.btn_tut_no, border_radius=4)
+                no_txt = self.font_heading.render("Plus tard", True, (230, 100, 100))
+                self.screen.blit(no_txt, no_txt.get_rect(center=self.btn_tut_no.center))
+                
+            elif self.tutorial_active:
+                if self.tutorial_step == 1:
+                    self.active_module = 0
+                elif self.tutorial_step == 3:
+                    self.active_module = 1
+                elif self.tutorial_step == 4:
+                    self.active_module = 2
+                elif self.tutorial_step == 5:
+                    self.active_module = 3
+                    
+                # Highlighting active elements
+                highlight_rect = None
+                if self.tutorial_step == 1:
+                    highlight_rect = pygame.Rect(20, 115, 210, 30)
+                elif self.tutorial_step == 2:
+                    highlight_rect = pygame.Rect(255, 5, 210, 22)
+                elif self.tutorial_step == 3:
+                    highlight_rect = pygame.Rect(20, 150, 210, 30)
+                elif self.tutorial_step == 4:
+                    highlight_rect = pygame.Rect(20, 185, 210, 30)
+                elif self.tutorial_step == 5:
+                    highlight_rect = pygame.Rect(20, 220, 210, 30)
+                elif self.tutorial_step == 6:
+                    rx = sw - 230
+                    highlight_rect = pygame.Rect(rx, 80, 210, 32)
+                    
+                if highlight_rect:
+                    pulse = int(127 + 127 * math.sin(time.time() * 7))
+                    pygame.draw.rect(self.screen, (pulse, 200, pulse), highlight_rect, width=3, border_radius=5)
+                    
+                box_w, box_h = 440, 140
+                box_x = (sw - box_w) // 2
+                box_y = sh - 200
+                box_rect = pygame.Rect(box_x, box_y, box_w, box_h)
+                
+                pygame.draw.rect(self.screen, (10, 11, 16), box_rect, border_radius=8)
+                pygame.draw.rect(self.screen, ACCENT_BLUE, box_rect, width=2, border_radius=8)
+                
+                steps_desc = [
+                    ("1/8 - VUE GLOBALE",
+                     "Bienvenue dans le guide du Playground VFX !",
+                     "L'émetteur est simulé en temps réel au centre.",
+                     "Glissez la souris dans le viewport pour le déplacer."),
+                    ("2/8 - MODULE SPAWN",
+                     "ONGLET SPAWN : Règle le mode d'émission",
+                     "(Continu ou Rafale) et le taux de création",
+                     "des particules (Spawn Rate)."),
+                    ("3/8 - LIMITES & PERFORMANCE",
+                     "Une surcharge de particules (>600) ou baisse",
+                     "de FPS bride le cap à 150 (effet burst possible).",
+                     "Le statut est visible via les notifications."),
+                    ("4/8 - MODULE INITIALISATION",
+                     "ONGLET INIT : Règle la durée de vie,",
+                     "la vitesse initiale, la taille et le style",
+                     "graphique (Cercle, Neige, Fireball, Étoile, etc.)."),
+                    ("5/8 - PHYSIQUE & FORCES",
+                     "ONGLET PHYSIQUE : Permet d'ajouter des forces",
+                     "physiques (Gravité, Vent, Vortex, Chaos)",
+                     "ou de configurer des collisions."),
+                    ("6/8 - MODULE COULEURS",
+                     "ONGLET COULEUR : Personnalise le mode de",
+                     "couleur (Statique, Arc-en-ciel, dégradés Lerp)",
+                     "et configure les arrêts de couleur."),
+                    ("7/8 - GALERIE DES PRESETS",
+                     "PRESETS : Charge instantanément des presets",
+                     "complets (Flamme, Glacier, Starfield, etc.)",
+                     "depuis la galerie en haut à droite."),
+                    ("8/8 - TOUT EST PRÊT !",
+                     "C'est terminé ! Une fois votre effet créé,",
+                     "cliquez sur 'Apply to Level' en bas pour",
+                     "le sauvegarder. Bonne création !")
+                ]
+                
+                title, line1, line2, line3 = steps_desc[self.tutorial_step]
+                title_surf = self.font_tutorial_title.render(title, True, ACCENT_GOLD)
+                l1_surf = self.font_tutorial_body.render(line1, True, (255, 255, 255))
+                l2_surf = self.font_tutorial_body.render(line2, True, (255, 255, 255))
+                l3_surf = self.font_tutorial_body.render(line3, True, (255, 255, 255))
+                
+                self.screen.blit(title_surf, (box_x + 15, box_y + 12))
+                self.screen.blit(l1_surf, (box_x + 15, box_y + 38))
+                self.screen.blit(l2_surf, (box_x + 15, box_y + 60))
+                self.screen.blit(l3_surf, (box_x + 15, box_y + 82))
+                
+                self.btn_tut_next = pygame.Rect(box_x + box_w - 95, box_y + box_h - 32, 85, 24)
+                is_hover_next = self.btn_tut_next.collidepoint((mx, my))
+                next_col = ACCENT_GOLD if is_hover_next else (32, 45, 68)
+                pygame.draw.rect(self.screen, next_col, self.btn_tut_next, border_radius=4)
+                next_txt_str = "TERMINER" if self.tutorial_step == 7 else "SUIVANT >"
+                next_txt_col = (15, 15, 20) if is_hover_next else ACCENT_GOLD
+                next_txt = self.font_normal.render(next_txt_str, True, next_txt_col)
+                self.screen.blit(next_txt, next_txt.get_rect(center=self.btn_tut_next.center))
+                
+                self.btn_tut_skip = pygame.Rect(box_x + 15, box_y + box_h - 32, 85, 24)
+                is_hover_skip = self.btn_tut_skip.collidepoint((mx, my))
+                skip_col = ACCENT_RED if is_hover_skip else (40, 24, 28)
+                pygame.draw.rect(self.screen, skip_col, self.btn_tut_skip, border_radius=4)
+                skip_txt = self.font_normal.render("PASSER", True, (255, 255, 255) if is_hover_skip else ACCENT_RED)
+                self.screen.blit(skip_txt, skip_txt.get_rect(center=self.btn_tut_skip.center))
+
+            dt = self.clock.tick(60) / 1000.0
+            if self.nm:
+                self.nm.update(dt)
+                self.nm.draw(self.screen)
+            pygame.display.flip()
+            
+        while pygame.mouse.get_pressed()[0]:
+            pygame.event.pump()
+            pygame.time.delay(10)
+            
+        pygame.event.clear([pygame.MOUSEBUTTONUP, pygame.MOUSEBUTTONDOWN, pygame.MOUSEMOTION])
