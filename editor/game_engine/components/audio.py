@@ -12,11 +12,15 @@ class AudioManager:
         self._cache         = {}
 
     def load_sound(self, fname):
+        if pygame.mixer.get_init() is None:
+            return None
         if fname not in self._cache:
             self._cache[fname] = SpatialSoundNode._load_sound(fname)
         return self._cache[fname]
 
     def add_emitter(self, fname, loc_name, radius, smooth=None, volume=1.0):
+        if pygame.mixer.get_init() is None:
+            return
         total_ch = pygame.mixer.get_num_channels()
         busy_ch  = sum(1 for e in self.emitters if e["channel"].get_busy())
 
@@ -41,7 +45,11 @@ class AudioManager:
 
 
         snd     = self.load_sound(fname)
+        if snd is None:
+            return
         ch      = pygame.mixer.find_channel(force=True)
+        if ch is None:
+            return
         ch.play(snd, loops=-1)
 
         px, py = self.player.rect.center
@@ -77,11 +85,18 @@ class AudioManager:
                 e["removing"] = True
 
     def clear_sounds(self):
+        if pygame.mixer.get_init() is None:
+            return
         for e in list(self.emitters):
-            e["channel"].fadeout(self.fade_ms)
+            try:
+                e["channel"].fadeout(self.fade_ms)
+            except Exception:
+                pass
         self.emitters.clear()
 
     def update_all(self):
+        if pygame.mixer.get_init() is None:
+            return
         px, py = self.player.rect.center
 
         for e in list(self.emitters):

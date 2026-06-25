@@ -102,13 +102,27 @@ class PlaySoundNode(Node):
         if not getattr(self, "valid", False):
             return None
 
-        fname = self.properties.get("choice")
-        if fname:
-            full_path = os.path.join(self.SOUND_DIR, fname)
-            cache = PlaySoundNode._sound_cache
-            if fname not in cache:
-                cache[fname] = pygame.mixer.Sound(full_path)
-            cache[fname].play()
+        if pygame.mixer.get_init() is None:
+            try:
+                pygame.mixer.init()
+            except Exception:
+                pass
+
+        if pygame.mixer.get_init() is not None:
+            fname = self.properties.get("choice")
+            if fname:
+                full_path = os.path.join(self.SOUND_DIR, fname)
+                cache = PlaySoundNode._sound_cache
+                if fname not in cache:
+                    try:
+                        cache[fname] = pygame.mixer.Sound(full_path)
+                    except Exception:
+                        pass
+                if fname in cache and cache[fname] is not None:
+                    try:
+                        cache[fname].play()
+                    except Exception:
+                        pass
 
         out = next((p for p in self.outputs if p.pin_type=="exec"), None)
         return out.connection.node if out and out.connection else None
@@ -147,9 +161,16 @@ class SetVolumeNode(Node):
 
         vol = self.properties.get("volume", 1.0)
         if not pygame.mixer.get_init():
-            pygame.mixer.init()
-        pygame.mixer.music.set_volume(vol)
-        pygame.mixer.set_num_channels(pygame.mixer.get_num_channels())
+            try:
+                pygame.mixer.init()
+            except Exception:
+                pass
+        if pygame.mixer.get_init():
+            try:
+                pygame.mixer.music.set_volume(vol)
+                pygame.mixer.set_num_channels(pygame.mixer.get_num_channels())
+            except Exception:
+                pass
         out = next((p for p in self.outputs if p.pin_type=="exec"), None)
         return out.connection.node if out and out.connection else None
 
@@ -174,9 +195,16 @@ class StopAllSoundsNode(Node):
 
     def execute(self, context):
         if not pygame.mixer.get_init():
-            pygame.mixer.init()
-        pygame.mixer.stop()
-        pygame.mixer.music.stop()
+            try:
+                pygame.mixer.init()
+            except Exception:
+                pass
+        if pygame.mixer.get_init():
+            try:
+                pygame.mixer.stop()
+                pygame.mixer.music.stop()
+            except Exception:
+                pass
         out = next((p for p in self.outputs if p.pin_type=="exec"), None)
         return out.connection.node if out and out.connection else None
 
@@ -196,9 +224,14 @@ class SpatialSoundNode(Node):
 
     @staticmethod
     def _load_sound(fname):
+        if pygame.mixer.get_init() is None:
+            return None
         full = os.path.join(SpatialSoundNode.SOUND_DIR, fname)
         if fname not in SpatialSoundNode._sound_cache:
-            SpatialSoundNode._sound_cache[fname] = pygame.mixer.Sound(full)
+            try:
+                SpatialSoundNode._sound_cache[fname] = pygame.mixer.Sound(full)
+            except Exception:
+                return None
         return SpatialSoundNode._sound_cache[fname]
 
     def __init__(self, pos, editor, properties):

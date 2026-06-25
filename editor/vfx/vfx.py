@@ -99,6 +99,9 @@ class Particle:
             elif m_id == "collision":
                 collision_enabled = True
                 collision_target = mod.get("target", "All")
+                collision_bounce = mod.get("bounce", True)
+                collision_add_particles = mod.get("add_particles", True)
+                collision_kill = mod.get("kill_on_collision", False)
             elif m_id == "trail":
                 trail_enabled = True
             elif m_id == "explosion":
@@ -136,16 +139,16 @@ class Particle:
             top, bottom = ey - 600, ey + 600
             if self.x < left:
                 self.x = left
-                self.vx = -self.vx * 0.6
+                self.vx = -self.vx * 0.6 if collision_bounce else 0
             elif self.x > right:
                 self.x = right
-                self.vx = -self.vx * 0.6
+                self.vx = -self.vx * 0.6 if collision_bounce else 0
             if self.y < top:
                 self.y = top
-                self.vy = -self.vy * 0.6
+                self.vy = -self.vy * 0.6 if collision_bounce else 0
             elif self.y > bottom:
                 self.y = bottom
-                self.vy = -self.vy * 0.6
+                self.vy = -self.vy * 0.6 if collision_bounce else 0
 
             if collision_target in ["All", "Collisions Only"] and collision_rects is not None:
                 p_rect = pygame.Rect(self.x - 2, self.y - 2, 4, 4)
@@ -154,6 +157,17 @@ class Particle:
                         continue
                     r = c_obj.rect
                     if r.colliderect(p_rect):
+                        if collision_kill:
+                            self.life = 0
+                            if collision_add_particles and parent_list is not None and len(parent_list) < 600 and random.random() < 0.2:
+                                parent_list.append(Particle(
+                                    self.x, self.y,
+                                    random.uniform(-1.0, 1.0), random.uniform(-1.0, 1.0),
+                                    random.randint(10, 20), self.size * 0.4,
+                                    self.colors, style="spark", size_mode="Shrink", is_sub=True
+                                ))
+                            break
+
                         overlap_left = self.x - r.left
                         overlap_right = r.right - self.x
                         overlap_top = self.y - r.top
@@ -161,18 +175,18 @@ class Particle:
                         min_overlap = min(overlap_left, overlap_right, overlap_top, overlap_bottom)
                         if min_overlap == overlap_left:
                             self.x = r.left - 2
-                            self.vx = -abs(self.vx) * 0.6
+                            self.vx = -abs(self.vx) * 0.6 if collision_bounce else 0
                         elif min_overlap == overlap_right:
                             self.x = r.right + 2
-                            self.vx = abs(self.vx) * 0.6
+                            self.vx = abs(self.vx) * 0.6 if collision_bounce else 0
                         elif min_overlap == overlap_top:
                             self.y = r.top - 2
-                            self.vy = -abs(self.vy) * 0.6
+                            self.vy = -abs(self.vy) * 0.6 if collision_bounce else 0
                         else:
                             self.y = r.bottom + 2
-                            self.vy = abs(self.vy) * 0.6
+                            self.vy = abs(self.vy) * 0.6 if collision_bounce else 0
                         
-                        if parent_list is not None and len(parent_list) < 600 and random.random() < 0.2:
+                        if collision_add_particles and parent_list is not None and len(parent_list) < 600 and random.random() < 0.2:
                             parent_list.append(Particle(
                                 self.x, self.y,
                                 random.uniform(-1.0, 1.0), random.uniform(-1.0, 1.0),
@@ -183,6 +197,17 @@ class Particle:
 
             if collision_target in ["All", "Player Only"] and player_rect is not None:
                 if player_rect.collidepoint(self.x, self.y):
+                    if collision_kill:
+                        self.life = 0
+                        if collision_add_particles and parent_list is not None and len(parent_list) < 600 and random.random() < 0.3:
+                            parent_list.append(Particle(
+                                self.x, self.y,
+                                random.uniform(-1.5, 1.5), random.uniform(-1.5, 1.5),
+                                random.randint(10, 20), self.size * 0.5,
+                                self.colors, style="spark", size_mode="Shrink", is_sub=True
+                            ))
+                        return
+
                     overlap_left = self.x - player_rect.left
                     overlap_right = player_rect.right - self.x
                     overlap_top = self.y - player_rect.top
@@ -190,18 +215,18 @@ class Particle:
                     min_overlap = min(overlap_left, overlap_right, overlap_top, overlap_bottom)
                     if min_overlap == overlap_left:
                         self.x = player_rect.left - 2
-                        self.vx = -abs(self.vx) * 0.6
+                        self.vx = -abs(self.vx) * 0.6 if collision_bounce else 0
                     elif min_overlap == overlap_right:
                         self.x = player_rect.right + 2
-                        self.vx = abs(self.vx) * 0.6
+                        self.vx = abs(self.vx) * 0.6 if collision_bounce else 0
                     elif min_overlap == overlap_top:
                         self.y = player_rect.top - 2
-                        self.vy = -abs(self.vy) * 0.6
+                        self.vy = -abs(self.vy) * 0.6 if collision_bounce else 0
                     else:
                         self.y = player_rect.bottom + 2
-                        self.vy = abs(self.vy) * 0.6
+                        self.vy = abs(self.vy) * 0.6 if collision_bounce else 0
                     
-                    if parent_list is not None and len(parent_list) < 600 and random.random() < 0.3:
+                    if collision_add_particles and parent_list is not None and len(parent_list) < 600 and random.random() < 0.3:
                         parent_list.append(Particle(
                             self.x, self.y,
                             random.uniform(-1.5, 1.5), random.uniform(-1.5, 1.5),
@@ -540,6 +565,17 @@ class ParticleEmitter:
                 pygame.draw.circle(s, (*outer_color, int(alpha * 0.45)), (glow_sz, glow_sz), glow_sz)
                 inner_color = (255, 255, max(0, min(255, color[2] + 100)))
                 pygame.draw.circle(s, (*inner_color, alpha), (glow_sz, glow_sz), int(sz_px * 0.8))
+                screen.blit(s, (cx - glow_sz, cy - glow_sz))
+                
+            elif p.style == "star":
+                sz_px = max(1, int(sz))
+                glow_sz = int(sz_px * 2.0)
+                s = pygame.Surface((glow_sz * 2, glow_sz * 2), pygame.SRCALPHA)
+                center = glow_sz
+                pygame.draw.line(s, (*color, alpha), (center - glow_sz, center), (center + glow_sz, center), max(1, sz_px // 3))
+                pygame.draw.line(s, (*color, alpha), (center, center - glow_sz), (center, center + glow_sz), max(1, sz_px // 3))
+                pygame.draw.circle(s, (*color, int(alpha * 0.3)), (center, center), int(sz_px * 0.9))
+                pygame.draw.circle(s, (255, 255, 255, alpha), (center, center), max(1, sz_px // 2))
                 screen.blit(s, (cx - glow_sz, cy - glow_sz))
                 
             else:

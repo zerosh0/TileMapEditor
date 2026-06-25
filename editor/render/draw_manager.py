@@ -345,7 +345,7 @@ class DrawManager:
                 self.viewport_fps_throttled = True
                 self.last_viewport_throttle_time = now
                 if self.nm and (now - self.last_viewport_warn_time > 45.0):
-                    self.nm.notify('warning', 'Perf Regulation', 'High load: capping to 150 active particles in viewport.', duration=3.0)
+                    self.nm.notify('warning', 'Régulation de Performance', 'Surcharge : limite réduite à 150 particules pour éviter les ralentissements.', duration=3.0)
                     self.last_viewport_warn_time = now
             self.viewport_particle_cap = 150
         elif fps > 35 and self.viewport_fps_throttled and now - self.last_viewport_throttle_time > 2.0:
@@ -353,12 +353,12 @@ class DrawManager:
             self.viewport_particle_cap = 600
             self.last_viewport_throttle_time = now
             if self.nm and (now - self.last_viewport_restore_time > 45.0):
-                self.nm.notify('success', 'Perf Restored', 'FPS stabilized: viewport cap restored to 600 particles.', duration=2.0)
+                self.nm.notify('success', 'Performances Rétablies', 'Performances stables : limite restaurée à 600 particules.', duration=2.0)
                 self.last_viewport_restore_time = now
 
         for emitter in self.dataManager.emitters:
             emitter.particle_cap = self.viewport_particle_cap
-            emitter.update()
+            emitter.update(collision_rects=self.dataManager.collisionRects)
             if self.settings.display_particles:
                 emitter.draw(self.screen, self.viewportData.panningOffset, self.viewportData.zoom)
             emitter.draw_icon(self.screen, self.viewportData.panningOffset, self.viewportData.zoom, emitter == self.dataManager.selectedElement)

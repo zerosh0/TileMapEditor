@@ -198,6 +198,8 @@ class LevelDesign:
             self.draw()
             pygame.display.flip()
         self.settings._save_settings()
+        pygame.mixer.quit()
+        pygame.quit()
 
 
     def playGame(self,_state):
@@ -314,7 +316,44 @@ if __name__ == "__main__":
     #             print(f"⚠️ Impossible d'augmenter la limite de fichiers ouverts : {e}")
     pygame.init()
     pygame.key.set_repeat(300, 50)
-    pygame.mixer.set_num_channels(32)
+    import time
+    mixer_ok = False
+    last_err = "Unknown error"
+    
+    for attempt in range(4):
+        try:
+            if pygame.mixer.get_init() is None:
+                pygame.mixer.init()
+            if pygame.mixer.get_init() is not None:
+                mixer_ok = True
+                break
+        except Exception as e:
+            last_err = e
+            if attempt < 3:
+                time.sleep(0.15)  # Wait 150ms for previous python process to release WASAPI
+                
+    # If it still fails, try native 48000Hz rate which is required by some Windows audio drivers
+    if not mixer_ok:
+        for attempt in range(2):
+            try:
+                pygame.mixer.quit()
+                pygame.mixer.init(frequency=48000)
+                if pygame.mixer.get_init() is not None:
+                    mixer_ok = True
+                    print("✅ Mixer successfully initialized at 48000Hz!")
+                    break
+            except Exception as e:
+                last_err = e
+                time.sleep(0.1)
+                
+    if not mixer_ok:
+        print(f"⚠️ Warning: pygame.mixer failed to initialize: {last_err}")
+        
+    try:
+        if pygame.mixer.get_init() is not None:
+            pygame.mixer.set_num_channels(32)
+    except Exception as e:
+        print(f"⚠️ Warning: Failed to set num channels: {e}")
     screen = pygame.display.set_mode((1000, 700),pygame.RESIZABLE)
     Editor=LevelDesign(screen)
     pygame.display.set_caption(f'Editeur de Niveau v{Editor.version}')

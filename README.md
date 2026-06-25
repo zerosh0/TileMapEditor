@@ -11,7 +11,6 @@
 - ✅ **Cross-platform** : fonctionne sous **Windows**, **macOS** et **Linux**
 - 🐍 Requiert **Python 3.10+** (support des `match`, `f-strings` et autres fonctionnalités modernes)
 - ⚙️ Basé sur **Pygame-CE** *(Community Edition recommandé)* pour de meilleures performances (+20% FPS) mais utilisable avec pygame
-- 🔊 nécessite une carte son
 
 > 📘 Une documentation complète est disponible ici :  
 > 👉 [Accéder à la documentation](https://zerosh0.github.io/TileMapEditor/index.html)

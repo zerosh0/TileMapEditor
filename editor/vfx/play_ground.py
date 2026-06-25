@@ -349,7 +349,7 @@ class ParticleEditor:
             "wind": {"id": "wind", "enabled": True, "wind": 0.05},
             "vortex": {"id": "vortex", "enabled": True, "vortex": 0.1},
             "chaos": {"id": "chaos", "enabled": True, "chaos": 0.08},
-            "collision": {"id": "collision", "enabled": True, "target": "All"},
+            "collision": {"id": "collision", "enabled": True, "target": "All", "bounce": True, "add_particles": True, "kill_on_collision": False},
             "trail": {"id": "trail", "enabled": True},
             "explosion": {"id": "explosion", "enabled": True}
         }
@@ -411,7 +411,7 @@ class ParticleEditor:
                 "active_modules": [
                     {"id": "gravity", "enabled": True, "gravity": -0.05},
                     {"id": "chaos", "enabled": True, "chaos": 0.05},
-                    {"id": "collision", "enabled": True, "target": "All"}
+                    {"id": "collision", "enabled": True, "target": "All", "bounce": True, "add_particles": True, "kill_on_collision": False}
                 ]
             },
             "portal": {
@@ -779,8 +779,10 @@ class ParticleEditor:
                     for idx, mod in enumerate(self.preview_emitter.active_modules):
                         m_id = mod["id"]
                         has_slider = m_id in ["gravity", "wind", "vortex", "chaos"]
-                        has_target = m_id == "collision"
-                        h = 48 if (has_slider or has_target) else 30
+                        if m_id == "collision":
+                            h = 105
+                        else:
+                            h = 48 if has_slider else 30
                         
                         # Bypass checkbox click
                         cb_rect = pygame.Rect(25, y_offset + 8, 14, 14)
@@ -811,6 +813,9 @@ class ParticleEditor:
                         
                         if m_id == "collision":
                             btn_rect = pygame.Rect(45, y_offset + 24, 150, 18)
+                            bounce_rect = pygame.Rect(45, y_offset + 48, 120, 14)
+                            sparks_rect = pygame.Rect(45, y_offset + 66, 120, 14)
+                            kill_rect = pygame.Rect(45, y_offset + 84, 120, 14)
                             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                                 if btn_rect.collidepoint(event.pos):
                                     cur = mod.get("target", "All")
@@ -820,6 +825,12 @@ class ParticleEditor:
                                         mod["target"] = "Player Only"
                                     else:
                                         mod["target"] = "All"
+                                elif bounce_rect.collidepoint(event.pos):
+                                    mod["bounce"] = not mod.get("bounce", True)
+                                elif sparks_rect.collidepoint(event.pos):
+                                    mod["add_particles"] = not mod.get("add_particles", True)
+                                elif kill_rect.collidepoint(event.pos):
+                                    mod["kill_on_collision"] = not mod.get("kill_on_collision", False)
                         
                         y_offset += h + 8
                     
@@ -1007,8 +1018,10 @@ class ParticleEditor:
                     m_id = mod["id"]
                     enabled = mod["enabled"]
                     has_slider = m_id in ["gravity", "wind", "vortex", "chaos"]
-                    has_target = m_id == "collision"
-                    card_h = 48 if (has_slider or has_target) else 30
+                    if m_id == "collision":
+                        card_h = 105
+                    else:
+                        card_h = 48 if has_slider else 30
                     
                     card_rect = pygame.Rect(20, y_offset, 210, card_h)
                     pygame.draw.rect(self.screen, (26, 28, 38), card_rect, border_radius=4)
@@ -1054,6 +1067,30 @@ class ParticleEditor:
                         pygame.draw.rect(self.screen, PANEL_BORDER_COLOR, btn_rect, width=1, border_radius=4)
                         btn_txt = self.font_normal.render(f"Target: {target_val}", True, TEXT_COLOR if enabled else TEXT_MUTED)
                         self.screen.blit(btn_txt, (btn_rect.x + 8, btn_rect.y + 3))
+                        
+                        bounce_val = mod.get("bounce", True)
+                        b_cb = pygame.Rect(45, y_offset + 48, 14, 14)
+                        pygame.draw.rect(self.screen, (16, 16, 24), b_cb, border_radius=3)
+                        if bounce_val:
+                            pygame.draw.rect(self.screen, ACCENT_BLUE if enabled else TEXT_MUTED, b_cb.inflate(-4, -4), border_radius=2)
+                        b_txt = self.font_normal.render("Bounce", True, TEXT_COLOR if enabled else TEXT_MUTED)
+                        self.screen.blit(b_txt, (65, y_offset + 48))
+                        
+                        sparks_val = mod.get("add_particles", True)
+                        s_cb = pygame.Rect(45, y_offset + 66, 14, 14)
+                        pygame.draw.rect(self.screen, (16, 16, 24), s_cb, border_radius=3)
+                        if sparks_val:
+                            pygame.draw.rect(self.screen, ACCENT_BLUE if enabled else TEXT_MUTED, s_cb.inflate(-4, -4), border_radius=2)
+                        s_txt = self.font_normal.render("Sparks on hit", True, TEXT_COLOR if enabled else TEXT_MUTED)
+                        self.screen.blit(s_txt, (65, y_offset + 66))
+                        
+                        kill_val = mod.get("kill_on_collision", False)
+                        k_cb = pygame.Rect(45, y_offset + 84, 14, 14)
+                        pygame.draw.rect(self.screen, (16, 16, 24), k_cb, border_radius=3)
+                        if kill_val:
+                            pygame.draw.rect(self.screen, ACCENT_BLUE if enabled else TEXT_MUTED, k_cb.inflate(-4, -4), border_radius=2)
+                        k_txt = self.font_normal.render("Kill on hit", True, TEXT_COLOR if enabled else TEXT_MUTED)
+                        self.screen.blit(k_txt, (65, y_offset + 84))
                         
                     y_offset += card_h + 8
                     
@@ -1356,9 +1393,9 @@ class ParticleEditor:
                      "(Continu ou Rafale) et le taux de création",
                      "des particules (Spawn Rate)."),
                     ("3/8 - LIMITES & PERFORMANCE",
-                     "Une surcharge de particules (>600) ou baisse",
-                     "de FPS bride le cap à 150 (effet burst possible).",
-                     "Le statut est visible via les notifications."),
+                     "Le nombre de particules est limité à 600 par effet.",
+                     "Si le jeu ralentit, la limite descend temporairement",
+                     "à 150 pour rester fluide. Une notification vous prévient."),
                     ("4/8 - MODULE INITIALISATION",
                      "ONGLET INIT : Règle la durée de vie,",
                      "la vitesse initiale, la taille et le style",
