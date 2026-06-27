@@ -400,6 +400,8 @@ class Particle:
 
 class ParticleEmitter:
     def __init__(self, x, y, name="vfx_0"):
+        import uuid
+        self.id = str(uuid.uuid4())
         self.name = name
         self.x, self.y = x, y
         

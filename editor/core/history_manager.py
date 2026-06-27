@@ -1,4 +1,5 @@
-from editor.core.utils import ActionType, AnimatedTile, CollisionRect, Light
+from editor.core.utils import ActionType, AnimatedTile, CollisionRect, Light, LocationPoint
+from editor.vfx.vfx import ParticleEmitter
 import copy
 
 class HistoryManager:
@@ -81,14 +82,18 @@ class HistoryManager:
     def _undo_add_collision(self, data, data_manager):
         if isinstance(data, CollisionRect):
             data_manager.collisionRects = [c for c in data_manager.collisionRects if c != data]
-        else:
+        elif isinstance(data, ParticleEmitter):
+            data_manager.emitters = [e for e in data_manager.emitters if e.id != data.id]
+        elif isinstance(data, LocationPoint):
             data_manager.locationPoints = [c for c in data_manager.locationPoints if c.rect != data.rect]
         data_manager.selectedElement = None
 
     def _undo_remove_collision(self, data, data_manager):
         if isinstance(data, CollisionRect):
             data_manager.collisionRects.append(data)
-        else:
+        elif isinstance(data, ParticleEmitter):
+            data_manager.emitters.append(data)
+        elif isinstance(data, LocationPoint):
             data_manager.locationPoints.append(data)
 
     def _undo_add_light(self, data, data_manager):
@@ -126,13 +131,17 @@ class HistoryManager:
     def _redo_add_collision(self, data, data_manager):
         if isinstance(data, CollisionRect):
             data_manager.collisionRects.append(data)
-        else:
+        elif isinstance(data, ParticleEmitter):
+            data_manager.emitters.append(data)
+        elif isinstance(data, LocationPoint):
             data_manager.locationPoints.append(data)
 
     def _redo_remove_collision(self, data, data_manager):
         if isinstance(data, CollisionRect):
             data_manager.collisionRects = [c for c in data_manager.collisionRects if c != data]
-        else:
+        elif isinstance(data, ParticleEmitter):
+            data_manager.emitters = [e for e in data_manager.emitters if e.id != data.id]
+        elif isinstance(data, LocationPoint):
             data_manager.locationPoints = [c for c in data_manager.locationPoints if c.rect != data.rect]
 
     def _redo_add_light(self, data, data_manager):
