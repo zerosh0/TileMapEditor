@@ -305,9 +305,47 @@
       {"pos": 0.0, "color": [0, 175, 240]},
       {"pos": 1.0, "color": [0, 80, 120]}
     ],
+    "emitter_type": "Line",
+    "spawn_width": 100,
+    "spawn_height": 50,
+    "direction_angle": -1.57,
+    "is_sub_emitter": false,
     "active_modules": [
       {"id": "gravity", "enabled": true, "gravity": 0.1},
-      {"id": "chaos", "enabled": true, "chaos": 0.05}
+      {
+        "id": "collision",
+        "enabled": true,
+        "target": "All",
+        "bounce": true,
+        "kill_on_collision": false,
+        "add_particles": true,
+        "collision_trigger_emitter": "sub_1",
+        "splash_style": "spark",
+        "splash_count": 4,
+        "splash_speed": 3.0
+      }
+    ],
+    "sub_emitters": [
+      {
+        "x": 350.0,
+        "y": 200.0,
+        "name": "sub_1",
+        "active": true,
+        "spawn_mode": "Continuous",
+        "rate": 5.0,
+        "spread": 0.8,
+        "speed": 2.5,
+        "size": 6.0,
+        "size_mode": "Shrink",
+        "overall_scale": 0.5,
+        "particle_style": "spark",
+        "color_mode": "Static",
+        "colors": [
+          {"pos": 0.0, "color": [255, 255, 255]}
+        ],
+        "is_sub_emitter": true,
+        "active_modules": []
+      }
     ]
   }
 ]
@@ -323,13 +361,25 @@
         <li><code>speed</code> : vitesse de projection initiale.</li>
         <li><code>spread</code> : dispersion de l'angle d'émission (en radians).</li>
         <li><code>size</code> : taille des particules.</li>
-        <li><code>size_mode</code> : évolution de taille (<code>"Constant"</code>, <code>"Shrink"</code>, <code>"Grow"</code>, <code>"Grow & Shrink"</code>).</li>
+        <li><code>size_mode</code> : évolution de taille au cours de la vie :
+          <ul>
+            <li><code>"Constant"</code> : la taille ne change pas.</li>
+            <li><code>"Shrink"</code> : la particule rétrécit linéairement jusqu'à s'effacer (taille 0).</li>
+            <li><code>"Grow"</code> : la particule apparaît à taille 0 et grandit linéairement jusqu'à <code>size</code>.</li>
+            <li><code>"Grow & Shrink"</code> : grandit jusqu'à 50% de sa vie, puis rétrécit jusqu'à 0.</li>
+          </ul>
+        </li>
         <li><code>overall_scale</code> : facteur d'échelle dans le monde.</li>
-        <li><code>particle_style</code> : rendu (<code>"circle"</code>, <code>"spark"</code>, <code>"bubble"</code>, <code>"snow"</code>, <code>"fireball"</code>, <code>"star"</code>).</li>
+        <li><code>particle_style</code> : rendu graphique (<code>"circle"</code>, <code>"spark"</code>, <code>"bubble"</code>, <code>"snow"</code>, <code>"fireball"</code>, <code>"star"</code>, <code>"laser"</code>, <code>"lightning"</code>).</li>
         <li><code>custom_sprite</code> : nom d'une spritesheet personnalisée.</li>
         <li><code>color_mode</code> : couleur (<code>"Static"</code>, <code>"Rainbow"</code> ou <code>"Lerp"</code>).</li>
         <li><code>colors</code> : arrêts de couleur pour l'interpolation.</li>
-        <li><code>active_modules</code> : liste des modules de forces actifs (gravité, vent, vortex, chaos, collisions, traînées, explosions).</li>
+        <li><code>emitter_type</code> : type de zone d'émission (<code>"Point"</code>, <code>"Line"</code>, <code>"Box"</code>).</li>
+        <li><code>spawn_width / spawn_height</code> : dimensions de la zone d'émission pour les types Line et Box.</li>
+        <li><code>direction_angle</code> : direction initiale d'émission (en radians).</li>
+        <li><code>is_sub_emitter</code> : indique s'il s'agit d'un sous-émetteur déclenché.</li>
+        <li><code>sub_emitters</code> : tableau récursif d'émetteurs enfants associés.</li>
+        <li><code>active_modules</code> : liste des modules de forces actifs. Le module <code>collision</code> gère les rebonds, la mort à l'impact, et peut spécifier un <code>collision_trigger_emitter</code> (nom du sous-émetteur à déclencher lors d'une collision) avec son propre <code>splash_style</code>, <code>splash_count</code> et <code>splash_speed</code>.</li>
       </ul>
 
       <h2 id="nodes">LevelGraph (Nodes)</h2>

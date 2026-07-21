@@ -29,7 +29,7 @@ from editor.vfx.vfx import ParticleEmitter
 class LevelDesign:
     def __init__(self, screen: pygame.surface.Surface):
         self.running = True
-        self.version=1.3
+        self.version=1.4
         self.screen = screen
         self.zoom_sensitivity = 0.25
         self.move_sensitivity = 1

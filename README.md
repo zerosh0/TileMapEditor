@@ -148,7 +148,7 @@ Créez des logiques interactives sans coder :
 
 ## 💡 Statut du projet
 
-🎉 **Version actuelle : 1.3**  
+🎉 **Version actuelle : 1.4**  
 Base des fonctionnalités stabilisée avec système VFX, éditeur nodal amélioré et régulation de performances.
 
 📢 Contributions, idées, bugs et feedbacks sont les bienvenus !

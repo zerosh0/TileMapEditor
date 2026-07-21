@@ -141,32 +141,38 @@ class SaveLoadManager:
             light_data.append(light_dict)
 
         # Sauvegarde des émetteurs VFX
-        vfx_data = []
-        for emitter in level_design.dataManager.emitters:
-            vfx_data.append({
-                "x": emitter.x,
-                "y": emitter.y,
-                "name": emitter.name,
-                "rate": emitter.rate,
-                "spread": emitter.spread,
-                "speed": emitter.speed,
-                "size": emitter.size,
-                "gravity": emitter.gravity,
-                "friction": emitter.friction,
-                "colors": [dict(c) for c in getattr(emitter, "colors", [])] if hasattr(emitter, "colors") else [{"pos": 0.0, "color": emitter.color_start}, {"pos": 1.0, "color": emitter.color_end}],
-                "lifetime": emitter.lifetime,
-                "active": emitter.active,
-                "vortex": emitter.vortex,
-                "color_mode": emitter.color_mode,
-                "spawn_mode": emitter.spawn_mode,
-                "particle_style": getattr(emitter, "particle_style", "circle"),
-                "custom_sprite": getattr(emitter, "custom_sprite", ""),
-                "burst_interval": getattr(emitter, "burst_interval", 45),
-                "chaos": getattr(emitter, "chaos", 0.0),
-                "size_mode": getattr(emitter, "size_mode", "Constant"),
-                "overall_scale": getattr(emitter, "overall_scale", 1.0),
-                "active_modules": [dict(m) for m in getattr(emitter, "active_modules", [])]
-            })
+        def serialize_emitter(em):
+            return {
+                "x": em.x,
+                "y": em.y,
+                "name": em.name,
+                "rate": em.rate,
+                "spread": em.spread,
+                "speed": em.speed,
+                "size": em.size,
+                "gravity": em.gravity,
+                "friction": em.friction,
+                "colors": [dict(c) for c in getattr(em, "colors", [])] if hasattr(em, "colors") else [{"pos": 0.0, "color": em.color_start}, {"pos": 1.0, "color": em.color_end}],
+                "lifetime": em.lifetime,
+                "active": em.active,
+                "vortex": em.vortex,
+                "color_mode": em.color_mode,
+                "spawn_mode": em.spawn_mode,
+                "particle_style": getattr(em, "particle_style", "circle"),
+                "custom_sprite": getattr(em, "custom_sprite", ""),
+                "burst_interval": getattr(em, "burst_interval", 45),
+                "chaos": getattr(em, "chaos", 0.0),
+                "size_mode": getattr(em, "size_mode", "Constant"),
+                "overall_scale": getattr(em, "overall_scale", 1.0),
+                "active_modules": [dict(m) for m in getattr(em, "active_modules", [])],
+                "emitter_type": getattr(em, "emitter_type", "Point"),
+                "spawn_width": getattr(em, "spawn_width", 100),
+                "spawn_height": getattr(em, "spawn_height", 50),
+                "direction_angle": getattr(em, "direction_angle", -1.57),
+                "is_sub_emitter": getattr(em, "is_sub_emitter", False),
+                "sub_emitters": [serialize_emitter(sub) for sub in getattr(em, "sub_emitters", [])]
+            }
+        vfx_data = [serialize_emitter(emitter) for emitter in level_design.dataManager.emitters]
 
         # Sauvegarde des TileMap de la palette
         tilemaps_data = []
@@ -401,47 +407,60 @@ class SaveLoadManager:
                 lights.append(new_light)
             level_design.dataManager.lights = lights
 
+        def deserialize_emitter(e_data):
+            em = ParticleEmitter(e_data["x"], e_data["y"], e_data["name"])
+            em.rate = e_data.get("rate", 5.0)
+            em.spread = e_data.get("spread", 1.5)
+            em.speed = e_data.get("speed", 3.0)
+            em.size = e_data.get("size", 5.0)
+            em.gravity = e_data.get("gravity", 0.1)
+            em.friction = e_data.get("friction", 0.97)
+            
+            raw_colors = e_data.get("colors")
+            if raw_colors:
+                if isinstance(raw_colors[0], dict):
+                    em.colors = [dict(c) for c in raw_colors]
+                else:
+                    em.colors = []
+                    n_colors = len(raw_colors)
+                    for idx, c in enumerate(raw_colors):
+                        pos = idx / max(1, n_colors - 1)
+                        em.colors.append({"pos": pos, "color": list(c)})
+            else:
+                color_start = e_data.get("color_start", [255, 255, 255])
+                color_end = e_data.get("color_end", [200, 200, 200])
+                em.colors = [{"pos": 0.0, "color": color_start}, {"pos": 1.0, "color": color_end}]
+            
+            em.lifetime = e_data.get("lifetime", 60)
+            em.active = e_data.get("active", True)
+            em.vortex = e_data.get("vortex", 0.0)
+            em.color_mode = e_data.get("color_mode", "Lerp")
+            em.spawn_mode = e_data.get("spawn_mode", "Continuous")
+            em.particle_style = e_data.get("particle_style", "circle")
+            
+            em.custom_sprite = e_data.get("custom_sprite", "")
+            em.burst_interval = e_data.get("burst_interval", 45)
+            em.chaos = e_data.get("chaos", 0.0)
+            em.size_mode = e_data.get("size_mode", "Constant")
+            em.overall_scale = e_data.get("overall_scale", 1.0)
+            em.active_modules = [dict(m) for m in e_data.get("active_modules", [])]
+            
+            em.emitter_type = e_data.get("emitter_type", "Point")
+            em.spawn_width = e_data.get("spawn_width", 100)
+            em.spawn_height = e_data.get("spawn_height", 50)
+            em.direction_angle = e_data.get("direction_angle", -1.57)
+            em.is_sub_emitter = e_data.get("is_sub_emitter", False)
+            
+            em.sub_emitters = []
+            for sub_data in e_data.get("sub_emitters", []):
+                sub_em = deserialize_emitter(sub_data)
+                em.sub_emitters.append(sub_em)
+            return em
+
         emitters = []
         if data.get("vfx_emitters"):
             for e_data in data["vfx_emitters"]:
-                emitter = ParticleEmitter(e_data["x"], e_data["y"], e_data["name"])
-                emitter.rate = e_data.get("rate", 5.0)
-                emitter.spread = e_data.get("spread", 1.5)
-                emitter.speed = e_data.get("speed", 3.0)
-                emitter.size = e_data.get("size", 5.0)
-                emitter.gravity = e_data.get("gravity", 0.1)
-                emitter.friction = e_data.get("friction", 0.97)
-                
-                raw_colors = e_data.get("colors")
-                if raw_colors:
-                    if isinstance(raw_colors[0], dict):
-                        emitter.colors = [dict(c) for c in raw_colors]
-                    else:
-                        emitter.colors = []
-                        n_colors = len(raw_colors)
-                        for idx, c in enumerate(raw_colors):
-                            pos = idx / max(1, n_colors - 1)
-                            emitter.colors.append({"pos": pos, "color": list(c)})
-                else:
-                    color_start = e_data.get("color_start", [255, 255, 255])
-                    color_end = e_data.get("color_end", [200, 200, 200])
-                    emitter.colors = [{"pos": 0.0, "color": color_start}, {"pos": 1.0, "color": color_end}]
-                
-                emitter.lifetime = e_data.get("lifetime", 60)
-                emitter.active = e_data.get("active", True)
-                emitter.vortex = e_data.get("vortex", 0.0)
-                emitter.color_mode = e_data.get("color_mode", "Lerp")
-                emitter.spawn_mode = e_data.get("spawn_mode", "Continuous")
-                emitter.particle_style = e_data.get("particle_style", "circle")
-                
-                emitter.custom_sprite = e_data.get("custom_sprite", "")
-                emitter.burst_interval = e_data.get("burst_interval", 45)
-                emitter.chaos = e_data.get("chaos", 0.0)
-                emitter.size_mode = e_data.get("size_mode", "Constant")
-                emitter.overall_scale = e_data.get("overall_scale", 1.0)
-                emitter.active_modules = [dict(m) for m in e_data.get("active_modules", [])]
-                
-                emitters.append(emitter)
+                emitters.append(deserialize_emitter(e_data))
         level_design.dataManager.emitters = emitters
 
         level_design.dataManager.currentTool = Tools[data["currentTool"]]

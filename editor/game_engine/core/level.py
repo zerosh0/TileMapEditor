@@ -72,8 +72,7 @@ class Level:
         sans passer par un JSON.
         """
         from editor.vfx.vfx import ParticleEmitter
-        cloned_emitters = []
-        for e in data_manager.emitters:
+        def clone_emitter(e):
             new_e = ParticleEmitter(e.x, e.y, e.name)
             new_e.rate = e.rate
             new_e.spread = e.spread
@@ -96,7 +95,21 @@ class Level:
             new_e.preview_scale = getattr(e, "preview_scale", 1.0)
             new_e.is_preview = getattr(e, "is_preview", False)
             new_e.active_modules = [dict(m) for m in getattr(e, "active_modules", [])]
-            cloned_emitters.append(new_e)
+            
+            new_e.emitter_type = getattr(e, "emitter_type", "Point")
+            new_e.spawn_width = getattr(e, "spawn_width", 100)
+            new_e.spawn_height = getattr(e, "spawn_height", 50)
+            new_e.direction_angle = getattr(e, "direction_angle", -1.57)
+            new_e.is_sub_emitter = getattr(e, "is_sub_emitter", False)
+            
+            new_e.sub_emitters = []
+            for sub in getattr(e, "sub_emitters", []):
+                new_e.sub_emitters.append(clone_emitter(sub))
+            return new_e
+
+        cloned_emitters = []
+        for e in data_manager.emitters:
+            cloned_emitters.append(clone_emitter(e))
 
         return cls(
             layers           = data_manager.layers.copy(),
